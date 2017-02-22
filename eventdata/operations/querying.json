@@ -1,0 +1,163 @@
+{
+  "name": "kibana-traffic-shard-sizing-50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard":"traffic",
+  "index_pattern": "elasticlogs",
+  "query_string": ["*"],
+  "window_end": "2017-01-01:07:00:00,2017-01-01:12:00:00",
+  "window_length": "5h"
+},
+{
+  "name": "kibana-traffic-shard-sizing-90%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard":"traffic",
+  "index_pattern": "elasticlogs",
+  "query_string": ["*"],
+  "window_end": "2017-01-01:11:00:00,2017-01-01:12:00:00",
+  "window_length": "5h"
+},
+{
+  "name": "kibana-content_issues-shard-sizing-50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs",
+  "query_string": ["*"],
+  "window_end": "2017-01-01:07:00:00,2017-01-01:12:00:00",
+  "window_length": "5h"
+},
+{
+  "name": "kibana-content_issues-shard-sizing-90%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs",
+  "query_string": ["*"],
+  "window_end": "2017-01-01:11:00:00,2017-01-01:12:00:00",
+  "window_length": "9h"
+},
+{
+  "name": "current-kibana-traffic-dashboard_30m",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard":"traffic",
+  "index_pattern": "elasticlogs_i-*",
+  "query_string": ["*"],
+  "window_end": "now",
+  "window_length": "30m"
+},
+{
+  "name": "current-kibana-content_issues-dashboard_30m",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs_i-*",
+  "query_string": ["*"],
+  "window_end": "now",
+  "window_length": "30m"
+},
+{
+  "name": "current-kibana-traffic-dashboard_15m",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "traffic",
+  "index_pattern": "elasticlogs_i-*",
+  "query_string": ["*"],
+  "window_end": "now",
+  "window_length": "15m"
+},
+{
+  "name": "current-kibana-content_issues-dashboard_15m",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs_i-*",
+  "query_string": "*",
+  "window_end": "now",
+  "window_length": "15m"
+},
+{
+  "name": "relative-kibana-traffic-dashboard_25%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "traffic",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_strings.json" %},
+  "fieldstats_id": "ELASTICLOGS",
+  "window_end": "START+25%,END",
+  "window_length": "25%"
+},
+{
+  "name": "relative-kibana-content_issues-dashboard_25%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_strings.json" %},
+  "fieldstats_id": "ELASTICLOGS",
+  "window_end": "START+25%,END",
+  "window_length": "25%"
+},
+{
+  "name": "relative-kibana-traffic-dashboard_50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "traffic",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_strings.json" %},
+  "fieldstats_id": "ELASTICLOGS",
+  "window_end": "START+50%,END",
+  "window_length": "50%"
+},
+{
+  "name": "relative-kibana-content_issues-dashboard_50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_strings.json" %},
+  "fieldstats_id": "ELASTICLOGS",
+  "window_end": "START+50%,END",
+  "window_length": "50%"
+},
+{
+  "name": "relative-kibana-traffic-dashboard_75%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "traffic",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_strings.json" %},
+  "fieldstats_id": "ELASTICLOGS",
+  "window_end": "START+75%,END",
+  "window_length": "75%"
+},
+{
+  "name": "relative-kibana-content_issues-dashboard_75%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "content_issues",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_strings.json" %},
+  "fieldstats_id": "ELASTICLOGS",
+  "window_end": "START+75%,END",
+  "window_length": "75%"
+},
+{
+  "name": "scanquery_elasticlogs_i_1m",
+  "operation-type": "search",
+  "index": "elasticlogs_i-*",
+  "pages": 10000,
+  "results-per-page": 10000,
+  "body": {
+    "query": {
+      "range" : {
+        "@timestamp" : {
+          "gte" : "now-1m",
+          "lt" :  "now"
+        }
+      }
+    }
+  }
+}

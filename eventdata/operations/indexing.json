@@ -1,0 +1,188 @@
+{
+  "name": "index-append-50000",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 50000
+},
+{
+  "name": "index-append-20000",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 20000
+},
+{
+  "name": "index-append-10000",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 10000
+},
+{
+  "name": "index-append-5000",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 5000
+},
+{
+  "name": "index-append-2000",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 2000
+},
+{
+  "name": "index-append-1000",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 1000
+},
+{
+  "name": "index-append-500",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 500
+},
+{
+  "name": "index-append-250",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 250
+},
+{
+  "name": "index-append-125",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "bulk-size": 125
+},
+{
+  "name": "index-append-1000-shard-sizing",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "index": "elasticlogs",
+  "starting_point": "2017-01-01:02:00:00",
+  "end_point": "2017-01-01:12:00:00",
+  "bulk-size": 1000
+},
+{
+  "name": "index-append-1000-elasticlogs_q_write",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "index": "elasticlogs_q_write",
+  "bulk-size": 1000
+},
+{
+  "name": "index-append-1000-elasticlogs_i_write",
+  "operation-type": "index",
+  "param-source": "elasticlogs_bulk",
+  "index": "elasticlogs_i_write",
+  "bulk-size": 1000
+},
+{
+  "name": "create_elasticlogs_q_write",
+  "operation-type": "createindex",
+  "index_name": "elasticlogs_q-000001",
+  "alias": "elasticlogs_q_write",
+  "index_template_body": {
+    "template": "elasticlogs_q-*",
+    "settings": {
+      "index.refresh_interval": "5s",
+      "index.codec": "best_compression",
+      "index.number_of_replicas": {{ replica_count }},
+      "index.number_of_shards": {{ shard_count }}
+    },
+    "mappings": 
+      {% include "mappings.json" %}
+    ,
+    "aliases": {}
+  },
+  "index_template_name": "elasticlogs_q_write"
+},
+{
+  "name": "create_elasticlogs_i_write",
+  "operation-type": "createindex",
+  "index_name": "elasticlogs_i-000001",
+  "alias": "elasticlogs_i_write",
+  "index_template_body": {
+    "template": "elasticlogs_i-*",
+    "settings": {
+      "index.refresh_interval": "5s",
+      "index.codec": "best_compression",
+      "index.number_of_replicas": {{ replica_count }},
+      "index.number_of_shards": {{ shard_count }}
+    },
+    "mappings": 
+        {% include "mappings.json" %}
+    ,
+    "aliases": {}
+  },
+  "index_template_name": "elasticlogs_i_write"
+},
+{
+  "name": "rollover_elasticlogs_q_write_100M",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_q_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_docs":  100000000
+    }
+  }
+},
+{
+  "name": "rollover_elasticlogs_i_write_100M",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_i_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_docs":  100000000
+    }
+  }
+},
+{
+  "name": "rollover_elasticlogs_q_write_50M",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_q_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_docs":  50000000
+    }
+  }
+},
+{
+  "name": "rollover_elasticlogs_i_write_50M",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_i_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_docs":  50000000
+    }
+  }
+},
+{
+  "name": "rollover_elasticlogs_q_write_10M",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_q_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_docs":  10000000
+    }
+  }
+},
+{
+  "name": "rollover_elasticlogs_i_write_10M",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_i_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_docs":  10000000
+    }
+  }
+},
+{
+  "name": "deleteindex_elasticlogs_i-*",
+  "operation-type": "deleteindex",
+  "index_pattern": "elasticlogs_i-*"
+}
