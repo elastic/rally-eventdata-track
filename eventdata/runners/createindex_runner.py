@@ -40,6 +40,7 @@ def createindex(es, params):
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("[createindex] Create index {} => {}".format(index_name, json.dumps(b)))
 
-    es.indices.create(index=index_name, body=b, ignore=400)
+    if not es.indices.exists(index=index_name):
+        es.indices.create(index=index_name, body=b, ignore=400)
 
     return 1, "ops"
