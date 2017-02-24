@@ -6,7 +6,7 @@
     "index.number_of_shards": {{ shard_count }}
   },
   "meta": {
-    "client_count": 8,
+    "client_count": {{ clients }},
     "benchmark_type": "indexing_bulksize"
   },
   "schedule": [
