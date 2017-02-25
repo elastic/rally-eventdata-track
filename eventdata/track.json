@@ -1,7 +1,7 @@
 {# Define variables to use throughout the template #}
 
 {# Maximum number of indexing threads to use #}
-{% set clients = 24 %}
+{% set clients = 20 %}
 
 {# Rate limit steps (ops) for combined indexing and querying #}
 {% set rate_limit_ops = [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30] %}
