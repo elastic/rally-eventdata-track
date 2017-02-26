@@ -1,0 +1,34 @@
+{
+  "name": "elasticlogs-querying",
+  "description": "This challenge simulates a set of Kibana queries against historical data (elasticlogs_q-* indices) without any indexing taking place for a period of 30 minutes. It assumes one of the challenges creating elasticlogs_q-* indices has been run.",
+  "meta": {
+    "benchmark_type": "querying",
+    "target_kibana_queries_per_minute": 4
+  },
+  "schedule": [
+    {
+      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
+      "iterations": 1
+    },
+    {
+      "parallel": {
+        "warmup-time-period": 0,
+        "time-period": 1800,
+        "tasks": [
+          {
+            "operation": "relative-kibana-content_issues-dashboard_50%",
+            "target-interval": 30
+          },
+          {
+            "operation": "relative-kibana-content_issues-dashboard_75%",
+            "target-interval": 90
+          },
+          {
+            "operation": "relative-kibana-traffic-dashboard_50%",
+            "target-interval": 40
+          }
+        ]
+      }
+    }
+  ]
+}

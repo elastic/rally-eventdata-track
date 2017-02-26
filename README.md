@@ -24,7 +24,11 @@ This challenge shows how shard sizing can be performed and how the nature of que
 
 This challenge indexes 1 billion events into 20 indices of 2 primary shards each, and results in around 200GB of indices being generated on disk. This can vary depending on the environment. It can be used give an idea of how max indexing performance behaves over an extended period of time.
 
-### 5) combined-indexing-and-querying
+### 5) elasticlogs-querying
+
+This challenge runs mixed Kibana queries against the index created in the **elasticlogs-1bn-load** track. No concurrent indexing is performed.
+
+### 6) combined-indexing-and-querying
 
 This challenge assumes that the *elasticlogs-1bn-load* track has been executed as it simulates querying against these indices. It shows how indexing and querying through simulated Kibana dashboards can be combined to provide a more realistic benchmark.
 
