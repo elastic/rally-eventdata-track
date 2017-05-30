@@ -24,5 +24,5 @@
   "daily_index": true,
   "starting_point": "2017-06-01:00:00:00",
   "acceleration_factor": 4,
-  "bulk-size": 1
+  "bulk-size": 1000
 }
