@@ -13,7 +13,7 @@
       "iterations": 1
     },
     {
-      "operation": "index_4x_speed",
+      "operation": "index_6x_speed",
       "target-throughput": 18,
       "warmup-time-period": 0,
       "time-period": 43200,
