@@ -9,9 +9,9 @@ class ElasticlogsBulkSource:
 
     It expects the parameter hash to contain the following keys:
         "bulk-size"            -    Integer indicating events generated per bulk request. Defaults to 1000.
-        "index"                -    Name of index, index prefix or alias documents should be indexed into. (mandatory)
-        "daily_index".         -    Boolean indicating if daily indices should be created. If set to true, daily indices 
-                                    based on the prefix defined in the index parameter will be created. Defaults to false.
+        "index"                -    Name of index, index prefix or alias documents should be indexed into. The index name
+                                    can be made to generate time based indices by including date formatting in the name.
+                                    'test-<yyyy>-<mm>-<dd>-<hh>' will generate an hourly index. (mandatory)
         "type"                 -    String specifyting the event type. Defaults to type of index specification or if this 
                                     is not present 'logs'.
         "starting_point"       -    String specifying the starting point for event time generation. It supports absolute or

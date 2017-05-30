@@ -106,11 +106,12 @@ class RandomEvent:
         self._index = 'elasticlogs'
         self._index_pattern = False
         if 'index' in params.keys():
-            index = re.sub(r'{{\s*yyyy\s*}}', '{ts[yyyy]}', params['index'], flags=re.IGNORECASE)
-            index = re.sub(r'{{\s*yy\s*}}', '{ts[yy]}', index, flags=re.IGNORECASE)
-            index = re.sub(r'{{\s*mm\s*}}', '{ts[mm]}', index, flags=re.IGNORECASE)
-            index = re.sub(r'{{\s*dd\s*}}', '{ts[dd]}', index, flags=re.IGNORECASE)
-            index = re.sub(r'{{\s*hh\s*}}', '{ts[hh]}', index, flags=re.IGNORECASE)
+            index = re.sub(r'<\s*yyyy\s*>', '{ts[yyyy]}', params['index'], flags=re.IGNORECASE)
+            index = re.sub(r'<\s*yy\s*>', '{ts[yy]}', index, flags=re.IGNORECASE)
+            index = re.sub(r'<\s*mm\s*>', '{ts[mm]}', index, flags=re.IGNORECASE)
+            index = re.sub(r'<\s*dd\s*>', '{ts[dd]}', index, flags=re.IGNORECASE)
+            index = re.sub(r'<\s*hh\s*>', '{ts[hh]}', index, flags=re.IGNORECASE)
+
             self._index = index
             self._index_pattern = True
 
