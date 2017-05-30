@@ -19,10 +19,8 @@
 {% import "rally.helpers" as rally with context %}
 
 {
-  "meta": {
-    "short-description": "Track for simulating different aspects of event-based use cases.",
-    "description": "This track contains data generators and associated queries and aggregations to allow simulation of event-based use cases."
-  },
+  "short-description": "Track for simulating different aspects of event-based use cases.",
+  "description": "This track contains data generators and associated queries and aggregations to allow simulation of event-based use cases.",
   "indices": [
     {
       "name": "elasticlogs",
