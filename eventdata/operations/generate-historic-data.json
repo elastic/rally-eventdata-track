@@ -4,10 +4,10 @@
   "index_template_body": {
     "template": "elasticlogs-historic-*",
     "settings": {
-      "index.refresh_interval": "5s",
+      "index.refresh_interval": "10s",
       "index.codec": "best_compression",
       "index.number_of_replicas": 0,
-      "index.number_of_shards": 8
+      "index.number_of_shards": 4
     },
     "mappings": 
       {% include "mappings.json" %}
@@ -17,12 +17,12 @@
   "index_template_name": "elasticlogs-historic"
 },
 {
-  "name": "index_4x_speed",
+  "name": "index_6x_speed",
   "operation-type": "index",
   "param-source": "elasticlogs_bulk",
   "index": "elasticlogs-historic-<yyyy>-<mm>-<dd>",
   "daily_index": true,
   "starting_point": "2017-06-01:00:00:00",
-  "acceleration_factor": 4,
+  "acceleration_factor": 6,
   "bulk-size": 1000
 }
