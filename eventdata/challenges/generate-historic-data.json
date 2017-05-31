@@ -14,7 +14,7 @@
     },
     {
       "operation": "index_6x_speed",
-      "target-throughput": 20,
+      "target-throughput": 19,
       "warmup-time-period": 0,
       "time-period": 72000,
       "clients": 8
