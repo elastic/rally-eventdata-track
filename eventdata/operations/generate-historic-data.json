@@ -2,7 +2,7 @@
   "name": "load_elasticlogs_snapshot_template",
   "operation-type": "load_template",
   "index_template_body": {
-    "template": "elasticlogs-historic-*",
+    "template": "elasticlogs-h-*",
     "settings": {
       "index.refresh_interval": "10s",
       "index.codec": "best_compression",
@@ -20,7 +20,7 @@
   "name": "index_6x_speed",
   "operation-type": "index",
   "param-source": "elasticlogs_bulk",
-  "index": "elasticlogs-historic-<yyyy>-<mm>-<dd>",
+  "index": "elasticlogs-h-<yyyy>-<mm>-<dd>",
   "daily_index": true,
   "starting_point": "2017-06-01:00:00:00",
   "acceleration_factor": 6,
