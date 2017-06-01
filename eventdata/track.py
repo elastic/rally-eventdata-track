@@ -7,6 +7,7 @@ from eventdata.runners import loadtemplate_runner
 from eventdata.runners import deleteindex_runner 
 from eventdata.runners import kibana_runner
 from eventdata.runners import indicesstats_runner
+from eventdata.runners import nodestorage_runner
 from eventdata.runners import fieldstats_runner
 
 def register(registry):
@@ -19,4 +20,5 @@ def register(registry):
     registry.register_runner("deleteindex", deleteindex_runner.deleteindex)
     registry.register_runner("kibana", kibana_runner.kibana)
     registry.register_runner("indicesstats", indicesstats_runner.indicesstats)
+    registry.register_runner("node_storage", nodestorage_runner.nodestorage)
     registry.register_runner("fieldstats", fieldstats_runner.fieldstats)

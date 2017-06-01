@@ -28,4 +28,8 @@
   "name": "indicesstats_elasticlogs_i_write",
   "operation-type": "indicesstats",
   "index_pattern": "elasticlogs_i_write"
+},
+{
+  "name": "node_storage",
+  "operation-type": "node_storage"
 }

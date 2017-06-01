@@ -22,6 +22,10 @@
       "operation": "rollover_elasticlogs_q_write_10M",
       "iterations": 1
     },
+    {
+      "operation": "node_storage",
+      "iterations": 1
+    },
     {% endfor %}
     {
       "operation": "index-append-1000-elasticlogs_q_write",    
@@ -30,6 +34,10 @@
     },
     {
       "operation": "rollover_elasticlogs_q_write_10M",
+      "iterations": 1
+    },
+    {
+      "operation": "node_storage",
       "iterations": 1
     }
   ]
