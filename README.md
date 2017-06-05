@@ -4,6 +4,19 @@ Repository containing a Rally track for simulating event-based data use-cases. T
 
 This track can be used as-is, extended or adapted to better match your use case or simply be used as a example of how custom parameter sources and runners can be used to create more complex and realistic simulations and benchmarks.
 
+## Installation
+
+Once Rally has been configured, modify the `rally.ini` file to link to the eventdata track repository:
+
+```
+[tracks]
+default.url = https://github.com/elastic/rally-tracks
+eventdata.url = https://github.com/elastic/rally-eventdata-track
+
+```
+
+The track can be run by specifying the following runtime parameters: `--track=eventdata` and `--track-repository=eventdata`
+
 ## Available Challenges
 
 ### 1) append-no-conflicts
