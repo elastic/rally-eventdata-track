@@ -66,6 +66,7 @@
         "time-period": {{ rate_limit_duration_secs }},
         "tasks": [
           {
+            "name": "index-append-1000-elasticlogs_i_write-{{rate}}",
             "operation": "index-append-1000-elasticlogs_i_write",
             "target-throughput": {{ ops }},
             "clients": {{ clients }},
@@ -74,10 +75,12 @@
             }
           },
           {
+            "name": "rollover_elasticlogs_i_write_50M-{{rate}}",
             "operation": "rollover_elasticlogs_i_write_50M",
             "target-interval": 20
           },
           {
+            "name": "current-kibana-traffic-dashboard_30m-{{rate}}",
             "operation": "current-kibana-traffic-dashboard_30m",
             "target-interval": 60,
             "meta": {
@@ -86,6 +89,7 @@
             }
           },
           { 
+            "name": "current-kibana-content_issues-dashboard_30m-{{rate}}",
             "operation": "current-kibana-content_issues-dashboard_30m",
             "target-interval": 60,
             "meta": {
@@ -94,6 +98,7 @@
             }
           },
           { 
+            "name": "current-kibana-traffic-dashboard_15m-{{rate}}",
             "operation": "current-kibana-traffic-dashboard_15m",
             "target-interval": 30,
             "clients": 2,
@@ -103,6 +108,7 @@
             }
           },
           {
+            "name": "current-kibana-content_issues-dashboard_15m-{{rate}}",
             "operation": "current-kibana-content_issues-dashboard_15m",
             "target-interval": 30,
             "clients": 2,
@@ -112,6 +118,7 @@
             }
           },
           {
+            "name": "relative-kibana-content_issues-dashboard_50%-{{rate}}",
             "operation": "relative-kibana-content_issues-dashboard_50%",
             "target-interval": 60,
             "meta": {

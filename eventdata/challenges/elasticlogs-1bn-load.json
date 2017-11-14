@@ -14,15 +14,18 @@
     },
     {% for n in range(19) %}
     {
-      "operation": "index-append-1000-elasticlogs_q_write",    
+      "name": "index-append-1000-elasticlogs_q_write-{{n}}",
+      "operation": "index-append-1000-elasticlogs_q_write",
       "iterations": 50000,
       "clients": {{ clients }}
     },
     {
+      "name": "rollover_elasticlogs_q_write_10M-{{n}}",
       "operation": "rollover_elasticlogs_q_write_10M",
       "iterations": 1
     },
     {
+      "name": "node_storage-{{n}}",
       "operation": "node_storage",
       "iterations": 1
     },

@@ -13,7 +13,8 @@
   "schedule": [
     {% for n in range(1,shard_sizing_iterations) %}
     {
-      "operation": "index-append-1000-shard-sizing",    
+      "name": "index-append-1000-shard-sizing-iteration-{{n}}",
+      "operation": "index-append-1000-shard-sizing",
       "iterations": 2000,
       "clients": 8,
       "meta": {
@@ -21,6 +22,7 @@
       }
     },
     {
+      "name": "indicesstats_elasticlogs-iteration-{{n}}",
       "operation": "indicesstats_elasticlogs",
       "iterations": 1,
       "meta": {
@@ -28,6 +30,7 @@
       }
     },
     {
+      "name": "kibana-traffic-shard-sizing-50%-iteration-{{n}}",
       "operation": "kibana-traffic-shard-sizing-50%",
       "iterations": {{ shard_sizing_queries }},
       "meta": {
@@ -35,6 +38,7 @@
       }
     },
     {
+      "name": "kibana-traffic-shard-sizing-90%-iteration-{{n}}",
       "operation": "kibana-traffic-shard-sizing-90%",
       "iterations": {{ shard_sizing_queries }},
       "meta": {
@@ -42,6 +46,7 @@
       }
     },
     {
+      "name": "kibana-content_issues-shard-sizing-50%-iteration-{{n}}",
       "operation": "kibana-content_issues-shard-sizing-50%",
       "iterations": {{ shard_sizing_queries }},
       "meta": {
@@ -49,6 +54,7 @@
       }
     },
     {
+      "name": "kibana-content_issues-shard-sizing-90%-iteration-{{n}}",
       "operation": "kibana-content_issues-shard-sizing-90%",
       "iterations": {{ shard_sizing_queries }},
       "meta": {

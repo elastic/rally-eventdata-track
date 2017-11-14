@@ -13,7 +13,8 @@
   "schedule": [
     {% for n in range(1,50) %}
     {
-      "operation": "index-append-1000-shard-sizing",    
+      "name": "index-append-1000-shard-sizing-{{n}}",
+      "operation": "index-append-1000-shard-sizing",
       "iterations": 2000,
       "clients": 8,
       "meta": {
@@ -21,6 +22,7 @@
       }
     },
     {
+      "name": "indicesstats_elasticlogs-{{n}}",
       "operation": "indicesstats_elasticlogs",
       "iterations": 1,
       "meta": {
@@ -29,7 +31,7 @@
     },
     {% endfor %}
     {
-      "operation": "index-append-1000-shard-sizing",    
+      "operation": "index-append-1000-shard-sizing",
       "iterations": 2000,
       "clients": 8,
       "meta": {
