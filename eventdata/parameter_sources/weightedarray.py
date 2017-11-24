@@ -1,46 +1,38 @@
 import json
 import random
 import gzip
+import sys
+import itertools
+import bisect
+
 
 class WeightedArray:
     def __init__(self, json_file):
-        with gzip.open(json_file, 'rt') as data_file:    
+        with gzip.open(json_file, 'rt') as data_file:
             item_list = json.load(data_file)
 
-        self._items = []
-        self._totals = []
-        self._sum = 0
+        low = sys.maxsize
+        high = -1
 
-        for item in item_list:
-            self._sum += item[0]
-            self._items.append(item[1])
-            self._totals.append(self._sum)
+        choices = []
+        weights = []
+
+        for w, c in item_list:
+            low = low if low < w else w
+            high = high if high > w else w
+
+            weights.append(w)
+            choices.append(c)
 
         random.seed()
+        # choose the size of the resulting array so that the item with the lowest frequency still has a chance to appear (once).
+        size = high // low
+        cumdist = list(itertools.accumulate(weights))
+        # pre-generate the randomly distributed weighted choices as we want to avoid any expensive operations
+        # on the fast-path (i.e. in #get_random()).
+        self._items = [choices[bisect.bisect(cumdist, random.random() * cumdist[-1])] for _ in range(size)]
+        self._idx = 0
 
     def get_random(self):
-        return self._items[self.__random_index()]
-
-    def __random_index(self):
-        minimumIndex = 0
-        maximumIndex = len(self._totals) - 1
-        total = 0
-
-        rand = random.random() * self._sum
-
-        while maximumIndex > minimumIndex:
-            if self._totals[minimumIndex] > rand:
-                break
-
-            middleIndex = (int)((maximumIndex + minimumIndex) / 2)
-            total = self._totals[middleIndex]
-
-            if total > rand:
-                maximumIndex = middleIndex
-            else:
-                if middleIndex > minimumIndex:
-                    minimumIndex = middleIndex
-                else:
-                    minimumIndex += 1
-                
-        return minimumIndex
+        self._idx = (self._idx + 1) % len(self._items)
+        return self._items[self._idx]
