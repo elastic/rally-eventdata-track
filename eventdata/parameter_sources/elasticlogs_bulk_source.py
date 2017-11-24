@@ -3,6 +3,7 @@ from eventdata.parameter_sources.randomevent import RandomEvent
 
 logger = logging.getLogger("track.elasticlogs")
 
+
 class ElasticlogsBulkSource:
     """
     Generates a bulk indexing request for elasticlogs data.
@@ -80,12 +81,12 @@ class ElasticlogsBulkSource:
         bulk_array = []
         for x in range(0, self._bulk_size):
             evt, idx, typ = self._randomevent.generate_event()
-            bulk_array.append({'index': {'_index': idx, '_type': typ}})
+            bulk_array.append('{"index": {"_index": "%s", "_type": "%s"}}"' % (idx, typ))
             bulk_array.append(evt)
 
-        response = { "body": bulk_array, "action_metadata_present": True, "bulk-size": self._bulk_size }
+        response = { "body": "\n".join(bulk_array), "action_metadata_present": True, "bulk-size": self._bulk_size }
 
         if "pipeline" in self._params.keys():
-            response["pipeline"] = params["pipeline"]
+            response["pipeline"] = self._params["pipeline"]
 
         return response
