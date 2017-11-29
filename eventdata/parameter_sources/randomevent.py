@@ -100,6 +100,9 @@ class RandomEvent:
         self._clientip = ClientIp()
         self._referrer = Referrer()
         self._request = Request()
+        # We will reuse the event dictionary. This assumes that each field will be present (and thus overwritten) in each event.
+        # This reduces object churn and improves peak indexing throughput.
+        self._event = {}
 
         self._index = 'elasticlogs'
         self._index_pattern = False
@@ -141,9 +144,8 @@ class RandomEvent:
         timestruct = self._timestamp_generator.generate_timestamp_struct()
         index_name = self.__generate_index_pattern(timestruct)
 
-        event = {
-            "@timestamp": timestruct["iso"]
-        }
+        event = self._event
+        event["@timestamp"] = timestruct["iso"]
 
         self._agent.add_fields(event)
         self._clientip.add_fields(event)
