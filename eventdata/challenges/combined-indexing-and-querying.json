@@ -7,41 +7,27 @@
   },
   "schedule": [
     {
-      "operation": "deleteindex_elasticlogs_i-*",
-      "iterations": 1
+      "operation": "deleteindex_elasticlogs_i-*"
     },
     {
-      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
-      "iterations": 1
+      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS"
     },
     {
-      "parallel": {
-        "warmup-iterations": 0,
-        "iterations": 200,
-        "tasks": [ 
-          {
-            "operation": "relative-kibana-content_issues-dashboard_75%",
-            "meta": {
-              "query_type": "warmup"
-            }
-          }
-        ]
+      "operation": "relative-kibana-content_issues-dashboard_75%",
+      "warmup-iterations": 0,
+      "iterations": 200,
+      "meta": {
+        "query_type": "warmup"
       }
     },
     {
-      "parallel": {
-        "warmup-time-period": 0,
-        "time-period": {{ rate_limit_duration_secs }},
-        "tasks": [
-          {
-            "operation": "relative-kibana-content_issues-dashboard_50%",
-            "target-interval": 60,
-            "meta": {
-              "target_indexing_rate": 0,
-              "query_type": "historic"
-            }
-          }
-        ]
+      "operation": "relative-kibana-content_issues-dashboard_50%",
+      "target-interval": 60,
+      "warmup-time-period": 0,
+      "time-period": {{ rate_limit_duration_secs }},
+      "meta": {
+        "target_indexing_rate": 0,
+        "query_type": "historic"
       }
     },
     {

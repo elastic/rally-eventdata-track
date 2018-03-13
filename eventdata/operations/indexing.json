@@ -1,60 +1,60 @@
 {
   "name": "index-append-50000",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 50000
 },
 {
   "name": "index-append-20000",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 20000
 },
 {
   "name": "index-append-10000",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 10000
 },
 {
   "name": "index-append-5000",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 5000
 },
 {
   "name": "index-append-2000",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 2000
 },
 {
   "name": "index-append-1000",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 1000
 },
 {
   "name": "index-append-500",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 500
 },
 {
   "name": "index-append-250",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 250
 },
 {
   "name": "index-append-125",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "bulk-size": 125
 },
 {
   "name": "index-append-1000-shard-sizing",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "index": "elasticlogs",
   "starting_point": "2017-01-01:02:00:00",
@@ -63,14 +63,14 @@
 },
 {
   "name": "index-append-1000-elasticlogs_q_write",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "index": "elasticlogs_q_write",
   "bulk-size": 1000
 },
 {
   "name": "index-append-1000-elasticlogs_i_write",
-  "operation-type": "index",
+  "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "index": "elasticlogs_i_write",
   "bulk-size": 1000
@@ -183,6 +183,6 @@
 },
 {
   "name": "deleteindex_elasticlogs_i-*",
-  "operation-type": "deleteindex",
-  "index_pattern": "elasticlogs_i-*"
+  "operation-type": "delete-index",
+  "index": "elasticlogs_i-*"
 }
