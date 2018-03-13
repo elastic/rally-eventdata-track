@@ -45,8 +45,8 @@ class ElasticlogsBulkSource:
                                     '2016-12-20 20:12:32' and an acceleration factor of 2.0, events will be generated in timestamp 
                                     sequence covering a 2-hour window, '2017-02-20 20:12:32' to '2017-02-20 22:12:32' (approximately).
     """
-    def __init__(self, indices, params):
-        self._indices = indices
+    def __init__(self, track, params, **kwargs):
+        self._indices = track.indices
         self._params = params
         self._randomevent = RandomEvent(params)
 
@@ -56,19 +56,19 @@ class ElasticlogsBulkSource:
 
         self._default_index = False
         if 'index' not in params.keys():
-            if len(indices) > 1:
-                logger.debug("[bulk] More than one index specified in track configuration. Will use the first one ({})".format(indices[0].name))
+            if len(self._indices) > 1:
+                logger.debug("[bulk] More than one index specified in track configuration. Will use the first one ({})".format(self._indices[0].name))
             else:
-                logger.debug("[bulk] Using index specified in track configuration ({})".format(indices[0].name))
+                logger.debug("[bulk] Using index specified in track configuration ({})".format(self._indices[0].name))
 
-            self._params['index'] = indices[0].name
+            self._params['index'] = self._indices[0].name
             self._default_index = True
 
         else:
             logger.debug("[bulk] Index pattern specified in parameters ({}) will be used".format(params['index']))
 
         if 'type' not in params.keys():
-            self._params['type'] = indices[0].types[0].name
+            self._params['type'] = self._indices[0].types[0].name
 
     def partition(self, partition_index, total_partitions):
         return self

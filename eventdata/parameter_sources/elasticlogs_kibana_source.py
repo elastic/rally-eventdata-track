@@ -55,8 +55,7 @@ class ElasticlogsKibanaSource:
                                        '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
                                        '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
     """
-    def __init__(self, indices, params):
-        self._indices = indices
+    def __init__(self, track, params, **kwargs):
         self._params = params
         self._index_pattern = 'elasticlogs-*'
         self._query_string_list = ['*']
