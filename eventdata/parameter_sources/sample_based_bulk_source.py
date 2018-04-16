@@ -100,7 +100,8 @@ class SampleBasedBulkSource:
             logger.debug("[bulk] Index pattern specified in parameters ({}) will be used".format(params['index']))
 
         if 'type' not in params.keys():
-            self._params['type'] = self._indices[0].types[0].name
+            t = self._indices[0].types[0]
+            self._params['type'] = t if isinstance(t, str) else t.name
 
         if 'timestamp_field' not in params.keys():
             self._params['timestamp_field'] = []
