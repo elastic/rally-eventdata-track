@@ -85,8 +85,8 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
-      "index.number_of_replicas": {{ replica_count }},
-      "index.number_of_shards": {{ shard_count }}
+      "index.number_of_replicas": {{ replica_count | default(0) }},
+      "index.number_of_shards": {{ shard_count | default(2) }}
     },
     "mappings": 
       {% include "mappings.json" %}
@@ -105,8 +105,8 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
-      "index.number_of_replicas": {{ replica_count }},
-      "index.number_of_shards": {{ shard_count }}
+      "index.number_of_replicas": {{ replica_count | default(0) }},
+      "index.number_of_shards": {{ shard_count | default(2) }}
     },
     "mappings": 
         {% include "mappings.json" %}
