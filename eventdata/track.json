@@ -32,7 +32,7 @@
             "operation-type": "create-index",
             "settings": {
                 "index.number_of_replicas": {{ replica_count | default(0) }},
-                "index.number_of_shards": {{ shard_count | default(2)   }}
+                "index.number_of_shards": {{ shard_count | default(2) }}
             }
           }
         },
