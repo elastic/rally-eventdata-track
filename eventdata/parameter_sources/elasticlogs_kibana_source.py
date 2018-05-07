@@ -57,6 +57,7 @@ class ElasticlogsKibanaSource:
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
+        self._indices = track.indices
         self._index_pattern = 'elasticlogs-*'
         self._query_string_list = ['*']
         self._dashboard = 'traffic'
@@ -125,6 +126,8 @@ class ElasticlogsKibanaSource:
             self._window_end = [{'type': 'relative', 'offset_ms': 0}]
 
     def partition(self, partition_index, total_partitions):
+        seed = partition_index * self._params["seed"] if "seed" in self._params else None
+        random.seed(seed)
         return self
 
     def size(self):

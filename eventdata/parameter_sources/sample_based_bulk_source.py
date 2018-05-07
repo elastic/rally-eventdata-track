@@ -168,6 +168,8 @@ class SampleBasedBulkSource:
                 self._timestamp_generator = TimestampStructGenerator.StartingPoint(sp)
 
     def partition(self, partition_index, total_partitions):
+        seed = partition_index * self._params["seed"] if "seed" in self._params else None
+        random.seed(seed)
         return self
 
     def size(self):

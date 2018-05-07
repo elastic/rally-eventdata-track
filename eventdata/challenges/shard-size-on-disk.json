@@ -24,7 +24,7 @@
       "name": "index-append-1000-shard-sizing-{{n}}",
       "operation": "index-append-1000-shard-sizing",
       "iterations": 2000,
-      "clients": 8,
+      "clients": {{ bulk_indexing_clients | default(8) }},
       "meta": {
         "iteration_number": {{ n }}
       }
@@ -41,7 +41,7 @@
     {
       "operation": "index-append-1000-shard-sizing",
       "iterations": 2000,
-      "clients": 8,
+      "clients": {{ bulk_indexing_clients | default(8) }},
       "meta": {
         "iteration_number": {{ 50 }}
       }

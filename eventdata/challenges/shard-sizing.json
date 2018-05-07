@@ -19,7 +19,7 @@
         }
       }
     },
-    {% for n in range(1,shard_sizing_iterations) %}
+    {% for n in range(1, shard_sizing_iterations | default(25) ) %}
     {
       "name": "index-append-1000-shard-sizing-iteration-{{n}}",
       "operation": "index-append-1000-shard-sizing",
@@ -40,7 +40,7 @@
     {
       "name": "kibana-traffic-shard-sizing-50%-iteration-{{n}}",
       "operation": "kibana-traffic-shard-sizing-50%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
         "iteration_number": {{ n }}
       }
@@ -48,7 +48,7 @@
     {
       "name": "kibana-traffic-shard-sizing-90%-iteration-{{n}}",
       "operation": "kibana-traffic-shard-sizing-90%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
         "iteration_number": {{ n }}
       }
@@ -56,7 +56,7 @@
     {
       "name": "kibana-content_issues-shard-sizing-50%-iteration-{{n}}",
       "operation": "kibana-content_issues-shard-sizing-50%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
         "iteration_number": {{ n }}
       }
@@ -64,7 +64,7 @@
     {
       "name": "kibana-content_issues-shard-sizing-90%-iteration-{{n}}",
       "operation": "kibana-content_issues-shard-sizing-90%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
         "iteration_number": {{ n }}
       }
@@ -75,42 +75,42 @@
       "iterations": 2000,
       "clients": 8,
       "meta": {
-        "iteration_number": {{ shard_sizing_iterations }}
+        "iteration_number": {{ shard_sizing_iterations | default(25) }}
       }
     },
     {
       "operation": "indicesstats_elasticlogs",
       "iterations": 1,
       "meta": {
-        "iteration_number": {{ shard_sizing_iterations }}
+        "iteration_number": {{ shard_sizing_iterations | default(25) }}
       }
     },
     {
       "operation": "kibana-traffic-shard-sizing-50%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
-        "iteration_number": {{ shard_sizing_iterations }}
+        "iteration_number": {{ shard_sizing_iterations | default(25) }}
       }
     },
     {
       "operation": "kibana-traffic-shard-sizing-90%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
-        "iteration_number": {{ shard_sizing_iterations }}
+        "iteration_number": {{ shard_sizing_iterations | default(25) }}
       }
     },
     {
       "operation": "kibana-content_issues-shard-sizing-50%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
-        "iteration_number": {{ shard_sizing_iterations }}
+        "iteration_number": {{ shard_sizing_iterations | default(25) }}
       }
     },
     {
       "operation": "kibana-content_issues-shard-sizing-90%",
-      "iterations": {{ shard_sizing_queries }},
+      "iterations": {{ shard_sizing_queries | default(20) }},
       "meta": {
-        "iteration_number": {{ shard_sizing_iterations }}
+        "iteration_number": {{ shard_sizing_iterations | default(25) }}
       }
     }
   ]

@@ -1,4 +1,5 @@
 import logging
+import random
 from eventdata.parameter_sources.randomevent import RandomEvent
 
 logger = logging.getLogger("track.elasticlogs")
@@ -48,6 +49,7 @@ class ElasticlogsBulkSource:
     def __init__(self, track, params, **kwargs):
         self._indices = track.indices
         self._params = params
+        self._params = params
         self._randomevent = RandomEvent(params)
 
         self._bulk_size = 1000
@@ -72,6 +74,8 @@ class ElasticlogsBulkSource:
             self._params['type'] = t if isinstance(t, str) else t.name
 
     def partition(self, partition_index, total_partitions):
+        seed = partition_index * self._params["seed"] if "seed" in self._params else None
+        random.seed(seed)
         return self
 
     def size(self):
