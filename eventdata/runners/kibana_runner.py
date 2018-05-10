@@ -34,11 +34,11 @@ def kibana(es, params):
     response['visualisation_count'] = visualisations
 
     if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("[kibana_runner] Updated request: {}".format(request))
+        logger.debug("[kibana_runner] request: {}".format(request))
 
     result = es.msearch(body = request)
 
     if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("[kibana_runner] response: {}".format(response))
+        logger.debug("[kibana_runner] response: {}".format(result))
 
     return response

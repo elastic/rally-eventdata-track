@@ -69,9 +69,23 @@
   "bulk-size": 1000
 },
 {
+  "name": "index-append-1000-elasticlogs_sample_q_write",
+  "operation-type": "bulk",
+  "param-source": "sample_based_bulk",
+  "index": "elasticlogs_q_write",
+  "bulk-size": 1000
+},
+{
   "name": "index-append-1000-elasticlogs_i_write",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
+  "index": "elasticlogs_i_write",
+  "bulk-size": 1000
+},
+{
+  "name": "index-append-1000-elasticlogs_sample_i_write",
+  "operation-type": "bulk",
+  "param-source": "sample_based_bulk",
   "index": "elasticlogs_i_write",
   "bulk-size": 1000
 },
