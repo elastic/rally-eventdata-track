@@ -183,7 +183,7 @@ class SampleBasedBulkSource:
             bulk_array.append({'index': {'_index': idx, '_type': typ}})
             bulk_array.append(evt)
 
-        response = { "body": bulk_array, "action_metadata_present": True, "bulk-size": self._bulk_size }
+        response = { "body": bulk_array, "action-metadata-present": True, "bulk-size": self._bulk_size }
 
         if "pipeline" in self._params.keys():
             response["pipeline"] = params["pipeline"]

@@ -89,7 +89,7 @@ class ElasticlogsBulkSource:
             bulk_array.append('{"index": {"_index": "%s", "_type": "%s"}}"' % (idx, typ))
             bulk_array.append(evt)
 
-        response = { "body": "\n".join(bulk_array), "action_metadata_present": True, "bulk-size": self._bulk_size }
+        response = { "body": "\n".join(bulk_array), "action-metadata-present": True, "bulk-size": self._bulk_size }
 
         if "pipeline" in self._params.keys():
             response["pipeline"] = self._params["pipeline"]
