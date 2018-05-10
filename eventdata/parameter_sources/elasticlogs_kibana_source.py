@@ -81,6 +81,7 @@ class ElasticlogsKibanaSource:
             stats = fs.global_fieldstats[key];
             self._fieldstats_start_ms = stats['min']
             self._fieldstats_end_ms = stats['max']
+            self._fieldstats_provided = True
         else:
             self._fieldstats_provided = False
 
@@ -110,9 +111,9 @@ class ElasticlogsKibanaSource:
                 val = int(math.fabs(float(m2.group(1)) / 100.0) * (self._fieldstats_end_ms - self._fieldstats_start_ms))
                 self._window_duration_ms = val
             else:
-                raise ConfigurationError('Invalid window_length as a percentage ({}) may only be used when fieldstats have been provided.'.format(wli))
+                raise ConfigurationError('Invalid window_length as a percentage ({}) may only be used when fieldstats have been provided.'.format(params['window_length']))
         else:
-            raise ConfigurationError('Invalid window_length parameter supplied: {}.'.format(wli))
+            raise ConfigurationError('Invalid window_length parameter supplied: {}.'.format(params['window_length']))
                 
         # Interpret window specification(s)
         if 'window_end' in params.keys():
