@@ -4,7 +4,7 @@ import time
 
 import logging
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 def __find_time_interval(query):
     interval_found = False

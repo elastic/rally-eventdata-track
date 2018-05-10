@@ -2,7 +2,7 @@ import logging
 import random
 from eventdata.parameter_sources.randomevent import RandomEvent
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 
 class ElasticlogsBulkSource:

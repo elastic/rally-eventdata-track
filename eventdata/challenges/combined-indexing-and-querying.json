@@ -10,7 +10,10 @@
       "operation": "deleteindex_elasticlogs_i-*"
     },
     {
-      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS"
+      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
+      "warmup-iterations": {{ 6 + (rate_limit_duration_secs | default(8)) }},
+      "iterations": {{ 6 + (rate_limit_duration_secs | default(8)) }},
+      "clients": {{ 6 + (rate_limit_duration_secs | default(8)) }}
     },
     {
       "operation": "relative-kibana-content_issues-dashboard_75%",

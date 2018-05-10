@@ -2,7 +2,7 @@ import logging
 import json
 import elasticsearch
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 def createindex(es, params):
     """

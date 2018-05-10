@@ -11,7 +11,7 @@ from eventdata.parameter_sources.timeutils import TimestampStructGenerator
 
 import logging
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 class Error(Exception):
     """Base class for exceptions in this module."""

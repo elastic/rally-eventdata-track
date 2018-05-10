@@ -3,7 +3,7 @@ import json
 
 import logging
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 def indicesstats(es, params):
     """
