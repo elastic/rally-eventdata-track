@@ -39,6 +39,6 @@ def kibana(es, params):
     result = es.msearch(body = request)
 
     if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("[kibana_runner] response: {}".format(result))
+        logger.debug("[kibana_runner] result: {}".format(result))
 
     return response
