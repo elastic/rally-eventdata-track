@@ -77,7 +77,7 @@ class IntervalQuerySource:
             self._body = params['body']
 
             # Verify that body contains `query.bool.must` key.
-            if not params['body']['query']['bool'] or ('must' not in params['body']['query']['bool'].keys()):
+            if not params['body'] or not params['body']['query'] or not params['body']['query']['bool'] or ('must' not in params['body']['query']['bool'].keys()):
                 raise ConfigurationError("Parameter 'body' must contain `query.bool.must` key.");
         else:
             raise ConfigurationError("Parameter 'body' must be specified.");
@@ -131,6 +131,6 @@ class IntervalQuerySource:
 
         logger.info("[interval_query] Interval generated for field `{}`: Min: {} [{}, {}], Max: {}".format(self._fieldname, range_min, stats['min'], range_min_upper, range_max));
  
-        request = { 'index': self._index_pattern, 'type': self._type, 'body': body, 'use_request_cache': self._cache};
+        request = { 'index': self._index_pattern, 'type': self._type, 'body': body, 'cache': self._cache};
 
         return request;
