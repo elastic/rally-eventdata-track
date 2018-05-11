@@ -185,4 +185,9 @@
   "name": "deleteindex_elasticlogs_i-*",
   "operation-type": "delete-index",
   "index": "elasticlogs_i-*"
+},
+{
+  "name": "deleteindex_elasticlogs_q-*",
+  "operation-type": "delete-index",
+  "index": "elasticlogs_q-*"
 }
