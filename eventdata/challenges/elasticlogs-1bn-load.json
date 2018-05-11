@@ -24,7 +24,7 @@
             "clients": {{ p_bulk_indexing_clients }}
           },
           {
-            "operation": "rollover_elasticlogs_q_write_10M",
+            "operation": "rollover_elasticlogs_q_write_100M",
             "clients": 1,
             "warmup-iterations": 100000,
             "iterations": 100000,
