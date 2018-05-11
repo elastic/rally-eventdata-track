@@ -8,7 +8,8 @@
   "schedule": [
     {
       "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
-      "iterations": 1
+      "iterations": 1,
+      "clients": 3
     },
     {
       "parallel": {
