@@ -1,3 +1,9 @@
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_client_count = (8 + (bulk_indexing_clients | default(8))) %}
+{% set p_rate_limit_duration_secs = (rate_limit_duration_secs | default(1200)) %}
+{% set p_rate_limit_step = (rate_limit_step | default(2)) %}
+{% set p_rate_limit_max = (rate_limit_max | default(32)) %}
+
 {
   "name": "combined-indexing-and-querying",
   "description": "This challenge simulates a set of Kibana queries against historical data (elasticlogs_q-* indices) as well as against the most recent data currently being indexed. It combined this with rate-limited indexing at varying levels. It assumes one of the challenges creating elasticlogs_q-* indices has been run.",
@@ -10,7 +16,10 @@
       "operation": "deleteindex_elasticlogs_i-*"
     },
     {
-      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS"
+      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
+      "warmup-iterations": {{ p_client_count }},
+      "iterations": {{ p_client_count }},
+      "clients": {{ p_client_count }}
     },
     {
       "operation": "relative-kibana-content_issues-dashboard_75%",
@@ -24,7 +33,7 @@
       "operation": "relative-kibana-content_issues-dashboard_50%",
       "target-interval": 60,
       "warmup-time-period": 0,
-      "time-period": {{ rate_limit_duration_secs }},
+      "time-period": {{ p_rate_limit_duration_secs }},
       "meta": {
         "target_indexing_rate": 0,
         "query_type": "historic"
@@ -38,24 +47,25 @@
     },
     {# Add some data to index so it does not start empty #}
     {
-      "operation": "index-append-1000-elasticlogs_i_write",    
-      "warmup-time-period": {{ rate_limit_duration_secs }},
-      "time-period": {{ rate_limit_duration_secs }},
+      "operation": "index-append-1000-elasticlogs_i_write",
+      "time-period": {{ p_rate_limit_duration_secs }},
       "target-throughput": 10,
-      "clients": {{ clients }}
+      "clients": {{ p_bulk_indexing_clients }}
     },
-    {% for ops in rate_limit_ops %}
+    {% for ops in range(p_rate_limit_step, p_rate_limit_max, p_rate_limit_step) %}
+
+
     {% set rate = ops * 1000 %}
     {
       "parallel": {
         "warmup-time-period": 0,
-        "time-period": {{ rate_limit_duration_secs }},
+        "time-period": {{ p_rate_limit_duration_secs }},
         "tasks": [
           {
             "name": "index-append-1000-elasticlogs_i_write-{{rate}}",
             "operation": "index-append-1000-elasticlogs_i_write",
             "target-throughput": {{ ops }},
-            "clients": {{ clients }},
+            "clients": {{ p_bulk_indexing_clients }},
             "meta": {
               "target_indexing_rate": {{ rate }}
             }

@@ -11,7 +11,7 @@ from eventdata.parameter_sources.timeutils import TimestampStructGenerator
 
 import logging
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -168,6 +168,8 @@ class SampleBasedBulkSource:
                 self._timestamp_generator = TimestampStructGenerator.StartingPoint(sp)
 
     def partition(self, partition_index, total_partitions):
+        seed = partition_index * self._params["seed"] if "seed" in self._params else None
+        random.seed(seed)
         return self
 
     def size(self):
@@ -181,7 +183,7 @@ class SampleBasedBulkSource:
             bulk_array.append({'index': {'_index': idx, '_type': typ}})
             bulk_array.append(evt)
 
-        response = { "body": bulk_array, "action_metadata_present": True, "bulk-size": self._bulk_size }
+        response = { "body": bulk_array, "action-metadata-present": True, "bulk-size": self._bulk_size }
 
         if "pipeline" in self._params.keys():
             response["pipeline"] = params["pipeline"]

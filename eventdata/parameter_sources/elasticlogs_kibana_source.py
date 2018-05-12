@@ -1,3 +1,4 @@
+from eventdata.utils import fieldstats as fs
 import math
 import re
 import json
@@ -8,7 +9,7 @@ import random
 import datetime
 import time
 
-logger = logging.getLogger("track.elasticlogs")
+logger = logging.getLogger("track.eventdata")
 
 available_dashboards = ['traffic', 'content_issues']
 
@@ -36,18 +37,17 @@ class ElasticlogsKibanaSource:
         "dashboard"            -   String indicating which dashboard to simulate. Defaults to 'traffic'.
         "query_string"         -   String or list of strings indicating query parameters to randomize during benchmarking. Defaults to "*", If a 
                                    list has been specified, a random value will be selected.
-        "index_pattern"        -   String opr list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
-                                   been specified, a random value will be selected.    
-        "fieldstats_id".       -   fieldstats_id to base relative window definitions on. (not mandatory)
+        "index_pattern"        -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
+                                   been specified, a random value will be selected.
         "window_end"           -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
                                    that will be used to anchor the window. If two values are given in a comma separated list, the end of the window
                                    will be randomized within this interval. Values can be either absolute or relative:
                                        'now' - Always evaluated to the current timestamp. This is the default value.
                                        'now-1h' - Offset to the current timestamp. Consists of a number and either m (minutes), h (hours) or d (days).
                                        '2016-12-20 20:12:32' - Exact timestamp.
-                                       'START' - If an fieldstats_id has been provided, 'START' can be used to reference the start of this interval.
-                                       'END' - If an fieldstats_id has been provided, 'END' can be used to reference the end of this interval.
-                                       'END-40%' - When an interval has been specified through an fieldstats_id, it is possible to express a volume
+                                       'START' - If fieldstats has been run for the index pattern and `@timestamp` field, 'START' can be used to reference the start of this interval.
+                                       'END' - If fieldstats has been run for the index pattern and `@timestamp` field, 'END' can be used to reference the end of this interval.
+                                       'END-40%' - When an interval has been specified based on fieldstats, it is possible to express a volume
                                        relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
                                        represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
         "window_length"        -   String indicating length of the time window to aggregate across. Values can be either absolute 
@@ -57,6 +57,7 @@ class ElasticlogsKibanaSource:
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
+        self._indices = track.indices
         self._index_pattern = 'elasticlogs-*'
         self._query_string_list = ['*']
         self._dashboard = 'traffic'
@@ -75,16 +76,12 @@ class ElasticlogsKibanaSource:
             else:
                 logger.info("[kibana] Illegal dashboard configured ({}). Using default dashboard instead.".format(params['dashboard']))
 
-        if 'fieldstats_id' in params.keys():
-            file_name = "{}/.rally/temp/{}.json".format(os.environ['HOME'], params['fieldstats_id'])
-            if os.path.isfile(file_name):
-                filedata = open(file_name, 'r').read()
-                data = json.loads(filedata)
-                self._fieldstats_start_ms = data['ts_min_ms']
-                self._fieldstats_end_ms = data['ts_max_ms']
-                self._fieldstats_provided = True
-            else:
-                raise ConfigurationError('fieldstats_id does not correspond to exiasting file.')
+        key = "{}_@timestamp".format(self._index_pattern);
+        if key in fs.global_fieldstats.keys():
+            stats = fs.global_fieldstats[key];
+            self._fieldstats_start_ms = stats['min']
+            self._fieldstats_end_ms = stats['max']
+            self._fieldstats_provided = True
         else:
             self._fieldstats_provided = False
 
@@ -114,9 +111,9 @@ class ElasticlogsKibanaSource:
                 val = int(math.fabs(float(m2.group(1)) / 100.0) * (self._fieldstats_end_ms - self._fieldstats_start_ms))
                 self._window_duration_ms = val
             else:
-                raise ConfigurationError('Invalid window_length as a percentage ({}) may only be used when fieldstats_id provided.'.format(wli))
+                raise ConfigurationError('Invalid window_length as a percentage ({}) may only be used when fieldstats have been provided.'.format(params['window_length']))
         else:
-            raise ConfigurationError('Invalid window_length parameter supplied: {}.'.format(wli))
+            raise ConfigurationError('Invalid window_length parameter supplied: {}.'.format(params['window_length']))
                 
         # Interpret window specification(s)
         if 'window_end' in params.keys():
@@ -125,6 +122,8 @@ class ElasticlogsKibanaSource:
             self._window_end = [{'type': 'relative', 'offset_ms': 0}]
 
     def partition(self, partition_index, total_partitions):
+        seed = partition_index * self._params["seed"] if "seed" in self._params else None
+        random.seed(seed)
         return self
 
     def size(self):
