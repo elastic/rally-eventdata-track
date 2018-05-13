@@ -14,8 +14,6 @@ class ElasticlogsBulkSource:
         "index"                -    Name of index, index prefix or alias documents should be indexed into. The index name
                                     can be made to generate time based indices by including date formatting in the name.
                                     'test-<yyyy>-<mm>-<dd>-<hh>' will generate an hourly index. (mandatory)
-        "type"                 -    String specifyting the event type. Defaults to type of index specification or if this 
-                                    is not present 'logs'.
         "starting_point"       -    String specifying the starting point for event time generation. It supports absolute or
                                     relative values as follows:
                                         'now'                 - Always evaluated to the current timestamp at time of generation
@@ -69,10 +67,6 @@ class ElasticlogsBulkSource:
         else:
             logger.debug("[bulk] Index pattern specified in parameters ({}) will be used".format(params['index']))
 
-        if 'type' not in params.keys():
-            t = self._indices[0].types[0]
-            self._params['type'] = t if isinstance(t, str) else t.name
-
     def partition(self, partition_index, total_partitions):
         seed = partition_index * self._params["seed"] if "seed" in self._params else None
         random.seed(seed)
@@ -86,7 +80,7 @@ class ElasticlogsBulkSource:
         bulk_array = []
         for x in range(0, self._bulk_size):
             evt, idx, typ = self._randomevent.generate_event()
-            bulk_array.append('{"index": {"_index": "%s", "_type": "%s"}}"' % (idx, typ))
+            bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}"' % (idx))
             bulk_array.append(evt)
 
         response = { "body": "\n".join(bulk_array), "action-metadata-present": True, "bulk-size": self._bulk_size }

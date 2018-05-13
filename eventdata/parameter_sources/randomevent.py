@@ -30,6 +30,9 @@ class Agent:
         with gzip.open('%s/data/agents_device_lookup.json.gz' % cwd, 'rt') as data_file:
             self._agents_device_lookup = json.load(data_file)
 
+        with gzip.open('%s/data/agent_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._agent_lookup = json.load(data_file)
+
     def add_fields(self, event):
         agent = self._agents.get_random()
 
@@ -39,6 +42,7 @@ class Agent:
         event['useragent_device'] = self.__get_lookup_value(self._agents_device_lookup, agent[3])
         event['useragent_os_major'] = self.__get_lookup_value(self._agents_os_major_lookup, agent[4])
         event['useragent_major'] = self.__get_lookup_value(self._agents_major_lookup, agent[5])
+        event['agent'] = self.__get_lookup_value(self._agent_lookup, agent[6])
 
     def __get_lookup_value(self, lookup, key):
         if key == "":
@@ -152,9 +156,7 @@ class RandomEvent:
             self._index = index
             self._index_pattern = True
 
-        self._type = 'logs'
-        if 'type' in params.keys():
-            self._type = params['type']
+        self._type = 'doc'
 
         if 'starting_point' in params.keys():
             sp = params['starting_point']
@@ -200,15 +202,15 @@ class RandomEvent:
                '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
                '"prospector":{"type":"log"},' \
                '"nginx":{"access":{' \
-               '"user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
+               '"agent":"%s","user_agent": {"major": %s,"os": "%s","os_major": %s,"name": "%s","os_name": "%s","device": "%s"},' \
                '"remote_ip": "%s","remote_ip_list":["%s"],' \
                '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
                '"referrer":"%s",' \
-               '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":"%s","http_version":"%s"} } }' % \
+               '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":%s,"http_version":"%s"} } }' % \
                (event["@timestamp"],
                 event["offset"],
                 event["hostname"],event["hostname"],
-                event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
+                event["agent"], event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
                 event["clientip"], event["clientip"],
                 event["geoip_continent_name"], event["geoip_city_name"], event["geoip_country_name"], event["geoip_country_iso_code"], event["geoip_location_lat"], event["geoip_location_lon"],
                 event["referrer"],
