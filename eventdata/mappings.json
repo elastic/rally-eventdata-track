@@ -63,10 +63,12 @@
                     "type": "keyword"
                   },
                   "major": {
-                    "type": "long"
+                    "ignore_above": 1024,
+                    "type": "keyword"
                   },
                   "os_major": {
-                    "type": "long"
+                    "ignore_above": 1024,
+                    "type": "keyword"
                   },
                   "name": {
                     "type": "keyword",

@@ -202,7 +202,7 @@ class RandomEvent:
                '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
                '"prospector":{"type":"log"},' \
                '"nginx":{"access":{' \
-               '"agent":"%s","user_agent": {"major": %s,"os": "%s","os_major": %s,"name": "%s","os_name": "%s","device": "%s"},' \
+               '"agent":"%s","user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
                '"remote_ip": "%s","remote_ip_list":["%s"],' \
                '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
                '"referrer":"%s",' \
