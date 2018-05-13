@@ -8,7 +8,6 @@ from eventdata.parameter_sources.timeutils import TimestampStructGenerator
 
 cwd = os.path.dirname(__file__)
 
-
 class Agent:
     def __init__(self):
         self._agents = WeightedArray('%s/data/agents.json.gz' % cwd)
@@ -203,7 +202,7 @@ class RandomEvent:
                '"nginx":{"access":{' \
                '"user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
                '"remote_ip": "%s","remote_ip_list":["%s"],' \
-               '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s",location":{"lat": %s,"lon": %s} },' \
+               '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
                '"referrer":"%s",' \
                '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":"%s","http_version":"%s"} } }' % \
                (event["@timestamp"],
