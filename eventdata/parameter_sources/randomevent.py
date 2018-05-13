@@ -22,13 +22,30 @@ class Agent:
         with gzip.open('%s/data/agents_os_name_lookup.json.gz' % cwd, 'rt') as data_file:
             self._agents_os_name_lookup = json.load(data_file)
 
+        with gzip.open('%s/data/agents_os_major_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._agents_os_major_lookup = json.load(data_file)
+
+        with gzip.open('%s/data/agents_major_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._agents_major_lookup = json.load(data_file)
+
+        with gzip.open('%s/data/agents_device_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._agents_device_lookup = json.load(data_file)
+
     def add_fields(self, event):
         agent = self._agents.get_random()
 
-        event['agent'] = agent[0]
-        event['useragent_os'] = self._agents_os_lookup[agent[1]]
-        event['useragent_os_name'] = self._agents_os_name_lookup[agent[2]]
-        event['useragent_name'] = self._agents_name_lookup[agent[3]]
+        event['useragent_name'] = self.__get_lookup_value(self._agents_name_lookup, agent[0])
+        event['useragent_os'] = self.__get_lookup_value(self._agents_os_lookup, agent[1])
+        event['useragent_os_name'] = self.__get_lookup_value(self._agents_os_name_lookup, agent[2])
+        event['useragent_device'] = self.__get_lookup_value(self._agents_device_lookup, agent[3])
+        event['useragent_os_major'] = self.__get_lookup_value(self._agents_os_major_lookup, agent[4])
+        event['useragent_major'] = self.__get_lookup_value(self._agents_major_lookup, agent[5])
+
+    def __get_lookup_value(self, lookup, key):
+        if key == "":
+            return key
+        else :
+            return lookup[key]
 
 
 class ClientIp:
@@ -37,11 +54,20 @@ class ClientIp:
         self._clientips = WeightedArray('%s/data/clientips.json.gz' % cwd)
         self._rare_clientips = WeightedArray('%s/data/rare_clientips.json.gz' % cwd)
 
-        with gzip.open('%s/data/clientips_country_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_country_lookup = json.load(data_file)
+        with gzip.open('%s/data/clientips_country_name_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._clientips_country_name_lookup = json.load(data_file)
 
-        with gzip.open('%s/data/clientips_location_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_location_lookup = json.load(data_file)
+        with gzip.open('%s/data/clientips_country_iso_code_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._clientips_country_iso_code_lookup = json.load(data_file)
+
+        with gzip.open('%s/data/clientips_continent_name_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._clientips_continent_name_lookup = json.load(data_file)
+
+        with gzip.open('%s/data/clientips_continent_code_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._clientips_continent_code_lookup = json.load(data_file)
+
+        with gzip.open('%s/data/clientips_city_name_lookup.json.gz' % cwd, 'rt') as data_file:
+            self._clientips_city_name_lookup = json.load(data_file)
 
     def add_fields(self, event):
         p = random.random()
@@ -52,8 +78,13 @@ class ClientIp:
             data = self._clientips.get_random()
             event['clientip'] = data[0]
 
-        event['country_name'] = self._clientips_country_lookup[data[1]]
-        event['location'] = self._clientips_location_lookup[data[2]]
+        event['geoip_location_lat'] = data[1][0]
+        event['geoip_location_lon'] = data[1][1]
+        event['geoip_city_name'] = self.__get_lookup_value(self._clientips_city_name_lookup, data[2])
+        event['geoip_country_name'] = self.__get_lookup_value(self._clientips_country_name_lookup, data[3])
+        event['geoip_country_iso_code'] = self.__get_lookup_value(self._clientips_country_iso_code_lookup, data[4])
+        event['geoip_continent_name'] = self.__get_lookup_value(self._clientips_continent_name_lookup, data[5])
+        event['geoip_continent_code'] = self.__get_lookup_value(self._clientips_continent_code_lookup, data[5])
 
     def __fill_out_ip_prefix(self, ip_prefix):
         rnd1 = random.random()
@@ -64,6 +95,12 @@ class ClientIp:
         k2 = (int)(v2)
 
         return "{}.{}.{}".format(ip_prefix, k1, k2)
+
+    def __get_lookup_value(self, lookup, key):
+        if key == "":
+            return key
+        else :
+            return lookup[key]
 
 
 class Referrer:
@@ -147,29 +184,36 @@ class RandomEvent:
         event = self._event
         event["@timestamp"] = timestruct["iso"]
 
+        # set random offset
+        event["offset"] = random.randrange(0,10000000)
+
         self._agent.add_fields(event)
         self._clientip.add_fields(event)
         self._referrer.add_fields(event)
         self._request.add_fields(event)
 
-        if 'message' not in self._delete_fields:
-            # note the leading comma!
-            message = ',"message":"%s"' % self.__generate_message_field(event)
-        else:
-            message = ''
+        # set host name
+        event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"],random.randrange(1,3))
 
         line = '{"@timestamp": "%s", ' \
-               '"agent":"%s","useragent":{"os":"%s","os_name":"%s","name":"%s"},' \
-               '"clientip":"%s","geoip":{"country_name":"%s","location":%s},' \
+               '"offset":%s,"user_name": "-", ' \
+               '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
+               '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
+               '"prospector":{"type":"log"},' \
+               '"nginx":{"access":{' \
+               '"user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
+               '"remote_ip": "%s","remote_ip_list":["%s"],' \
+               '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s",location":{"lat": %s,"lon": %s} },' \
                '"referrer":"%s",' \
-               '"request": "%s","bytes":%s,"verb":"%s","response":%s,"httpversion":"%s"' \
-               '%s}' % \
+               '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":"%s","http_version":"%s"} } }' % \
                (event["@timestamp"],
-                event["agent"], event["useragent_os"], event["useragent_os_name"], event["useragent_name"],
-                event["clientip"], event["country_name"], event["location"],
+                event["offset"],
+                event["hostname"],event["hostname"],
+                event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
+                event["clientip"], event["clientip"],
+                event["geoip_continent_name"], event["geoip_city_name"], event["geoip_country_name"], event["geoip_country_iso_code"], event["geoip_location_lat"], event["geoip_location_lon"],
                 event["referrer"],
-                event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"],
-                message)
+                event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
 
         return line, index_name, self._type
 
@@ -178,8 +222,3 @@ class RandomEvent:
             return self._index.format(ts=timestruct)
         else:
             return self._index
-
-    def __generate_message_field(self, event):
-        return '{} - - [{}] \\"{} {} HTTP/{}\\" {} {} \\"-\\" {} {}'.format(event['clientip'], event['@timestamp'], event['verb'],
-                                                                            event['request'], event['httpversion'], event['response'],
-                                                                            event['bytes'], event['referrer'], event['agent'])
