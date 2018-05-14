@@ -3,6 +3,7 @@ import random
 import gzip
 import re
 import os
+from eventdata.utils import elasticlogs_bulk_source as ebs
 from eventdata.parameter_sources.weightedarray import WeightedArray
 from eventdata.parameter_sources.timeutils import TimestampStructGenerator
 
@@ -10,28 +11,62 @@ cwd = os.path.dirname(__file__)
 
 class Agent:
     def __init__(self):
-        self._agents = WeightedArray('%s/data/agents.json.gz' % cwd)
+        
+        if '_agents' in ebs.global_lookups.keys():
+            self._agents = ebs.global_lookups['_agents']
+        else:
+            self._agents = WeightedArray('%s/data/agents.json.gz' % cwd)
+            ebs.global_lookups['_agents'] = self._agents
 
-        with gzip.open('%s/data/agents_name_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agents_name_lookup = json.load(data_file)
+        if '_agents_name_lookup' in ebs.global_lookups.keys():
+            self._agents_name_lookup = ebs.global_lookups['_agents_name_lookup']
+        else:
+            with gzip.open('%s/data/agents_name_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agents_name_lookup = json.load(data_file)
+            ebs.global_lookups['_agents_name_lookup'] = self._agents_name_lookup
 
-        with gzip.open('%s/data/agents_os_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agents_os_lookup = json.load(data_file)
+        if '_agents_os_lookup' in ebs.global_lookups.keys():
+            self._agents_os_lookup = ebs.global_lookups['_agents_os_lookup']
+        else:
+            with gzip.open('%s/data/agents_os_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agents_os_lookup = json.load(data_file)
+            ebs.global_lookups['_agents_os_lookup'] = self._agents_os_lookup
 
-        with gzip.open('%s/data/agents_os_name_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agents_os_name_lookup = json.load(data_file)
+        if '_agents_os_name_lookup' in ebs.global_lookups.keys():
+            self._agents_os_name_lookup = ebs.global_lookups['_agents_os_name_lookup']
+        else:
+            with gzip.open('%s/data/agents_os_name_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agents_os_name_lookup = json.load(data_file)
+            ebs.global_lookups['_agents_os_name_lookup'] = self._agents_os_name_lookup
 
-        with gzip.open('%s/data/agents_os_major_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agents_os_major_lookup = json.load(data_file)
+        if '_agents_os_major_lookup' in ebs.global_lookups.keys():
+            self._agents_os_major_lookup = ebs.global_lookups['_agents_os_major_lookup']
+        else:
+            with gzip.open('%s/data/agents_os_major_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agents_os_major_lookup = json.load(data_file)
+            ebs.global_lookups['_agents_os_major_lookup'] = self._agents_os_major_lookup
 
-        with gzip.open('%s/data/agents_major_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agents_major_lookup = json.load(data_file)
+        if '_agents_major_lookup' in ebs.global_lookups.keys():
+            self._agents_major_lookup = ebs.global_lookups['_agents_major_lookup']
+        else:
+            with gzip.open('%s/data/agents_major_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agents_major_lookup = json.load(data_file)
+            ebs.global_lookups['_agents_major_lookup'] = self._agents_major_lookup
 
-        with gzip.open('%s/data/agents_device_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agents_device_lookup = json.load(data_file)
+        if '_agents_device_lookup' in ebs.global_lookups.keys():
+            self._agents_device_lookup = ebs.global_lookups['_agents_device_lookup']
+        else:
+            with gzip.open('%s/data/agents_device_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agents_device_lookup = json.load(data_file)
+            ebs.global_lookups['_agents_device_lookup'] = self._agents_device_lookup
 
-        with gzip.open('%s/data/agent_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._agent_lookup = json.load(data_file)
+        if '_agent_lookup' in ebs.global_lookups.keys():
+            self._agent_lookup = ebs.global_lookups['_agent_lookup']
+        else:
+            with gzip.open('%s/data/agent_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._agent_lookup = json.load(data_file)
+            ebs.global_lookups['_agent_lookup'] = self._agent_lookup
+
 
     def add_fields(self, event):
         agent = self._agents.get_random()
@@ -54,23 +89,54 @@ class Agent:
 class ClientIp:
     def __init__(self):
         self._rare_clientip_probability = 0.269736965199
-        self._clientips = WeightedArray('%s/data/clientips.json.gz' % cwd)
-        self._rare_clientips = WeightedArray('%s/data/rare_clientips.json.gz' % cwd)
 
-        with gzip.open('%s/data/clientips_country_name_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_country_name_lookup = json.load(data_file)
+        if '_clientips' in ebs.global_lookups.keys():
+            self._clientips = ebs.global_lookups['_clientips']
+        else:
+            self._clientips = WeightedArray('%s/data/clientips.json.gz' % cwd)
+            ebs.global_lookups['_clientips'] = self._clientips
 
-        with gzip.open('%s/data/clientips_country_iso_code_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_country_iso_code_lookup = json.load(data_file)
+        if '_rare_clientips' in ebs.global_lookups.keys():
+            self._rare_clientips = ebs.global_lookups['_rare_clientips']
+        else:
+            self._rare_clientips = WeightedArray('%s/data/rare_clientips.json.gz' % cwd)
+            ebs.global_lookups['_rare_clientips'] = self._rare_clientips
+        
+        if '_clientips_country_name_lookup' in ebs.global_lookups.keys():
+            self._clientips_country_name_lookup = ebs.global_lookups['_clientips_country_name_lookup']
+        else:
+            with gzip.open('%s/data/clientips_country_name_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._clientips_country_name_lookup = json.load(data_file)
+            ebs.global_lookups['_clientips_country_name_lookup'] = self._clientips_country_name_lookup
 
-        with gzip.open('%s/data/clientips_continent_name_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_continent_name_lookup = json.load(data_file)
+        if '_clientips_country_iso_code_lookup' in ebs.global_lookups.keys():
+            self._clientips_country_iso_code_lookup = ebs.global_lookups['_clientips_country_iso_code_lookup']
+        else:
+            with gzip.open('%s/data/clientips_country_iso_code_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._clientips_country_iso_code_lookup = json.load(data_file)
+            ebs.global_lookups['_clientips_country_iso_code_lookup'] = self._clientips_country_iso_code_lookup
 
-        with gzip.open('%s/data/clientips_continent_code_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_continent_code_lookup = json.load(data_file)
+        if '_clientips_continent_name_lookup' in ebs.global_lookups.keys():
+            self._clientips_continent_name_lookup = ebs.global_lookups['_clientips_continent_name_lookup']
+        else:
+            with gzip.open('%s/data/clientips_continent_name_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._clientips_continent_name_lookup = json.load(data_file)
+            ebs.global_lookups['_clientips_continent_name_lookup'] = self._clientips_continent_name_lookup
 
-        with gzip.open('%s/data/clientips_city_name_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._clientips_city_name_lookup = json.load(data_file)
+        if '_clientips_continent_code_lookup' in ebs.global_lookups.keys():
+            self._clientips_continent_code_lookup = ebs.global_lookups['_clientips_continent_code_lookup']
+        else:
+            with gzip.open('%s/data/clientips_continent_code_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._clientips_continent_code_lookup = json.load(data_file)
+            ebs.global_lookups['_clientips_continent_code_lookup'] = self._clientips_continent_code_lookup
+
+        if '_clientips_city_name_lookup' in ebs.global_lookups.keys():
+            self._clientips_city_name_lookup = ebs.global_lookups['_clientips_city_name_lookup']
+        else:
+            with gzip.open('%s/data/clientips_city_name_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._clientips_city_name_lookup = json.load(data_file)
+            ebs.global_lookups['_clientips_city_name_lookup'] = self._clientips_city_name_lookup
+
 
     def add_fields(self, event):
         p = random.random()
@@ -108,10 +174,18 @@ class ClientIp:
 
 class Referrer:
     def __init__(self):
-        self._referrers = WeightedArray('%s/data/referrers.json.gz' % cwd)
-
-        with gzip.open('%s/data/referrers_url_base_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._referrers_url_base_lookup = json.load(data_file)
+        if '_referrers' in ebs.global_lookups.keys():
+            self._referrers = ebs.global_lookups['_referrers']
+        else:
+            self._referrers = WeightedArray('%s/data/referrers.json.gz' % cwd)
+            ebs.global_lookups['_referrers'] = self._referrers
+        
+        if '_referrers_url_base_lookup' in ebs.global_lookups.keys():
+            self._referrers_url_base_lookup = ebs.global_lookups['_referrers_url_base_lookup']
+        else:
+            with gzip.open('%s/data/referrers_url_base_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._referrers_url_base_lookup = json.load(data_file)
+            ebs.global_lookups['_referrers_url_base_lookup'] = self._referrers_url_base_lookup
 
     def add_fields(self, event):
         data = self._referrers.get_random()
@@ -120,10 +194,18 @@ class Referrer:
 
 class Request:
     def __init__(self):
-        self._requests = WeightedArray('%s/data/requests.json.gz' % cwd)
-
-        with gzip.open('%s/data/requests_url_base_lookup.json.gz' % cwd, 'rt') as data_file:
-            self._requests_url_base_lookup = json.load(data_file)
+        if '_requests' in ebs.global_lookups.keys():
+            self._requests = ebs.global_lookups['_requests']
+        else:
+            self._requests = WeightedArray('%s/data/requests.json.gz' % cwd)
+            ebs.global_lookups['_requests'] = self._requests
+        
+        if '_requests_url_base_lookup' in ebs.global_lookups.keys():
+            self._requests_url_base_lookup = ebs.global_lookups['_requests_url_base_lookup']
+        else:
+            with gzip.open('%s/data/requests_url_base_lookup.json.gz' % cwd, 'rt') as data_file:
+                self._requests_url_base_lookup = json.load(data_file)
+            ebs.global_lookups['_requests_url_base_lookup'] = self._requests_url_base_lookup
 
     def add_fields(self, event):
         data = self._requests.get_random()
