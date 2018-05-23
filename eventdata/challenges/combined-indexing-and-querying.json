@@ -16,7 +16,7 @@
       "operation": "deleteindex_elasticlogs_i-*"
     },
     {
-      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
+      "operation": "fieldstats_elasticlogs_q-*",
       "warmup-iterations": {{ p_client_count }},
       "iterations": {{ p_client_count }},
       "clients": {{ p_client_count }}

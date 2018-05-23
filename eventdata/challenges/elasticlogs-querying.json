@@ -7,7 +7,7 @@
   },
   "schedule": [
     {
-      "operation": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
+      "operation": "fieldstats_elasticlogs_q-*",
       "iterations": 1,
       "clients": 4
     },

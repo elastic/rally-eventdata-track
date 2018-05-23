@@ -1,7 +1,6 @@
 {
-  "name": "fieldstats_elasticlogs_q-*_ELASTICLOGS",
+  "name": "fieldstats_elasticlogs_q-*",
   "operation-type": "fieldstats",
-  "fieldstats_id": "ELASTICLOGS",
   "index_pattern": "elasticlogs_q-*"
 },
 {
