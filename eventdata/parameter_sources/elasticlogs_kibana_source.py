@@ -55,6 +55,7 @@ class ElasticlogsKibanaSource:
                                        '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
                                        '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
         "timeout"              -   Request timeout in milliseconds. Defaults to 60000.
+        "discover_size".       -   Nunmber of documents to return in Discover. Defaults to 500.
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
@@ -63,11 +64,15 @@ class ElasticlogsKibanaSource:
         self._query_string_list = ['*']
         self._dashboard = 'traffic'
         self._timeout = 60000
+        self._discover_size = 500
         
         random.seed()
 
         if 'timeout' in params.keys():
             self._timeout = params['timeout']
+
+        if 'discover_size' in params.keys():
+            self._discover_size = params['discover_size']
 
         if 'index_pattern' in params.keys():
             self._index_pattern = params['index_pattern']
@@ -170,7 +175,7 @@ class ElasticlogsKibanaSource:
         elif self._dashboard == 'content_issues':
             response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
         elif self._dashboard == 'discover':
-            response = {"body": self.__discover(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
 
         response['meta_data'] = meta_data
 
@@ -360,11 +365,12 @@ class ElasticlogsKibanaSource:
                ]
 
 
-    def __discover(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
         preference = self.__get_preference()
 
         return [
                    {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
-                   {"version":True,"size":500,"sort":[{"@timestamp":{"order":"desc","unmapped_type":"boolean"}}],"_source":{"excludes":[]},"aggs":{"2":{"date_histogram":{"field":"@timestamp","selected_interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
+                   {"version":True,"size":discover_size,"sort":[{"@timestamp":{"order":"desc","unmapped_type":"boolean"}}],"_source":{"excludes":[]},"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                 ]
+
 
