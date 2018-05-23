@@ -11,7 +11,7 @@ import time
 
 logger = logging.getLogger("track.eventdata")
 
-available_dashboards = ['traffic', 'content_issues']
+available_dashboards = ['traffic', 'content_issues', 'discover']
 
 epoch = datetime.datetime.utcfromtimestamp(0)
 
