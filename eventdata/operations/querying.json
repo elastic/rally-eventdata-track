@@ -84,8 +84,7 @@
   "param-source": "elasticlogs_kibana",
   "dashboard": "traffic",
   "index_pattern": "elasticlogs_q-*",
-  "query_string": {% include "query_strings.json" %},
-  "fieldstats_id": "ELASTICLOGS",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
   "window_end": "START+25%,END",
   "window_length": "25%"
 },
@@ -95,8 +94,7 @@
   "param-source": "elasticlogs_kibana",
   "dashboard": "content_issues",
   "index_pattern": "elasticlogs_q-*",
-  "query_string": {% include "query_strings.json" %},
-  "fieldstats_id": "ELASTICLOGS",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
   "window_end": "START+25%,END",
   "window_length": "25%"
 },
@@ -106,8 +104,7 @@
   "param-source": "elasticlogs_kibana",
   "dashboard": "traffic",
   "index_pattern": "elasticlogs_q-*",
-  "query_string": {% include "query_strings.json" %},
-  "fieldstats_id": "ELASTICLOGS",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
   "window_end": "START+50%,END",
   "window_length": "50%"
 },
@@ -117,8 +114,7 @@
   "param-source": "elasticlogs_kibana",
   "dashboard": "content_issues",
   "index_pattern": "elasticlogs_q-*",
-  "query_string": {% include "query_strings.json" %},
-  "fieldstats_id": "ELASTICLOGS",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
   "window_end": "START+50%,END",
   "window_length": "50%"
 },
@@ -128,8 +124,7 @@
   "param-source": "elasticlogs_kibana",
   "dashboard": "traffic",
   "index_pattern": "elasticlogs_q-*",
-  "query_string": {% include "query_strings.json" %},
-  "fieldstats_id": "ELASTICLOGS",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
   "window_end": "START+75%,END",
   "window_length": "75%"
 },
@@ -139,10 +134,39 @@
   "param-source": "elasticlogs_kibana",
   "dashboard": "content_issues",
   "index_pattern": "elasticlogs_q-*",
-  "query_string": {% include "query_strings.json" %},
-  "fieldstats_id": "ELASTICLOGS",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
   "window_end": "START+75%,END",
   "window_length": "75%"
+},
+{
+  "name": "relative-kibana-discover_50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "discover",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_string_lists/query_strings.json" %},
+  "window_end": "START+50%,END",
+  "window_length": "50%"
+},
+{
+  "name": "relative-kibana-discover-ip_filter_50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "discover",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_string_lists/uncommon_ip_query_strings.json" %},
+  "window_end": "START+50%,END",
+  "window_length": "50%"
+},
+{
+  "name": "relative-kibana-discover-country_filter_50%",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "discover",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": {% include "query_string_lists/country_code_query_strings.json" %},
+  "window_end": "START+50%,END",
+  "window_length": "50%"
 },
 {
   "name": "scanquery_elasticlogs_i_1m",

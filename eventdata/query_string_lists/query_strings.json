@@ -1,0 +1,12 @@
+[
+    "*",
+    "*",
+    "*",
+    "*",
+    "nginx.access.response_code: 404",
+    "nginx.access.response_code: [300 TO 400]",
+    "beat.hostname: web-EU-1.elastic.co",
+    "beat.hostname: web-EU-2.elastic.co",
+    "nginx.access.body_sent.bytes: [1000 TO 20000]",
+    "nginx.access.body_sent.bytes: [20000 TO 100000]"
+]
