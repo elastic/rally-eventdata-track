@@ -279,11 +279,11 @@ class RandomEvent:
         event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"],random.randrange(1,3))
 
         line = '{"@timestamp": "%s", ' \
-               '"offset":%s,"user_name": "-", ' \
+               '"offset":%s, ' \
                '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
                '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
                '"prospector":{"type":"log"},' \
-               '"nginx":{"access":{' \
+               '"nginx":{"access":{"user_name": "-",' \
                '"agent":"%s","user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
                '"remote_ip": "%s","remote_ip_list":["%s"],' \
                '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
