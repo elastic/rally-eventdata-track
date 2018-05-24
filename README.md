@@ -55,7 +55,7 @@ In this challenge rate-limited indexing at varying levels is combined with a fix
 
 This parameter source generated bulk indexing requests filled with auto-generated data. This data is generated based on statistics from a subset of real traffic to the elastic.co website. Data has been anonymised and post-processed and is modelled on the format used by the Filebeat Nginx Module.
 
-The generator allows data to be generated in real-time or against a set date/tine interval. A sample event looks will contain the following fields:
+The generator allows data to be generated in real-time or against a set date/tine interval. A sample event will contain the following fields:
 
 ```
 {
@@ -125,7 +125,7 @@ This parameter source supports simulating two different types of dashboards.
 
 **content\_issues** - This dashboard contains 5 visualisations and is designed to be used for analysis of records with a 404 response code, e.g. to find links that are no longer leading anywhere. This only aggregates across a small subset of the records in an index and is therefore considerably 'lighter' than the **traffic** dashboard.
 
-![Eventdata content cssues dashboard](eventdata/dashboards/images/eventdata_content_issues_dashboard.png)
+![Eventdata content issues dashboard](eventdata/dashboards/images/eventdata_content_issues_dashboard.png)
 
 **discover** - This simulates querying data through the `Discover` application in Kibana.
 
