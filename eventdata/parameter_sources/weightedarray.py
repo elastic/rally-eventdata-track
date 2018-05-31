@@ -22,7 +22,6 @@ class WeightedArray:
         with gzip.open(json_file, 'rt') as data_file:
             item_list = json.load(data_file)
 
-        random.seed()
         # 1. Calculate a histogram of all weights.
         h = self.histogram(item_list)
 

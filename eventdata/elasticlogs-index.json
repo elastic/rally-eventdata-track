@@ -1,45 +1,173 @@
 {
+  "settings": {
+    "index.number_of_shards": {{number_of_shards | default(2)}},
+    "index.number_of_replicas": {{number_of_replicas | default(0)}}
+  },
   "mappings": {
-    "logs": {
+    "doc": {
+      "dynamic": "strict",
+      "_source": {
+        "enabled": {{ source_enabled | default(true) | tojson }}
+      },
       "properties": {
-        "@timestamp": { "type": "date" },
-        "message": { "type": "text", "index": false },
-        "agent": { "type": "keyword", "ignore_above": 256 },
-        "bytes": { "type": "integer" },
-        "clientip": { "type": "ip" },
-        "httpversion": { "type": "keyword", "ignore_above": 256 },
-        "response": { "type": "short" },
-        "verb": { "type": "keyword", "ignore_above": 256 },
-        "tags": { "type": "keyword", "ignore_above": 256 },
-        "geoip" : {
-          "properties" : {
-            "country_name" : { "type": "keyword" },
-            "location" : { "type": "geo_point" }
-          }
+        "@timestamp": {
+          "type": "date"
         },
-        "useragent": {
+        "source": {
+          "type": "keyword",
+          "ignore_above": 1024
+        },
+        "nginx": {
           "properties": {
-            "name": { "type": "keyword", "ignore_above": 256 },
-            "os": { "type": "keyword", "ignore_above": 256 },
-            "os_name": { "type": "keyword", "ignore_above": 256 }
+            "access": {
+              "properties": {
+                "body_sent": {
+                  "properties": {
+                    "bytes": {
+                      "type": "long"
+                    }
+                  }
+                },
+                "referrer": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                },
+                "user_agent": {
+                  "properties": {
+                    "device": {
+                      "ignore_above": 1024,
+                      "type": "keyword"
+                    },
+                    "major": {
+                      "ignore_above": 1024,
+                      "type": "keyword"
+                    },
+                    "os_major": {
+                      "ignore_above": 1024,
+                      "type": "keyword"
+                    },
+                    "name": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    },
+                    "os": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    },
+                    "os_name": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    }
+                  }
+                },
+                "user_name": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                },
+                "method": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                },
+                "url": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                },
+                "http_version": {
+                  "type": "keyword",
+                  "ignore_above": 1024
+                },
+                "response_code": {
+                  "type": "long"
+                },
+                "geoip": {
+                  "properties": {
+                    "country_iso_code": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    },
+                    "location": {
+                      "type": "geo_point"
+                    },
+                    "country_name": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    },
+                    "city_name": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    },
+                    "continent_name": {
+                      "type": "keyword",
+                      "ignore_above": 1024
+                    }
+                  }
+                },
+                "remote_ip": {
+                  "type": "ip"
+                },
+                "remote_ip_list": {
+                  "type": "ip"
+                },
+                "agent": {
+                  "type": "text",
+                  "norms": false
+                }
+              }
+            }
           }
         },
-        "request": {
-          "norms": false,
-          "type": "text",
-          "fields": {
-            "keyword": { "ignore_above": 256, "type": "keyword" }
+        "beat": {
+          "properties": {
+            "name": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "hostname": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "version": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            }
           }
         },
-        "referrer": {
-          "norms": false,
+        "offset": {
+          "type": "long"
+        },
+        "prospector": {
+          "properties": {
+            "type": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
+          }
+        },
+        "input": {
+          "properties": {
+            "type": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
+          }
+        },
+        "message": {
           "type": "text",
-          "fields": {
-            "keyword": { "ignore_above": 256, "type": "keyword" }
+          "norms": false
+        },
+        "fileset": {
+          "properties": {
+            "module": {
+              "type": "keyword",
+              "ignore_above": 1024
+            },
+            "name": {
+              "type": "keyword",
+              "ignore_above": 1024
+            }
           }
         }
-      },
-      "_all": { "enabled": false }
+      }
     }
   }
 }

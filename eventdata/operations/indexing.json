@@ -85,7 +85,7 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
-      "index.number_of_replicas": {{ replica_count | default(0) }},
+      "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(2) }}
     },
     "mappings": 
@@ -105,7 +105,7 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
-      "index.number_of_replicas": {{ replica_count | default(0) }},
+      "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(2) }}
     },
     "mappings": 
@@ -114,6 +114,25 @@
     "aliases": {}
   },
   "index_template_name": "elasticlogs_i_write"
+},
+{
+  "name": "create_elasticlogs_index",
+  "operation-type": "createindex",
+  "index_name": "elasticlogs",
+  "index_template_body": {
+    "template": "elasticlogs",
+    "settings": {
+      "index.refresh_interval": "5s",
+      "index.codec": "best_compression",
+      "index.number_of_replicas": {{ number_of_replicas | default(0) }},
+      "index.number_of_shards": {{ shard_count | default(1) }}
+    },
+    "mappings": 
+        {% include "mappings.json" %}
+    ,
+    "aliases": {}
+  },
+  "index_template_name": "elasticlogs"
 },
 {
   "name": "rollover_elasticlogs_q_write_100M",
@@ -190,4 +209,9 @@
   "name": "deleteindex_elasticlogs_q-*",
   "operation-type": "delete-index",
   "index": "elasticlogs_q-*"
+},
+{
+  "name": "deleteindex_elasticlogs",
+  "operation-type": "delete-index",
+  "index": "elasticlogs"
 }

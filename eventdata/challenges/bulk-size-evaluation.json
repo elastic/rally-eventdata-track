@@ -1,5 +1,5 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
-{% set p_replica_count = (replica_count | default(0)) %}
+{% set p_replica_count = (number_of_replicas | default(0)) %}
 {% set p_shard_count = (shard_count | default(2)) %}
 
 {
