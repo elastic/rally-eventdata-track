@@ -9,7 +9,7 @@
     {
       "name": "elasticlogs",
       "body": "elasticlogs-index.json",
-      "types": [ "logs" ],
+      "types": [ "doc" ],
       "auto-managed": false
     }
   ],
