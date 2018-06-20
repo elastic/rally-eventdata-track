@@ -1,4 +1,5 @@
-{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(20)) %}
+{% set p_iterations = (1000000 / p_bulk_indexing_clients) | int %}
 
 {
   "name": "elasticlogs-1bn-load",
@@ -20,7 +21,7 @@
         "tasks": [
           {
             "operation": "index-append-1000-elasticlogs_q_write",    
-            "iterations": 1000000,
+            "iterations": {{ p_iterations }},
             "clients": {{ p_bulk_indexing_clients }}
           },
           {
