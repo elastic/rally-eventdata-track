@@ -11,6 +11,12 @@
   },
   "schedule": [
     {
+      "operation": "deleteindex_elasticlogs_q-*",
+      "clients": 1,
+      "warmup-iterations": 0,
+      "iterations": 1
+    },
+    {
       "operation": "create_elasticlogs_q_write",
       "clients": 1,
       "warmup-iterations": 0,
