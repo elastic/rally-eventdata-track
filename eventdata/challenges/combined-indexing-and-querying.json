@@ -1,5 +1,5 @@
-{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
-{% set p_client_count = (12 + p_bulk_indexing_clients) %}
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(16)) %}
+{% set p_client_count = (14 + p_bulk_indexing_clients) %}
 {% set p_rate_limit_duration_secs = (rate_limit_duration_secs | default(1200)) %}
 {% set p_rate_limit_step = (rate_limit_step | default(2)) %}
 {% set p_rate_limit_max = (rate_limit_max | default(32)) %}
@@ -117,6 +117,17 @@
           {
             "name": "relative-kibana-content_issues-dashboard_50%-{{rate}}",
             "operation": "relative-kibana-content_issues-dashboard_50%",
+            "target-interval": 30,
+            "clients": 2,
+            "meta": {
+              "target_indexing_rate": {{ rate }},
+              "query_type": "historic"
+            },
+            "schedule": "poisson"
+          },
+          {
+            "name": "relative-kibana-traffic-dashboard_50%-{{rate}}",
+            "operation": "relative-kibana-traffic-dashboard_50%",
             "target-interval": 30,
             "clients": 2,
             "meta": {
