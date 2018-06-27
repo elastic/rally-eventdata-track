@@ -50,6 +50,17 @@
 
 
     {% set rate = ops * 1000 %}
+
+    {
+      "name": "clear-caches-{{rate}}",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "POST",
+        "path": "/_cache/clear"
+      },
+      "iterations": 1,
+      "clients": 1
+    },
     {
       "parallel": {
         "warmup-time-period": 0,
