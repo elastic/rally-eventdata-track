@@ -201,6 +201,17 @@
   }
 },
 {
+  "name": "rollover_elasticlogs_q_write_50gb",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_q_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_size":  "50gb"
+    }
+  }
+},
+{
   "name": "deleteindex_elasticlogs_i-*",
   "operation-type": "delete-index",
   "index": "elasticlogs_i-*"
