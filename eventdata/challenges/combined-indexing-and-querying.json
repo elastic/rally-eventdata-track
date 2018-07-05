@@ -1,4 +1,4 @@
-{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(16)) %}
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(24)) %}
 {% set p_client_count = (14 + p_bulk_indexing_clients) %}
 {% set p_rate_limit_duration_secs = (rate_limit_duration_secs | default(1200)) %}
 {% set p_rate_limit_step = (rate_limit_step | default(2)) %}
@@ -8,7 +8,7 @@
   "name": "combined-indexing-and-querying",
   "description": "This challenge simulates a set of Kibana queries against historical data (elasticlogs_q-* indices) as well as against the most recent data currently being indexed. It combined this with rate-limited indexing at varying levels. It assumes one of the challenges creating elasticlogs_q-* indices has been run.",
   "meta": {
-    "benchmark_type": "indexing/querying",
+    "benchmark_type": "indexing/querying",  
     "target_kibana_queries_per_minute": 7
   },
   "schedule": [
@@ -23,7 +23,7 @@
     },
     {
       "operation": "relative-kibana-content_issues-dashboard_50%",
-      "target-interval": 60,
+      "target-interval": 60,  
       "warmup-time-period": 0,
       "clients": 1,
       "time-period": {{ p_rate_limit_duration_secs }},
