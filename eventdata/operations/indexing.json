@@ -252,6 +252,6 @@
   "name": "delete_rolled_over_indices_ge_9",
   "operation-type": "delete_indices",
   "index_pattern": "elasticlogs-*",
-  "filter_pattern": ["ge", 9],
+  "max_indices": 2,
   "suffix_separator": "-"
 }

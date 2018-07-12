@@ -1,5 +1,3 @@
-import operator
-
 from fnmatch import fnmatch
 
 def deleteindex(es, params):
@@ -14,28 +12,18 @@ def deleteindex(es, params):
 
         "index_pattern"        - Mandatory.
                                  Specifies the index pattern to delete. Defaults to 'elasticlogs-*'
-        "filter_pattern"       - Optional.
-                                 Restricts list of indices by comparing the integer suffix (see suffic_separator parameter below)
-                                 with a value using an operator.
-
-                                 It is a list specifying a comparison string and integer value.
-                                 Comparison is executed against the index suffix extracted using the "suffix_separator" (see below).
-
+        "max_indices"          - Optional.
+                                 int specifying maximum amount of allowable indices whose name satisfies `index-pattern`.
+                                 'suffix_separator' is used to retrieve the integer suffixes to calculate indices to delete.
+                                 
                                  Example:
-
-                                 For indices: 'elasticlogs-000001', 'elasticlogs-000002', ... 000010
+                                 For the indices: 'elasticlogs-000001', 'elasticlogs-000002', ... 000010
                                  using:
                                     suffix_separator='-' and
-                                    filter_pattern=["ge", 9]
+                                    max_indices=8
 
-                                will result in deleting indices 'elasticlogs-000009' and 'elasticlogs-000010'
-
-                                The allowed operator string can be one of the following:
-                                'lt', 'le', 'eq', 'ne', 'ge', 'gt'
-
-                                and internally uses: https://docs.python.org/3/library/operator.html:
-
-        "suffix_separator"     - Defaults to '-'. Used only when 'filter_pattern' is specified.
+                                 will result in deleting indices 'elasticlogs-000001' and 'elasticlogs-000002'
+        "suffix_separator"     - Defaults to '-'. Used only when 'max_indices' is specified.
                                  Specifies string separator used to extract the index suffix, e.g. '-'.
 
 
@@ -47,44 +35,29 @@ def deleteindex(es, params):
                 try:
                     return int(name_parts[-1])
                 except ValueError:
-                    # log that suffix is not integer
+                    # TODO: log that suffix is not integer
                     return None
         return None
 
-    def compare_index_suffix(name, filter_pattern, suffix_separator):
-        allowed_comparison_ops = ['lt', 'le', 'eq', 'ne', 'ge', 'gt']
-        suffix = get_suffix(name, suffix_separator)
-
-        if suffix is None:
-            return False
-
-        try:
-            cmp_operator = filter_pattern[0]
-            cmp_value = filter_pattern[1]
-            assert cmp_operator in allowed_comparison_ops
-            assert hasattr(operator, cmp_operator) is True
-            suffix_int = int(suffix)
-        except (IndexError, AssertionError, ValueError):
-            return False
-
-        if cmp_operator(suffix_int, cmp_value):
-            return True
-        return False
-
     index_pattern = params.get('index_pattern', 'elasticlogs-*')
-    filter_pattern = params.get('filter_pattern', None)
     suffix_separator = params.get('suffix_separator', '-')
+    max_indices = params.get('max_indices', None)
 
-    if filter_pattern:
+    if max_indices:
         indices = es.cat.indices(h='index').split("\n")
-        filtered_indices = [
-            idx for idx in indices
+        indices_by_suffix = {get_suffix(idx, suffix_separator): idx
+            for idx in indices
             if fnmatch(idx, index_pattern) and
-            compare_index_suffix(idx, filter_pattern, suffix_separator)
-        ]
+            get_suffix(idx, suffix_separator) is not None
+        }
 
-        if filtered_indices:
-            es.indices.delete(",".join(filtered_indices))
+        sorted_suffixes = sorted(list(indices_by_suffix.keys()))
+        for _ in range(0, len(sorted_suffixes)-max_indices):
+            sorted_suffixes.pop()
+
+        indices_to_delete = ",".join([indices_by_suffix[key] for key in sorted_suffixes])
+        if indices_to_delete:
+            es.indices.delete(",".join(indices_by_suffix))
     else:
         es.indices.delete(index=index_pattern)
 
