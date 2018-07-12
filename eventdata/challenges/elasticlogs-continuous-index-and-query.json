@@ -32,7 +32,7 @@
             "clients": {{ p_bulk_indexing_clients }}
           },
           {
-            "#COMMENT": "Check if index alias needs to be rolled over every 30seconds. TODO: use 30gb"
+            "#COMMENT": "Check if index alias needs to be rolled over every 30seconds. TODO: use 30gb",
             "operation": "rollover_elasticlogs_q_write_20mb",
             "clients": 1,
             "warmup-iterations": 1000000,
@@ -40,7 +40,7 @@
             "target-interval": 30
           },
           {
-            "#COMMENT": "Delete indices that have been rolled over more than 9 times"
+            "#COMMENT": "Delete indices that have been rolled over more than 9 times",
             "operation": "delete_rolled_over_indices_ge_9",
             "clients": 1,
             "warmup-iterations": 1000000,
