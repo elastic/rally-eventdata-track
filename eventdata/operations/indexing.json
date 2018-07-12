@@ -212,6 +212,17 @@
   }
 },
 {
+  "name": "rollover_elasticlogs_q_write_20mb",
+  "operation-type": "rollover",
+  "alias": "elasticlogs_q_write",
+  "body": {
+    "conditions": {
+      "max_age":   "1d",
+      "max_size":  "20mb"
+    }
+  }
+},
+{
   "name": "rollover_elasticlogs_q_write_50gb",
   "operation-type": "rollover",
   "alias": "elasticlogs_q_write",
@@ -236,4 +247,11 @@
   "name": "deleteindex_elasticlogs",
   "operation-type": "delete-index",
   "index": "elasticlogs"
+},
+{
+  "name": "delete_rolled_over_indices_ge_9",
+  "operation-type": "delete_indices",
+  "index_pattern": "elasticlogs-*",
+  "filter_pattern": ["ge", 9],
+  "suffix_separator": "-"
 }
