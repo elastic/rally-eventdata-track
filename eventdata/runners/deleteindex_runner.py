@@ -83,7 +83,8 @@ def deleteindex(es, params):
             compare_index_suffix(idx, filter_pattern, suffix_separator)
         ]
 
-        es.indices.delete(",".join(filtered_indices))
+        if filtered_indices:
+            es.indices.delete(",".join(filtered_indices))
     else:
         es.indices.delete(index=index_pattern)
 
