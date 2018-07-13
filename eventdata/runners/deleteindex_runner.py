@@ -39,10 +39,9 @@ def deleteindex(es, params):
                     return None
         return None
 
-    suffix_separator = params.get('suffix_separator', '-')
-    max_indices = params.get('max_indices', None)
-
     index_pattern = params.get('index_pattern', 'elasticlogs-*')
+    max_indices = params.get('max_indices', None)
+    suffix_separator = params.get('suffix_separator', '-')
 
     if max_indices:
         indices = es.cat.indices(h='index').split("\n")
