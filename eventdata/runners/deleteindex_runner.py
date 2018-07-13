@@ -15,7 +15,7 @@ def deleteindex(es, params):
         "max_indices"          - Optional.
                                  int specifying maximum amount of allowable indices whose name satisfies `index-pattern`.
                                  'suffix_separator' is used to retrieve the integer suffixes to calculate indices to delete.
-                                 
+
                                  Example:
                                  For the indices: 'elasticlogs-000001', 'elasticlogs-000002', ... 000010
                                  using:
@@ -39,9 +39,10 @@ def deleteindex(es, params):
                     return None
         return None
 
-    index_pattern = params.get('index_pattern', 'elasticlogs-*')
     suffix_separator = params.get('suffix_separator', '-')
     max_indices = params.get('max_indices', None)
+
+    index_pattern = params.get('index_pattern', 'elasticlogs-*')
 
     if max_indices:
         indices = es.cat.indices(h='index').split("\n")
@@ -52,12 +53,9 @@ def deleteindex(es, params):
         }
 
         sorted_suffixes = sorted(list(indices_by_suffix.keys()))
-        for _ in range(0, len(sorted_suffixes)-max_indices):
-            sorted_suffixes.pop()
-
-        indices_to_delete = ",".join([indices_by_suffix[key] for key in sorted_suffixes])
-        if indices_to_delete:
-            es.indices.delete(",".join(indices_by_suffix))
+        if len(sorted_suffixes) > max_indices:
+            indices_to_delete = ",".join([indices_by_suffix[key] for key in sorted_suffixes[:max_indices]])
+            es.indices.delete(indices_to_delete)
     else:
         es.indices.delete(index=index_pattern)
 
