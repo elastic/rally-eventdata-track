@@ -1,6 +1,10 @@
-{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(20)) %}
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
 {% set p_iterations = bulk_indexing_iterations | default(1000000) %}
 {% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
+{# Phase 1 is indexing only at max speed for 2 hours #}
+{% set p1_phase_duration = (phase1_duration_secs | default(7200)) %}
+{# Phase 2 is indexing and querying for 27 days #}
+{% set p2_phase_duration = (phase1_duration_secs | default(2332800)) %}
 
 {
   "name": "elasticlogs-continuous-index-and-query",
@@ -24,36 +28,93 @@
     },
     {
       "parallel": {
+        "time-period": {{ p1_phase_duration }},
+        "warmup-time-period": 0,
         "completed-by": "index-append-1000-elasticlogs_q_write",
         "tasks": [
           {
+            "name": "index-append-1000-elasticlogs_q_write-no-querying",
             "operation": "index-append-1000-elasticlogs_q_write",
-            "iterations": {{ p_iterations_per_client }},
-            "clients": {{ p_bulk_indexing_clients }}
+            "clients": {{ p_bulk_indexing_clients }},
+            "meta": {
+              "querying": "no"
+            }
           },
           {
-            "#COMMENT": "Check if index alias needs to be rolled over every 30seconds. TODO: use 30gb",
-            "operation": "rollover_elasticlogs_q_write_20mb",
+            "#COMMENT": "Check if index alias needs to be rolled over every 30seconds.",
+            "operation": "rollover_elasticlogs_q_write_30gb",
             "clients": 1,
-            "warmup-iterations": 1000000,
-            "iterations": 1000000,
             "target-interval": 30
           },
           {
             "#COMMENT": "Delete indices that have been rolled over more than 9 times",
             "operation": "delete_rolled_over_indices_ge_9",
             "clients": 1,
-            "warmup-iterations": 1000000,
-            "iterations": 1000000,
             "target-interval": 30
           }
-
         ]
       }
     },
     {
-      "operation": "node_storage",
-      "iterations": 1
+      "parallel": {
+      	"time-period": {{ p2_phase_duration }},
+        "warmup-time-period": 0,
+        "tasks": [
+          {
+          	"name": "index-append-1000-elasticlogs_q_write-querying",
+            "operation": "index-append-1000-elasticlogs_q_write",
+            "clients": {{ p_bulk_indexing_clients }},
+            "meta": {
+              "querying": "yes"
+            }
+          },
+          {
+          	"name": "rollover_elasticlogs_q_write_30gb-querying",
+            "operation": "rollover_elasticlogs_q_write_30gb",
+            "clients": 1,
+            "target-interval": 30
+          },
+          {
+            "name": "delete_rolled_over_indices_ge_9-querying",
+            "operation": "delete_rolled_over_indices_ge_9",
+            "clients": 1,
+            "target-interval": 30
+          },
+          {
+            "name": "current-kibana-traffic-country-dashboard_60m-querying",
+            "operation": "current-kibana-traffic-country-dashboard_60m",
+            "clients": 1,
+            "meta": {
+              "querying": "yes"
+            }
+          },
+
+          {
+            "name": "current-kibana-content_issues-country-dashboard_60m-querying",
+            "operation": "current-kibana-content_issues-country-dashboard_60m",
+            "clients": 1,
+            "meta": {
+              "querying": "yes"
+            }
+          },
+          {
+            "name": "current-kibana-traffic-dashboard_30m-querying",
+            "operation": "current-kibana-traffic-dashboard_30m",
+            "clients": 1,
+            "meta": {
+              "querying": "yes"
+            }
+          },
+          {
+            "name": "current-kibana-content_issues-dashboard_30m-querying",
+            "operation": "current-kibana-content_issues-dashboard_30m",
+            "clients": 1,
+            "meta": {
+              "querying": "yes"
+            }
+          }
+        ]
+      }
     }
   ]
 }
