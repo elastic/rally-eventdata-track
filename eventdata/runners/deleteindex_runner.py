@@ -53,7 +53,7 @@ def deleteindex(es, params):
 
         sorted_suffixes = sorted(list(indices_by_suffix.keys()))
         if len(sorted_suffixes) > max_indices:
-            indices_to_delete = ",".join([indices_by_suffix[key] for key in sorted_suffixes[:max_indices]])
+            indices_to_delete = ",".join([indices_by_suffix[key] for key in sorted_suffixes[:(len(sorted_suffixes)-max_indices)]])
             es.indices.delete(indices_to_delete)
     else:
         es.indices.delete(index=index_pattern)
