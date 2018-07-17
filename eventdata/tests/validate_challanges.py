@@ -34,7 +34,7 @@ def validate_templates(files):
         except json.JSONDecodeError:
             rendered_filename = "rendered"+filename
             print("Couldn't decode <{}> in json.".format(file_tmpl))
-            print("Saving the rendered json template as <{}> so that you can inspect it in an editor".format("rendered"+rendered_filename))
+            print("Saving the rendered json template as <{}> so that you can inspect it in an editor".format(rendered_filename))
             with open(rendered_filename, 'wt') as fp:
                 fp.write(template.render())
             error_found = True
