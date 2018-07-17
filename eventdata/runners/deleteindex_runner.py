@@ -13,16 +13,19 @@ def deleteindex(es, params):
         "index_pattern"        - Mandatory.
                                  Specifies the index pattern to delete. Defaults to 'elasticlogs-*'
         "max_indices"          - Optional.
-                                 int specifying maximum amount of allowable indices whose name satisfies `index-pattern`.
+                                 int specifying how many rolled over indices to retain at max.
+                                 The elibigle indices need to satisfy `index-pattern`.
                                  'suffix_separator' is used to retrieve the integer suffixes to calculate indices to delete.
 
                                  Example:
-                                 For the indices: 'elasticlogs-000001', 'elasticlogs-000002', ... 000010
-                                 using:
-                                    suffix_separator='-' and
-                                    max_indices=8
+                                    For the indices: 'elasticlogs-000001', 'elasticlogs-000002', ... 000011
+                                    (index currently written to is 'elasticlogs-000011')
 
-                                 will result in deleting indices 'elasticlogs-000001' and 'elasticlogs-000002'
+                                    using:
+                                        suffix_separator='-' and
+                                        max_indices=8
+
+                                    will result in deleting indices 'elasticlogs-000001' and 'elasticlogs-000002'
         "suffix_separator"     - Defaults to '-'. Used only when 'max_indices' is specified.
                                  Specifies string separator used to extract the index suffix, e.g. '-'.
 
