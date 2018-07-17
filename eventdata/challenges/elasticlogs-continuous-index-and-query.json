@@ -40,8 +40,7 @@
             },
             "clients": {{ p1_bulk_indexing_clients }},
             "meta": {
-              "querying": "no",
-              "bulk_size": {{ p1_bulk_size | default(1000) | int }}
+              "querying": "no"
             }
           },
           {
@@ -77,8 +76,7 @@
             "target-throughput": {{ p2_ops }},
             "clients": {{ p2_bulk_indexing_clients }},
             "meta": {
-              "target_indexing_rate": {{ p2_rate }},
-              "bulk-size": {{ p2_bulk_size | default(1000) | int }}
+              "target_indexing_rate": {{ p2_rate }}
             }
           },
           {
