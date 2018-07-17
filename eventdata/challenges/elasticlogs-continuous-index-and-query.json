@@ -1,9 +1,9 @@
 {% set p1_bulk_indexing_clients = (p1_bulk_indexing_clients | default(40)) %}
 {% set p2_bulk_indexing_clients = (p2_bulk_indexing_clients | default(16)) %}
 {# Phase 1 is indexing only at max speed for 2 hours #}
-{% set p1_phase_duration = (phase1_duration_secs | default(7200)) %}
+{% set p1_duration = (p1_duration_secs | default(7200)) %}
 {# Phase 2 is indexing and querying for 27 days #}
-{% set p2_phase_duration = (phase1_duration_secs | default(2332800)) %}
+{% set p2_duration = (p2_duration_secs | default(2332800)) %}
 {% set p2_ops = (p2_ops | default(10)) %}
 {% set p2_rate = (p2_ops * 1000) %}
 {
@@ -27,15 +27,21 @@
     },
     {
       "parallel": {
-        "time-period": {{ p1_phase_duration }},
+        "time-period": {{ p1_duration }},
         "warmup-time-period": 0,
         "tasks": [
           {
-            "name": "index-append-1000-elasticlogs_q_write-phase1",
-            "operation": "index-append-1000-elasticlogs_q_write",
+            "name": "index-append-elasticlogs_q_write-phase1",
+            "operation": {
+              "operation-type": "bulk",
+              "index": "elasticlogs_q_write",
+              "param-source": "elasticlogs_bulk",
+              "bulk-size": {{ p1_bulk_size | default(1000) | int }}
+            },
             "clients": {{ p1_bulk_indexing_clients }},
             "meta": {
-              "querying": "no"
+              "querying": "no",
+              "bulk_size": {{ p1_bulk_size | default(1000) | int }}
             }
           },
           {
@@ -57,16 +63,22 @@
     },
     {
       "parallel": {
-        "time-period": {{ p2_phase_duration }},
+        "time-period": {{ p2_duration }},
         "warmup-time-period": 0,
         "tasks": [
           {
-            "name": "index-append-1000-elasticlogs_q_write-phase2",
-            "operation": "index-append-1000-elasticlogs_q_write",
+            "name": "index-append-elasticlogs_q_write-phase2",
+            "operation": {
+              "operation-type": "bulk",
+              "index": "elasticlogs_q_write",
+              "param-source": "elasticlogs_bulk",
+              "bulk-size": {{ p2_bulk_size | default(1000) | int }}
+            },
             "target-throughput": {{ p2_ops }},
             "clients": {{ p2_bulk_indexing_clients }},
             "meta": {
-              "target_indexing_rate": {{ p2_rate }}
+              "target_indexing_rate": {{ p2_rate }},
+              "bulk-size": {{ p2_bulk_size | default(1000) | int }}
             }
           },
           {
