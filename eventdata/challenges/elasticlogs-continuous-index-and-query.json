@@ -2,8 +2,8 @@
 {% set p2_bulk_indexing_clients = (p2_bulk_indexing_clients | default(16)) %}
 {# Phase 1 is indexing only at max speed for 2 hours #}
 {% set p1_duration = (p1_duration_secs | default(7200)) %}
-{# Phase 2 is indexing and querying for 27 days #}
-{% set p2_duration = (p2_duration_secs | default(2332800)) %}
+{# Phase 2 is indexing and querying for 29 days #}
+{% set p2_duration = (p2_duration_secs | default(2505600)) %}
 {% set p2_ops = (p2_ops | default(10)) %}
 {% set p2_rate = (p2_ops * (p2_bulk_size | default(1000)) %}
 {
