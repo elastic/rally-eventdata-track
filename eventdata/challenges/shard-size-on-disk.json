@@ -1,4 +1,6 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_iterations = bulk_indexing_iterations | default(2000) %}
+{% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
 
 {
   "name": "shard-size-on-disk",
@@ -17,7 +19,7 @@
     {
       "name": "index-append-1000-shard-sizing-{{n}}",
       "operation": "index-append-1000-shard-sizing",
-      "iterations": 2000,
+      "iterations": {{ p_iterations_per_client }},
       "clients": {{ p_bulk_indexing_clients }},
       "meta": {
         "iteration_number": {{ n }}
@@ -34,7 +36,7 @@
     {% endfor %}
     {
       "operation": "index-append-1000-shard-sizing",
-      "iterations": 2000,
+      "iterations": {{ p_iterations_per_client }},
       "clients": {{ p_bulk_indexing_clients }},
       "meta": {
         "iteration_number": {{ 50 }}

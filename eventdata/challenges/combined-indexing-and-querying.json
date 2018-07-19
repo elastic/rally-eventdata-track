@@ -3,6 +3,8 @@
 {% set p_rate_limit_duration_secs = (rate_limit_duration_secs | default(1200)) %}
 {% set p_rate_limit_step = (rate_limit_step | default(2)) %}
 {% set p_rate_limit_max = (rate_limit_max | default(32)) %}
+{% set p_disk_type = disk_type | default('ssd') | lower %}
+{% set p_translog_sync = translog_sync | default('request') | lower %}
 
 {
   "name": "combined-indexing-and-querying",
@@ -93,7 +95,7 @@
             "schedule": "poisson"
           },
           { 
-            "name": "current-kibana-content_issues-dashboard_30m-{{rate}}",
+            "name": "current-kibana-content_issues-dashboard_30m-{{rate}}",     
             "operation": "current-kibana-content_issues-dashboard_30m",
             "target-interval": 60,
             "clients": 2,

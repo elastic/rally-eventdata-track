@@ -1,6 +1,8 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(20)) %}
 {% set p_iterations = bulk_indexing_iterations | default(1000000) %}
 {% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
+{% set p_disk_type = disk_type | default('ssd') | lower %}
+{% set p_translog_sync = translog_sync | default('request') | lower %}
 
 {
   "name": "elasticlogs-1bn-load",

@@ -1,4 +1,5 @@
 {% set p_disk_type = disk_type | default('ssd') | lower %}
+{% set p_translog_sync = translog_sync | default('request') | lower %}
 
 {
   "name": "index-append-50000",
@@ -87,6 +88,9 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
+      {% if (p_translog_sync != 'request') %}
+      "index.translog.durability": "async",
+      {% endif %}
       {% if (p_disk_type != 'ssd') %}
       "index.merge.scheduler.max_thread_count": 1,
       {% endif %}
@@ -110,6 +114,9 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
+      {% if (p_translog_sync != 'request') %}
+      "index.translog.durability": "async",
+      {% endif %}
       {% if (p_disk_type != 'ssd') %}
       "index.merge.scheduler.max_thread_count": 1,
       {% endif %}
@@ -132,6 +139,9 @@
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
+      {% if (p_translog_sync != 'request') %}
+      "index.translog.durability": "async",
+      {% endif %}
       {% if (p_disk_type != 'ssd') %}
       "index.merge.scheduler.max_thread_count": 1,
       {% endif %}
