@@ -10,7 +10,7 @@
   "name": "combined-indexing-and-querying",
   "description": "This challenge simulates a set of Kibana queries against historical data (elasticlogs_q-* indices) as well as against the most recent data currently being indexed. It combined this with rate-limited indexing at varying levels. It assumes one of the challenges creating elasticlogs_q-* indices has been run.",
   "meta": {
-    "benchmark_type": "indexing/querying",  
+    "benchmark_type": "indexing/querying",
     "target_kibana_queries_per_minute": 7
   },
   "schedule": [
@@ -25,7 +25,7 @@
     },
     {
       "operation": "relative-kibana-content_issues-dashboard_50%",
-      "target-interval": 60,  
+      "target-interval": 60,
       "warmup-time-period": 0,
       "clients": 1,
       "time-period": {{ p_rate_limit_duration_secs }},
@@ -40,14 +40,14 @@
       "warmup-iterations": 0,
       "iterations": 1
     },
-    {# Add some data to index so it does not start empty #}   
+    {# Add some data to index so it does not start empty #}
     {
       "operation": "index-append-1000-elasticlogs_i_write",
       "time-period": {{ p_rate_limit_duration_secs }},
       "target-throughput": 10,
       "clients": {{ p_client_count }}
     },
-    
+
     {% for ops in range(p_rate_limit_step, p_rate_limit_max, p_rate_limit_step) %}
 
 
@@ -94,8 +94,8 @@
             },
             "schedule": "poisson"
           },
-          { 
-            "name": "current-kibana-content_issues-dashboard_30m-{{rate}}",     
+          {
+            "name": "current-kibana-content_issues-dashboard_30m-{{rate}}",
             "operation": "current-kibana-content_issues-dashboard_30m",
             "target-interval": 60,
             "clients": 2,
@@ -105,7 +105,7 @@
             },
             "schedule": "poisson"
           },
-          { 
+          {
             "name": "current-kibana-traffic-dashboard_15m-{{rate}}",
             "operation": "current-kibana-traffic-dashboard_15m",
             "target-interval": 30,
