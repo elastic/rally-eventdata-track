@@ -1,4 +1,6 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_iterations = bulk_indexing_iterations | default(2000) %}
+{% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
 {% set p_shard_sizing_iterations = (shard_sizing_iterations | default(25)) %}
 {% set p_shard_sizing_queries = (shard_sizing_queries | default(20)) %}
 
@@ -19,7 +21,7 @@
     {
       "name": "index-append-1000-shard-sizing-iteration-{{n}}",
       "operation": "index-append-1000-shard-sizing",
-      "iterations": 2000,
+      "iterations": {{ p_iterations_per_client }},
       "clients": {{ p_bulk_indexing_clients }},
       "meta": {
         "iteration_number": {{ n }}
@@ -68,7 +70,7 @@
     {% endfor %}
     {
       "operation": "index-append-1000-shard-sizing",    
-      "iterations": 2000,
+      "iterations": {{ p_iterations_per_client }},
       "clients": {{ p_bulk_indexing_clients }},
       "meta": {
         "iteration_number": {{ p_shard_sizing_iterations }}

@@ -6,6 +6,8 @@ indices_delete_pattern: used by the `delete_rolledover_index_pattern` operation.
 max_rolledover_indices: used by the `delete_rolledover_index_pattern` operation. Defaults to `20`.
 rolledover_indices_suffix_separator: used by the `delete_rolledover_index_pattern` operation. Defaults to `-`.
 #}
+{% set p_disk_type = disk_type | default('ssd') | lower %}
+{% set p_translog_sync = translog_sync | default('request') | lower %}
 
 {% set p_disk_type = disk_type | default('ssd') | lower %}
 {
@@ -95,6 +97,9 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
+      {% if (p_translog_sync != 'request') %}
+      "index.translog.durability": "async",
+      {% endif %}
       {% if (p_disk_type != 'ssd') %}
       "index.merge.scheduler.max_thread_count": 1,
       {% endif %}
@@ -118,6 +123,9 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
+      {% if (p_translog_sync != 'request') %}
+      "index.translog.durability": "async",
+      {% endif %}
       {% if (p_disk_type != 'ssd') %}
       "index.merge.scheduler.max_thread_count": 1,
       {% endif %}
@@ -140,6 +148,9 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
     "settings": {
       "index.refresh_interval": "5s",
       "index.codec": "best_compression",
+      {% if (p_translog_sync != 'request') %}
+      "index.translog.durability": "async",
+      {% endif %}
       {% if (p_disk_type != 'ssd') %}
       "index.merge.scheduler.max_thread_count": 1,
       {% endif %}

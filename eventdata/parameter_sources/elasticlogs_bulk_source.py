@@ -1,5 +1,7 @@
 import logging
 import random
+import uuid
+import time
 from eventdata.parameter_sources.randomevent import RandomEvent
 
 logger = logging.getLogger("track.eventdata")
@@ -43,6 +45,15 @@ class ElasticlogsBulkSource:
                                     slow it down. If a task is set up to run indexing for one hour with a fixed starting point of 
                                     '2016-12-20 20:12:32' and an acceleration factor of 2.0, events will be generated in timestamp 
                                     sequence covering a 2-hour window, '2017-02-20 20:12:32' to '2017-02-20 22:12:32' (approximately).
+        "id_type"              -    Type of document id to use for generated documents. Defaults to `auto`.
+                                        auto         - Do not explicitly set id and let Elasticsearch assign automatically.
+                                        uuid         - Assign a UUID4 id to each document.
+                                        epoch_uuid   - Assign a UUIO4 identifier prefixed with the hex representation of the current 
+                                                       timestamp.
+        "id_delay_probability" -    If id_type is set to `epoch_uuid` this parameter determnines the probability will be set in the 
+                                    past. This can be used to simulate a portion of the events arriving delayed. Must be in range [0.0, 1.0].
+                                    Defaults to 0.0.
+        "id_delay_secs".       -    If an event is delayed, this number of seconds will be deducted from the current timestamp.
     """
     def __init__(self, track, params, **kwargs):
         self._indices = track.indices
@@ -53,6 +64,24 @@ class ElasticlogsBulkSource:
         self._bulk_size = 1000
         if 'bulk-size' in params.keys():
             self._bulk_size = params['bulk-size']
+
+        self._id_type = "auto"
+        if 'id_type' in params.keys():
+            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid']:
+                self._id_type = params['id_type']
+            else:
+                logger.warning("[bulk] Invalid id_type ({}) specified. Will use default.".format(params['id_type']))
+
+        if self._id_type == "epoch_uuid":
+            if 'id_delay_probability' in params.keys():
+                self._id_delay_probability = float(params['id_delay_probability'])
+            else:
+                self._id_delay_probability = 0.0
+
+            if 'id_delay_secs' in params.keys():
+                self._id_delay_secs = int(params['id_delay_secs'])
+            else:
+                self._id_delay_secs = 0
 
         self._default_index = False
         if 'index' not in params.keys():
@@ -69,7 +98,7 @@ class ElasticlogsBulkSource:
 
     def partition(self, partition_index, total_partitions):
         seed = partition_index * self._params["seed"] if "seed" in self._params else None
-        random.seed(seed)
+        random.seed(seed)   
         return self
 
     def size(self):
@@ -80,7 +109,17 @@ class ElasticlogsBulkSource:
         bulk_array = []
         for x in range(0, self._bulk_size):
             evt, idx, typ = self._randomevent.generate_event()
-            bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}"' % (idx))
+
+            if self._id_type == 'auto':
+                bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}"' % (idx))
+            else:
+                if self._id_type == 'uuid':
+                    docid = self.__get_uuid()
+                else:
+                    docid = self.__get_epoch_uuid()
+                
+                bulk_array.append('{"index": {"_index": "%s", "_type": "doc", "_id": "%s"}}"' % (idx, docid))
+
             bulk_array.append(evt)
 
         response = { "body": "\n".join(bulk_array), "action-metadata-present": True, "bulk-size": self._bulk_size }
@@ -89,3 +128,17 @@ class ElasticlogsBulkSource:
             response["pipeline"] = self._params["pipeline"]
 
         return response
+
+    def __get_uuid(self):
+        u = str(uuid.uuid4())
+        return u[0:8] + u[9:13] + u[14:18] + u[19:23] + u[24:36]
+
+    def __get_epoch_uuid(self):
+        u = self.__get_uuid()
+        ts = int(time.time())
+
+        if(self._id_delay_probability > 0 and self._id_delay_probability < random.random()):
+            ts = ts - self._id_delay_secs
+
+        return hex(ts)[2:10] + u
+
