@@ -159,6 +159,16 @@
   "window_length": "75%"
 },
 {
+  "name": "current-kibana-discover_30m",
+  "operation-type": "kibana",
+  "param-source": "elasticlogs_kibana",
+  "dashboard": "traffic",
+  "index_pattern": "elasticlogs_q-*",
+  "query_string": ["*"],
+  "window_end": "now",
+  "window_length": "30m"
+},
+{
   "name": "relative-kibana-discover_50%",
   "operation-type": "kibana",
   "param-source": "elasticlogs_kibana",

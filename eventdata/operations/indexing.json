@@ -1,6 +1,15 @@
+{# The following track-params are supported:
+index_alias: used by the `rollover_custom_alias` operation. Defaults to `elasticlogs_q_write`.
+rollover_max_age: used by the `rollover_custom_alias` operation. Defaults to `1d`.
+rollover_max_size: used by the `rollover_custom_alias` operation. Defaults to `30gb`.
+indices_delete_pattern: used by the `delete_rolledover_index_pattern` operation. Defaults to `elasticlogs_q-*`.
+max_rolledover_indices: used by the `delete_rolledover_index_pattern` operation. Defaults to `20`.
+rolledover_indices_suffix_separator: used by the `delete_rolledover_index_pattern` operation. Defaults to `-`.
+#}
 {% set p_disk_type = disk_type | default('ssd') | lower %}
 {% set p_translog_sync = translog_sync | default('request') | lower %}
 
+{% set p_disk_type = disk_type | default('ssd') | lower %}
 {
   "name": "index-append-50000",
   "operation-type": "bulk",
@@ -97,7 +106,7 @@
       "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(2) }}
     },
-    "mappings": 
+    "mappings":
       {% include "mappings.json" %}
     ,
     "aliases": {}
@@ -123,7 +132,7 @@
       "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(2) }}
     },
-    "mappings": 
+    "mappings":
         {% include "mappings.json" %}
     ,
     "aliases": {}
@@ -148,7 +157,7 @@
       "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(1) }}
     },
-    "mappings": 
+    "mappings":
         {% include "mappings.json" %}
     ,
     "aliases": {}
@@ -227,8 +236,19 @@
   "alias": "elasticlogs_q_write",
   "body": {
     "conditions": {
-      "max_age":   "1d",
-      "max_size":  "50gb"
+      "max_age": "1d",
+      "max_size": "50gb"
+    }
+  }
+},
+{
+  "name": "rollover_custom_alias",
+  "operation-type": "rollover",
+  "alias": {{ index_alias | default("elasticlogs_q_write") | tojson }},
+  "body": {
+    "conditions": {
+      "max_age": {{ rollover_max_age | default("1d") | tojson }},
+      "max_size": {{ rollover_max_size | default("30gb") | tojson }}
     }
   }
 },
@@ -246,4 +266,11 @@
   "name": "deleteindex_elasticlogs",
   "operation-type": "delete-index",
   "index": "elasticlogs"
+},
+{
+  "name": "delete_rolledover_index_pattern",
+  "operation-type": "delete_indices",
+  "index_pattern": {{ indices_delete_pattern | default("elasticlogs_q-*") | tojson }},
+  "max_indices": {{ max_rolledover_indices | default(20) | int | tojson }},
+  "suffix_separator": {{ rolledover_indices_suffix_separator | default("-") | tojson }}
 }
