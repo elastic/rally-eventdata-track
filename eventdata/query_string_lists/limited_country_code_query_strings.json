@@ -18,5 +18,5 @@
     "nginx.access.geoip.country_iso_code: BE",
     "nginx.access.geoip.country_iso_code: GR",
     "nginx.access.geoip.country_iso_code: IE",
-    "nginx.access.geoip.country_iso_code: CZ",
+    "nginx.access.geoip.country_iso_code: CZ"
 ]
