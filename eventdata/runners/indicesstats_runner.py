@@ -47,6 +47,18 @@ def indicesstats(es, params):
             if a['total']['segments']['count']:
                 response['total_segment_count'] = a['total']['segments']['count']
 
+            if a['primaries']['segments']['memory_in_bytes']:
+                response['primary_segments_memory_in_bytes'] = a['primaries']['segments']['memory_in_bytes']
+
+            if a['total']['segments']['memory_in_bytes']:
+                response['total_segment_memory_in_bytes'] = a['total']['segments']['memory_in_bytes']
+
+            if a['primaries']['segments']['terms_memory_in_bytes']:
+                response['primary_segment_terms_memory_in_bytes'] = a['primaries']['segments']['terms_memory_in_bytes']
+
+            if a['total']['segments']['terms_memory_in_bytes']:
+                response['total_segment_terms_memory_in_bytes'] = a['total']['segments']['terms_memory_in_bytes']
+
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Indices stats for {} => {}".format(index_pattern, json.dumps(result)))
     except elasticsearch.TransportError as e:
