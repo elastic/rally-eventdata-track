@@ -1,6 +1,7 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(32)) %}
 {% set p_ops_per_25gb = (ops_per_25_gb | default(120000)) %}
 {% set p_query_iterations = (query_iterations | default(10)) %}
+{% set p_ops_per_client = (p_ops_per_25gb / p_bulk_indexing_clients) | int %}
 
 {
   "name": "large-shard-sizing",
@@ -8,7 +9,7 @@
   "meta": {
     "client_count": {{ p_bulk_indexing_clients }},
     "benchmark_type": "large-shard-sizing",
-    "version": 1
+    "version": 2
   },
   "schedule": [
     {  
@@ -69,7 +70,6 @@
     },
     {% for p_multiple in range(1, 13) %}
     {% set p_size = p_multiple * 25 %}
-    {% set p_ops_per_client = (p_multiple * p_ops_per_25gb / p_bulk_indexing_clients) | int %}
     {
       "name": "index-append-1000-auto-{{ p_size }}",
       "operation": {
@@ -103,7 +103,7 @@
       },
       "meta": {
         "id_mode": "auto",
-        "shard_size": {{ p_size }}
+        "shard_size": {{ p_size }}  
       }
     },
     {
@@ -183,7 +183,6 @@
     {% endfor %}
     {% for p_multiple in range(1, 13) %}
     {% set p_size = p_multiple * 25 %}
-    {% set p_ops_per_client = (p_multiple * p_ops_per_25gb / p_bulk_indexing_clients) | int %}
     {
       "name": "index-append-1000-uuid-{{ p_size }}",
       "operation": {
