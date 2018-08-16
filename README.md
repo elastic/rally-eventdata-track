@@ -118,6 +118,8 @@ This challenge will show the following:
 * How dashboard query performance varies with shard size
 * How memory usage varies with shard size
 
+Note that this challenge will generate up to ~600GB of data on disk and will require additional space for merging and overhead. Make sure around 1TB of disk space is available before running this to be on the safe side.
+
 The table below shows the track parameters that can be adjusted along with default values:
 
 | Parameter | Explanation | Type | Default Value |
