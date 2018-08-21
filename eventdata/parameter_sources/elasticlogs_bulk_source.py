@@ -2,6 +2,7 @@ import logging
 import random
 import uuid
 import time
+import hashlib
 from eventdata.parameter_sources.randomevent import RandomEvent
 
 logger = logging.getLogger("track.eventdata")
@@ -50,6 +51,10 @@ class ElasticlogsBulkSource:
                                         uuid         - Assign a UUID4 id to each document.
                                         epoch_uuid   - Assign a UUIO4 identifier prefixed with the hex representation of the current 
                                                        timestamp.
+                                        sha1         - SHA1 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
+                                        sha256       - SHA256 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
+                                        sha384       - SHA384 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
+                                        sha512       - SHA512 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
         "id_delay_probability" -    If id_type is set to `epoch_uuid` this parameter determnines the probability will be set in the 
                                     past. This can be used to simulate a portion of the events arriving delayed. Must be in range [0.0, 1.0].
                                     Defaults to 0.0.
@@ -67,7 +72,7 @@ class ElasticlogsBulkSource:
 
         self._id_type = "auto"
         if 'id_type' in params.keys():
-            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid']:
+            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid', 'sha1', 'sha256', 'sha384', 'sha512']:
                 self._id_type = params['id_type']
             else:
                 logger.warning("[bulk] Invalid id_type ({}) specified. Will use default.".format(params['id_type']))
@@ -115,6 +120,14 @@ class ElasticlogsBulkSource:
             else:
                 if self._id_type == 'uuid':
                     docid = self.__get_uuid()
+                elif self._id_type == 'sha1':
+                    docid = hashlib.sha1(self.__get_uuid().encode()).hexdigest()
+                elif self._id_type == 'sha256':
+                    docid = hashlib.sha256(self.__get_uuid().encode()).hexdigest()
+                elif self._id_type == 'sha384':
+                    docid = hashlib.sha384(self.__get_uuid().encode()).hexdigest()
+                elif self._id_type == 'sha512':
+                    docid = hashlib.sha512(self.__get_uuid().encode()).hexdigest()
                 else:
                     docid = self.__get_epoch_uuid()
                 
