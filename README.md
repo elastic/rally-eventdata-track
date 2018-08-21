@@ -111,7 +111,7 @@ $ cat params-file.json
 
 ### 8) large-shard-sizing
 
-This challenge examines the performance and memory usage of large shards. It indexes data into a single shard index ~25GB at a time and runs up to a shard size of ~300GB. After every 25GB that has been indexed, select index statistics are recorded and a number of simulated Kibana dashboards are run against the index.
+This challenge examines the performance and memory usage of large shards. It indexes data into a single shard index ~25GB at a time and runs up to a shard size of ~300GB. After every 25GB that has been indexed, select index statistics are recorded and a number of simulated Kibana dashboards are run against the index to show how query performance varies with shard size.
 
 This challenge will show the following:
 * How dashboard query performance varies with shard size
@@ -131,7 +131,7 @@ The table below shows the track parameters that can be adjusted along with defau
 This challenge examines the storage and heap usage implications of a wide variety of document ID types. It indexes data into a set of ~25GB single shard index, each for a different type of document ID (`auto`, `uuid`, `epoch_uuid`, `sha1`, `sha256`, `sha384`, and `sha512`). For each index a refresh is then run before select index statistics are recorded.
 
 
-Note that this challenge will generate up to ~200GB of data on disk and will require additional space for merging and overhead.
+Note that this challenge will generate up to ~200GB of data on disk and will require additional space for merging and overhead. Make sure around 300GB of disk space is available before running this to be on the safe side.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
