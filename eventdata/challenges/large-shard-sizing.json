@@ -60,11 +60,7 @@
     },
     {
       "name": "refresh-auto-{{ p_size }}",
-      "operation": {
-        "operation-type": "raw-request",
-        "method": "POST",
-        "path": "/elasticlogs-auto/_refresh"
-      },
+      "operation": "refresh",
       "iterations": 1,
       "clients": 1
     },
@@ -156,11 +152,7 @@
     {% endfor %}
     {
       "name": "refresh-final",
-      "operation": {
-        "operation-type": "raw-request",
-        "method": "POST",
-        "path": "/elasticlogs-*/_refresh"
-      },
+      "operation": "refresh",
       "iterations": 1,
       "clients": 1
     }
@@ -221,11 +213,7 @@
     },
     {
       "name": "refresh-{{ id_type }}",
-      "operation": {
-        "operation-type": "raw-request",
-        "method": "POST",
-        "path": "/elasticlogs-{{ id_type }}/_refresh"
-      },
+      "operation": "refresh",
       "iterations": 1,
       "clients": 1
     },
@@ -242,11 +230,7 @@
     {% endfor %}  
     {
       "name": "refresh-final",
-      "operation": {
-        "operation-type": "raw-request",
-        "method": "POST",
-        "path": "/elasticlogs-*/_refresh"
-      },
+      "operation": "refresh",
       "iterations": 1,
       "clients": 1
     }
