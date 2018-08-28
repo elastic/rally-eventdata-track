@@ -72,7 +72,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `number_of_replicas` | Number of index replicas | `int` | `0` |
 | `shard_count` | Number of primary shards | `int` | `2` |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `20` |
-| `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be used | `string` | `ssd` |
+| `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be specified in the index template | `string` | `ssd` |
 | `translog_sync` | If value is not `request`, translog will be configured to use `async` mode | `string` | `request` |
 
 ### 5) elasticlogs-querying
@@ -92,12 +92,11 @@ The table below shows the track parameters that can be adjusted along with defau
 | `number_of_replicas` | Number of index replicas | `int` | `0` |
 | `shard_count` | Number of primary shards | `int` | `2` |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `24` |
-| `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be used | `string` | `ssd` |
+| `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be specified in the index template | `string` | `ssd` |
 | `translog_sync` | If value is not `request`, translog will be configured to use `async` mode | `string` | `request` |
-
 | `rate_limit_duration_secs` | Duration in seconds for each rate limited benchmark rate_limit_step | `int` | `1200` |
-| `rate_limit_step` | Number of requests per second to use as a late limit step. `2` indicates rate limiting will increase in steps of 2k EPS | `int` | `2` |
-| `rate_limit_max` | Maximum number of requests per second to use for rate limiting. `32` indicates a top target indexing rate of 32k EPS | `int` | `32` |
+| `rate_limit_step` | Number of requests per second to use as a rate_limit_step. `2` indicates rate limiting will increase in steps of 2k EPS | `int` | `2` |
+| `rate_limit_max` | Maximum number of requests per second to use for rate-limiting. `32` indicates a top target indexing rate of 32k EPS | `int` | `32` |
 
 ### 7) elasticlogs-continuous-index-and-query
 

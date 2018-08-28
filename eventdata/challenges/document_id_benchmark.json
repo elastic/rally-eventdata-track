@@ -58,7 +58,7 @@
             "index.number_of_replicas": 0,
             "index.number_of_shards": 1
           },
-          "mappings": "../mappings.json",
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs-auto"
@@ -91,7 +91,7 @@
             "index.number_of_replicas": 0,
             "index.number_of_shards": 1
           },
-          "mappings": "../mappings.json",
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs-uuid"
@@ -125,7 +125,7 @@
             "index.number_of_replicas": 0,
             "index.number_of_shards": 1
           },
-          "mappings": "../mappings.json",
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs-epoch-no_delay"
@@ -195,7 +195,7 @@
             "index.number_of_replicas": 0,
             "index.number_of_shards": 1
           },
-          "mappings": "../mappings.json",
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs-epoch-10pct_300s"

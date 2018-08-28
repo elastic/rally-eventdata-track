@@ -30,13 +30,13 @@ def createindex(es, params):
                 mapping = gs.global_config[params['index_template_body']['mappings']]
             else:
                 mapping_path = os.path.expandvars(params['index_template_body']['mappings'])
-                logger.info("[createindex] Use mapping file: {}".format(mapping_path))
-                mapping = json.loads(open(mapping_path, 'rt').read())
+                logger.info("[createindex] Use mapping file: %s", mapping_path)
+                mapping = json.loads(open(mapping_path, 'rt', encoding="utf-8").read())
                 gs.global_config[params['index_template_body']['mappings']] = mapping
         
             params['index_template_body']['mappings'] = mapping
 
-        logger.info("[createindex] Upload index template {} => {}".format(template_name, json.dumps(params['index_template_body'])))
+        logger.info("[createindex] Upload index template %s => %s", template_name, json.dumps(params['index_template_body']))
 
         es.indices.put_template(name=template_name, body=params['index_template_body'])
 
@@ -51,7 +51,7 @@ def createindex(es, params):
     else:
         index_name = 'elasticlogs-000001'
     
-    logger.info("[createindex] Create index {} => {}".format(index_name, json.dumps(b)))
+    logger.info("[createindex] Create index %s => %s", index_name, json.dumps(b))
 
     if not es.indices.exists(index=index_name):
         es.indices.create(index=index_name, body=b, ignore=400)
