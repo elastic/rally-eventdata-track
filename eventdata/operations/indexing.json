@@ -106,9 +106,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
       "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(2) }}
     },
-    "mappings":
-      {% include "mappings.json" %}
-    ,
+    "mappings": "../mappings.json",
     "aliases": {}
   },
   "index_template_name": "elasticlogs_q_write"
@@ -132,9 +130,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
       "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(2) }}
     },
-    "mappings":
-        {% include "mappings.json" %}
-    ,
+    "mappings": "../mappings.json",
     "aliases": {}
   },
   "index_template_name": "elasticlogs_i_write"
@@ -157,9 +153,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
       "index.number_of_replicas": {{ number_of_replicas | default(0) }},
       "index.number_of_shards": {{ shard_count | default(1) }}
     },
-    "mappings":
-        {% include "mappings.json" %}
-    ,
+    "mappings": "../mappings.json",
     "aliases": {}
   },
   "index_template_name": "elasticlogs"

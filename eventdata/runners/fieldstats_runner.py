@@ -1,4 +1,4 @@
-from eventdata.utils import fieldstats as fs
+from eventdata.utils import globals as gs
 import logging
 
 logger = logging.getLogger("track.eventdata")
@@ -34,7 +34,7 @@ def fieldstats(es, params):
 
     if result['hits']['total'] > 0:
         key = "{}_{}".format(params['index_pattern'], params['fieldname']);
-        fs.global_fieldstats[key] = {'max': int(result['aggregations']['maxval']['value']), 'min': int(result['aggregations']['minval']['value'])};
+        gs.global_fieldstats[key] = {'max': int(result['aggregations']['maxval']['value']), 'min': int(result['aggregations']['minval']['value'])};
 
         logger.info("[fieldstats] Identified statistics for field '{}' in '{}'. Min: {}, Max: {}".format(params['fieldname'], params['index_pattern'], int(result['aggregations']['minval']['value']), int(result['aggregations']['maxval']['value'])))
     else:

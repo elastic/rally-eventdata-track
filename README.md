@@ -25,9 +25,25 @@ Another option is to download the repository and point to it using the `--track-
 
 This is the default challenge, which performs bulk indexing at maximum throughput against a single index for a period of 20 minutes.
 
+The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `number_of_replicas` | Number of index replicas | `int` | `0` |
+| `shard_count` | Number of primary shards | `int` | `2` |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `8` |
+
 ### 2) bulk-size-evaluation
 
 This challenge performs bulk-indexing against a single index with varying bulk request sizes, ranging from 125 events/request to 50000 events/request.
+
+The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `number_of_replicas` | Number of index replicas | `int` | `0` |
+| `shard_count` | Number of primary shards | `int` | `2` |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `16` |
 
 ### 3) shard-sizing
 
@@ -35,9 +51,29 @@ This challenge indexes 2 million events into an index consisting of a single sha
 
 This challenge shows how shard sizing can be performed and how the nature of queries used can impact the results.
 
+The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `number_of_replicas` | Number of index replicas | `int` | `0` |
+| `shard_count` | Number of primary shards | `int` | `2` |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `16` |
+| `shard_sizing_iterations` | Number of indexing querying iterations to run | `int` | `25` |
+| `shard_sizing_queries` | Number of queries of each type to run for each iteration | `int` | `20` |
+
 ### 4) elasticlogs-1bn-load
 
 This challenge indexes 1 billion events into a number of indices of 2 primary shards each, and results in around 200GB of indices being generated on disk. This can vary depending on the environment. It can be used give an idea of how max indexing performance behaves over an extended period of time.
+
+The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `number_of_replicas` | Number of index replicas | `int` | `0` |
+| `shard_count` | Number of primary shards | `int` | `2` |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `20` |
+| `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be used | `string` | `ssd` |
+| `translog_sync` | If value is not `request`, translog will be configured to use `async` mode | `string` | `request` |
 
 ### 5) elasticlogs-querying
 
@@ -48,6 +84,20 @@ This challenge runs mixed Kibana queries against the index created in the **elas
 This challenge assumes that the *elasticlogs-1bn-load* track has been executed as it simulates querying against these indices. It shows how indexing and querying through simulated Kibana dashboards can be combined to provide a more realistic benchmark.
 
 In this challenge rate-limited indexing at varying levels is combined with a fixed level of querying. If metrics from the run are stored in Elasticsearch, it is possible analyse these in Kibana in order to identify how indexing rate affects query latency and vice versa.
+
+The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `number_of_replicas` | Number of index replicas | `int` | `0` |
+| `shard_count` | Number of primary shards | `int` | `2` |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `24` |
+| `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be used | `string` | `ssd` |
+| `translog_sync` | If value is not `request`, translog will be configured to use `async` mode | `string` | `request` |
+
+| `rate_limit_duration_secs` | Duration in seconds for each rate limited benchmark rate_limit_step | `int` | `1200` |
+| `rate_limit_step` | Number of requests per second to use as a late limit step. `2` indicates rate limiting will increase in steps of 2k EPS | `int` | `2` |
+| `rate_limit_max` | Maximum number of requests per second to use for rate limiting. `32` indicates a top target indexing rate of 32k EPS | `int` | `32` |
 
 ### 7) elasticlogs-continuous-index-and-query
 

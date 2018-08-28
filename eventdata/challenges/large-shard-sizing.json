@@ -32,9 +32,7 @@
             "index.number_of_replicas": 0,
             "index.number_of_shards": 1
           },
-          "mappings": 
-            {% include "mappings.json" %}
-          ,
+          "mappings": "../mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs-auto"
@@ -188,9 +186,7 @@
             "index.number_of_replicas": 0,
             "index.number_of_shards": 1
           },
-          "mappings": 
-            {% include "mappings.json" %}
-          ,
+          "mappings": "../mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs-{{ id_type }}"
