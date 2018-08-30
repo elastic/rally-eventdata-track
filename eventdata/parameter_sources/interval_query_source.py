@@ -1,4 +1,4 @@
-from eventdata.utils import fieldstats as fs
+from eventdata.utils import globals as gs
 import json
 import logging
 import random
@@ -108,8 +108,8 @@ class IntervalQuerySource:
 
     def params(self):
         key = "{}_{}".format(self._index_pattern, self._fieldname);
-        if key in fs.global_fieldstats.keys():
-            stats = fs.global_fieldstats[key];
+        if key in gs.global_fieldstats.keys():
+            stats = gs.global_fieldstats[key];
         else:
             raise ParameterSourceError("No statistics found for field `{}` in index pattern `{}`.".format(self._fieldname, self._index_pattern));
 

@@ -1,4 +1,4 @@
-from eventdata.utils import fieldstats as fs
+from eventdata.utils import globals as gs
 import math
 import re
 import json
@@ -35,8 +35,8 @@ class ElasticlogsKibanaSource:
 
     It expects the parameter hash to contain the following keys:
         "dashboard"            -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'. Defaults to 'traffic'.
-        "query_string"         -   String or list of strings indicating query parameters to randomize during benchmarking. Defaults to "*", If a 
-                                   list has been specified, a random value will be selected.
+        "query_string"         -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
+                                   to ["*"], If a list has been specified, a random value will be selected.
         "index_pattern"        -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
                                    been specified, a random value will be selected.
         "window_end"           -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
@@ -78,7 +78,14 @@ class ElasticlogsKibanaSource:
             self._index_pattern = params['index_pattern']
         
         if 'query_string' in params.keys():
-            self._query_string_list = params['query_string']
+            if isinstance(params['query_string' ], str):    
+                if params['query_string'] in gs.global_config.keys():
+                    self._query_string_list = gs.global_config[params['query_string']]
+                else:
+                    self._query_string_list = json.loads(open(os.path.expandvars(params['query_string']), 'rt', encoding="utf-8").read())
+                    gs.global_config[params['query_string']] = self._query_string_list
+            else:
+                self._query_string_list = params['query_string']
 
         if 'dashboard' in params.keys():
             if params['dashboard'] in available_dashboards:
@@ -87,8 +94,8 @@ class ElasticlogsKibanaSource:
                 logger.info("[kibana] Illegal dashboard configured ({}). Using default dashboard instead.".format(params['dashboard']))
 
         key = "{}_@timestamp".format(self._index_pattern);
-        if key in fs.global_fieldstats.keys():
-            stats = fs.global_fieldstats[key];
+        if key in gs.global_fieldstats.keys():
+            stats = gs.global_fieldstats[key];
             self._fieldstats_start_ms = stats['min']
             self._fieldstats_end_ms = stats['max']
             self._fieldstats_provided = True

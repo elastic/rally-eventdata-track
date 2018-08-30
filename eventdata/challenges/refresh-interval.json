@@ -36,9 +36,7 @@
             "index.number_of_replicas": {{ p_number_of_replicas }},
             "index.number_of_shards": {{ p_shard_count }}
           },
-          "mappings": 
-            {% include "mappings.json" %}
-            ,
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs"
@@ -82,9 +80,7 @@
             "index.number_of_replicas": {{ p_number_of_replicas }},
             "index.number_of_shards": {{ p_shard_count }}
           },
-          "mappings": 
-            {% include "mappings.json" %}
-            ,
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs"
@@ -128,9 +124,7 @@
             "index.number_of_replicas": {{ p_number_of_replicas }},
             "index.number_of_shards": {{ p_shard_count }}
           },
-          "mappings": 
-            {% include "mappings.json" %}
-            ,
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs"
@@ -174,9 +168,7 @@
             "index.number_of_replicas": {{ p_number_of_replicas }},
             "index.number_of_shards": {{ p_shard_count }}
           },
-          "mappings": 
-            {% include "mappings.json" %}
-            ,
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs"
@@ -220,9 +212,7 @@
             "index.number_of_replicas": {{ p_number_of_replicas }},
             "index.number_of_shards": {{ p_shard_count }}
           },
-          "mappings": 
-            {% include "mappings.json" %}
-            ,
+          "mappings": "mappings.json",
           "aliases": {}
         },
         "index_template_name": "elasticlogs"
