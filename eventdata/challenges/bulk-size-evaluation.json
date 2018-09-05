@@ -120,9 +120,11 @@
   },
   "schedule": [
     {
+      "name": "delete-index-2clients",
       "operation": "delete-index"
     },
     {
+      "name": "create-index-2clients",
       "operation": {
         "operation-type": "create-index",
         "settings": {
@@ -138,9 +140,23 @@
         "param-source": "elasticlogs_bulk",
         "bulk-size": 1000
       },
-      "warmup-time-period": 0,
+      "warmup-time-period": 60,
       "time-period": 600,
       "clients": 2
+    },
+    {
+      "name": "delete-index-20clients",
+      "operation": "delete-index"
+    },
+    {
+      "name": "create-index-20clients",
+      "operation": {
+        "operation-type": "create-index",
+        "settings": {
+            "index.number_of_replicas": {{ p_replica_count }},
+            "index.number_of_shards": {{ p_shard_count }}
+        }
+      }
     },
     {
       "name": "index-append-100-20clients",
@@ -149,9 +165,23 @@
         "param-source": "elasticlogs_bulk",
         "bulk-size": 100
       },
-      "warmup-time-period": 0,
+      "warmup-time-period": 60,
       "time-period": 600,
-      "clients": 2
+      "clients": 20
+    },
+    {
+      "name": "delete-index-200clients",
+      "operation": "delete-index"
+    },
+    {
+      "name": "create-index-200clients",
+      "operation": {
+        "operation-type": "create-index",
+        "settings": {
+            "index.number_of_replicas": {{ p_replica_count }},
+            "index.number_of_shards": {{ p_shard_count }}
+        }
+      }
     },
     {
       "name": "index-append-10-200clients",
@@ -160,9 +190,9 @@
         "param-source": "elasticlogs_bulk",
         "bulk-size": 10
       },
-      "warmup-time-period": 0,
+      "warmup-time-period": 60,
       "time-period": 600,
-      "clients": 2
+      "clients": 200
     }
   ]
 }
