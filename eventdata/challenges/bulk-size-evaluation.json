@@ -140,7 +140,7 @@
         "param-source": "elasticlogs_bulk",
         "bulk-size": 1000
       },
-      "warmup-time-period": 60,
+      "warmup-time-period": 300,
       "time-period": 600,
       "clients": 2
     },
@@ -165,7 +165,7 @@
         "param-source": "elasticlogs_bulk",
         "bulk-size": 100
       },
-      "warmup-time-period": 60,
+      "warmup-time-period": 300,
       "time-period": 600,
       "clients": 20
     },
@@ -190,7 +190,7 @@
         "param-source": "elasticlogs_bulk",
         "bulk-size": 10
       },
-      "warmup-time-period": 60,
+      "warmup-time-period": 300,
       "time-period": 600,
       "clients": 200
     }
