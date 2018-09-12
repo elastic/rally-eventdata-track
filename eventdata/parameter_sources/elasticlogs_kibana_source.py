@@ -82,7 +82,8 @@ class ElasticlogsKibanaSource:
                 if params['query_string'] in gs.global_config.keys():
                     self._query_string_list = gs.global_config[params['query_string']]
                 else:
-                    self._query_string_list = json.loads(open(os.path.expandvars(params['query_string']), 'rt', encoding="utf-8").read())
+                    cwd = os.path.dirname(__file__)
+                    self._query_string_list = json.loads(open(os.path.join(cwd, "..", params['query_string']), 'rt', encoding="utf-8").read())
                     gs.global_config[params['query_string']] = self._query_string_list
             else:
                 self._query_string_list = params['query_string']

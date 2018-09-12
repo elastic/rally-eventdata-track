@@ -21,15 +21,16 @@ def createindex(es, params):
     """
     if 'index_template_body' in params:
         if 'index_template_name' in params:
-        	template_name = params['index_template_name']
+            template_name = params['index_template_name']
         else:
-        	template_name = 'elasticlogs'
+            template_name = 'elasticlogs'
         
         if 'mappings' in params['index_template_body'] and isinstance(params['index_template_body']['mappings'], str):
             if params['index_template_body']['mappings'] in gs.global_config.keys():
                 mapping = gs.global_config[params['index_template_body']['mappings']]
             else:
-                mapping_path = os.path.expandvars(params['index_template_body']['mappings'])
+                cwd = os.path.dirname(__file__)
+                mapping_path = os.path.join(cwd, "..", params['index_template_body']['mappings'])
                 logger.info("[createindex] Use mapping file: %s", mapping_path)
                 mapping = json.loads(open(mapping_path, 'rt', encoding="utf-8").read())
                 gs.global_config[params['index_template_body']['mappings']] = mapping
@@ -41,8 +42,8 @@ def createindex(es, params):
         es.indices.put_template(name=template_name, body=params['index_template_body'])
 
     if 'alias' in params:
-    	b = { 'aliases': {} }
-    	b['aliases'][params['alias']] = {}
+        b = { 'aliases': {} }
+        b['aliases'][params['alias']] = {}
     else:
         b = { 'aliases': { 'elasticlogs_write': {} } }
 
@@ -57,4 +58,4 @@ def createindex(es, params):
         es.indices.create(index=index_name, body=b, ignore=400)
 
     return 1, "ops"
-        
+
