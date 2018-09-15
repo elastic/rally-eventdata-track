@@ -25,17 +25,24 @@
       }
     },
     {
-      "name": "deleteindex_elasticlogs-epoch_uuid-no_delay",
+      "name": "deleteindex_elasticlogs-sha1",
       "operation": {
         "operation-type": "delete-index",
-        "index": "elasticlogs-epoch_uuid-no_delay"
+        "index": "elasticlogs-sha1"
       }
     },
     {
-      "name": "deleteindex_elasticlogs-epoch_md5-no_delay",
+      "name": "deleteindex_elasticlogs-epoch_uuid",
       "operation": {
         "operation-type": "delete-index",
-        "index": "elasticlogs-epoch_md5-no_delay"
+        "index": "elasticlogs-epoch_uuid"
+      }
+    },
+    {
+      "name": "deleteindex_elasticlogs-epoch_md5",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "elasticlogs-epoch_md5"
       }
     },
     {
@@ -120,12 +127,12 @@
       }
     },
     {
-      "name": "create_elasticlogs-epoch_uuid-no_delay",
+      "name": "create_elasticlogs-sha1",
       "operation": {
         "operation-type": "createindex",
-        "index_name": "elasticlogs-epoch_uuid-no_delay",
+        "index_name": "elasticlogs-sha1",
         "index_template_body": {
-          "template": "elasticlogs-epoch_uuid-no_delay",
+          "template": "elasticlogs-sha1",
           "settings": {
             "index.refresh_interval": "5s",
             "index.codec": "best_compression",
@@ -135,31 +142,65 @@
           "mappings": "mappings.json",
           "aliases": {}
         },
-        "index_template_name": "elasticlogs-epoch_uuid-no_delay"
+        "index_template_name": "elasticlogs-sha1"
       }
     },
     {
-      "name": "index-append-1000-elasticlogs-epoch_uuid-no_delay",
+      "name": "index-append-1000-elasticlogs-sha1",
       "operation": {
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
-        "index": "elasticlogs-epoch_uuid-no_delay",
+        "index": "elasticlogs-sha1",
+        "bulk-size": 1000,
+        "id_type": "uuid"
+      },
+      "iterations": {{ p_iterations_per_client }},
+      "clients": {{ p_bulk_indexing_clients }},
+      "meta": {
+        "id_mode": "sha1"
+      }
+    },
+    {
+      "name": "create_elasticlogs-epoch_uuid",
+      "operation": {
+        "operation-type": "createindex",
+        "index_name": "elasticlogs-epoch_uuid",
+        "index_template_body": {
+          "template": "elasticlogs-epoch_uuid",
+          "settings": {
+            "index.refresh_interval": "5s",
+            "index.codec": "best_compression",
+            "index.number_of_replicas": 0,
+            "index.number_of_shards": 1
+          },
+          "mappings": "mappings.json",
+          "aliases": {}
+        },
+        "index_template_name": "elasticlogs-epoch_uuid"
+      }
+    },
+    {
+      "name": "index-append-1000-elasticlogs-epoch_uuid",
+      "operation": {
+        "operation-type": "bulk",
+        "param-source": "elasticlogs_bulk",
+        "index": "elasticlogs-epoch_uuid",
         "bulk-size": 1000,
         "id_type": "epoch_uuid"
       },
       "iterations": {{ p_iterations_per_client }},
       "clients": {{ p_bulk_indexing_clients }},
       "meta": {
-        "id_mode": "epoch_uuid-no_delay"
+        "id_mode": "epoch_uuid"
       }
     },
     {
-      "name": "create_elasticlogs-epoch_md5-no_delay",
+      "name": "create_elasticlogs-epoch_md5",
       "operation": {
         "operation-type": "createindex",
-        "index_name": "elasticlogs-epoch_md5-no_delay",
+        "index_name": "elasticlogs-epoch_md5",
         "index_template_body": {
-          "template": "elasticlogs-epoch_md5-no_delay",
+          "template": "elasticlogs-epoch_md5",
           "settings": {
             "index.refresh_interval": "5s",
             "index.codec": "best_compression",
@@ -169,22 +210,22 @@
           "mappings": "mappings.json",
           "aliases": {}
         },
-        "index_template_name": "elasticlogs-epoch_md5-no_delay"
+        "index_template_name": "elasticlogs-epoch_md5"
       }
     },
     {
-      "name": "index-append-1000-elasticlogs-epoch_md5-no_delay",
+      "name": "index-append-1000-elasticlogs-epoch_md5",
       "operation": {
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
-        "index": "elasticlogs-epoch_md5-no_delay",
+        "index": "elasticlogs-epoch_md5",
         "bulk-size": 1000,
         "id_type": "epoch_md5"
       },
       "iterations": {{ p_iterations_per_client }},
       "clients": {{ p_bulk_indexing_clients }},
       "meta": {
-        "id_mode": "epoch_md5-no_delay"
+        "id_mode": "epoch_md5"
       }
     },
     {
@@ -258,6 +299,52 @@
       "meta": {
         "id_mode": "epoch_md5-10pct/300s"
       }
+    },
+    {
+      "name": "refresh-all",
+      "operation": "refresh",
+      "iterations": 1,
+      "clients": 1
+    },
+    {% for id_type in ['auto', 'uuid', 'sha1', 'epoch_uuid', 'epoch_md5', 'epoch_md5-10pct_60s', 'epoch_md5-10pct_300s'] %}
+    {
+      "name": "indicesstats-elasticlogs-{{ id_type }}",
+      "operation": {
+        "operation-type": "indicesstats",
+        "index_pattern": "elasticlogs-{{ id_type }}"
+      },
+      "meta": {
+        "forcemerged": "no",
+        "id_mode": "{{ id_type }}"
+      }
+    },
+    {% endfor %}  
+    {
+      "name": "force-merge-all",
+      "operation": {
+        "operation-type": "force-merge",
+        "max-num-segments": 1
+      },
+      "clients": 1
+    },
+    {% for id_type in ['auto', 'uuid', 'sha1', 'epoch_uuid', 'epoch_md5', 'epoch_md5-10pct_60s', 'epoch_md5-10pct_300s'] %}
+    {  
+      "name": "indicesstats-elasticlogs-fm-{{ id_type }}",
+      "operation": {
+        "operation-type": "indicesstats",
+        "index_pattern": "elasticlogs-{{ id_type }}"
+      },
+      "meta": {
+        "forcemerged": "yes",
+        "id_mode": "{{ id_type }}"
+      }
+    },
+    {% endfor %}  
+    {
+      "name": "refresh-final",
+      "operation": "refresh", 
+      "iterations": 1,
+      "clients": 1
     }
   ]
 }
