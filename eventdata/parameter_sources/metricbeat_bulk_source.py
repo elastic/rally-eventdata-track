@@ -3,15 +3,14 @@ import random
 import uuid
 import time
 import hashlib
-import base64
 from eventdata.parameter_sources.randomevent import RandomEvent
 
 logger = logging.getLogger("track.eventdata")
 
 
-class ElasticlogsBulkSource:
+class MetricbeatBulkSource:
     """
-    Generates a bulk indexing request for elasticlogs data.
+    Generates a bulk indexing request for Metyricbeat data.
 
     It expects the parameter hash to contain the following keys:
         "bulk-size"            -    Integer indicating events generated per bulk request. Defaults to 1000.
@@ -52,8 +51,6 @@ class ElasticlogsBulkSource:
                                         uuid         - Assign a UUID4 id to each document.
                                         epoch_uuid   - Assign a UUIO4 identifier prefixed with the hex representation of the current 
                                                        timestamp.
-                                        epoch_md5    - Assign a base64 encoded MD5 hash of a UUID prefixed with the hex representation 
-                                                       of the current timestamp.
                                         sha1         - SHA1 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
                                         sha256       - SHA256 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
                                         sha384       - SHA384 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
@@ -75,12 +72,12 @@ class ElasticlogsBulkSource:
 
         self._id_type = "auto"
         if 'id_type' in params.keys():
-            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid', 'epoch_md5', 'sha1', 'sha256', 'sha384', 'sha512']:
+            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid', 'sha1', 'sha256', 'sha384', 'sha512']:
                 self._id_type = params['id_type']
             else:
                 logger.warning("[bulk] Invalid id_type ({}) specified. Will use default.".format(params['id_type']))
 
-        if self._id_type in ["epoch_uuid", "epoch_md5"]:
+        if self._id_type == "epoch_uuid":
             if 'id_delay_probability' in params.keys():
                 self._id_delay_probability = float(params['id_delay_probability'])
             else:
@@ -131,8 +128,6 @@ class ElasticlogsBulkSource:
                     docid = hashlib.sha384(self.__get_uuid().encode()).hexdigest()
                 elif self._id_type == 'sha512':
                     docid = hashlib.sha512(self.__get_uuid().encode()).hexdigest()
-                elif self._id_type == 'epoch_md5':
-                    docid = self.__get_epoch_md5()
                 else:
                     docid = self.__get_epoch_uuid()
                 
@@ -160,12 +155,3 @@ class ElasticlogsBulkSource:
 
         return hex(ts)[2:10] + u
 
-    def __get_epoch_md5(self):
-        u = self.__get_uuid()
-        md5_str = str(base64.urlsafe_b64encode(hashlib.md5(u.encode('utf8')).digest()))[2:24]
-        ts = int(time.time())
-
-        if(self._id_delay_probability > 0 and self._id_delay_probability < random.random()):
-            ts = ts - self._id_delay_secs
-
-        return hex(ts)[2:10] + md5_str
