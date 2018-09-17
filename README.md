@@ -208,7 +208,7 @@ The following document id types are benchmarked:
 
 `epoch_md5-10pct/300s` - This test uses the `epoch_md5` identifier described above, but simulates a portion of events arriving delayed by setting the timestamp to 300s (5 minutes) in the past for 10% of events.
 
-Note that this challenge will generate up to ~250GB of data on disk and will require additional space for merging and overhead. Make sure around 300GB of disk space is available before running this to be on the safe side.
+Note that this challenge will generate up to ~300GB of data on disk and will require additional space for merging and overhead. Make sure around 400GB of disk space is available before running this to be on the safe side.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
