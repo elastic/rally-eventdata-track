@@ -190,7 +190,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 ### 10) document_id_evaluation
 
-This challenge examines the indexing throughput as a function of shard size as well as the resulting storage requirements for a set of different types of document IDs. For each document ID type, it indexes 150 million documents into a single-shard index, which should be about 30GB in size. Once all data has been indexed, index statistics are recorded before and after a forcemerge down to a single segment.
+This challenge examines the indexing throughput as a function of shard size as well as the resulting storage requirements for a set of different types of document IDs. For each document ID type, it indexes 200 million documents into a single-shard index, which should be about 40GB in size. Once all data has been indexed, index statistics are recorded before and after a forcemerge down to a single segment.
 
 The following document id types are benchmarked:
 
