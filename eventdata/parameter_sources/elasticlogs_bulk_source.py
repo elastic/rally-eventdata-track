@@ -148,8 +148,7 @@ class ElasticlogsBulkSource:
         return response
 
     def __get_uuid(self):
-        u = str(uuid.uuid4())
-        return u[0:8] + u[9:13] + u[14:18] + u[19:23] + u[24:36]
+        return str(uuid.uuid4()).replace('-', '')
 
     def __get_epoch_uuid(self):
         u = self.__get_uuid()
@@ -158,7 +157,7 @@ class ElasticlogsBulkSource:
         if(self._id_delay_probability > 0 and self._id_delay_probability < random.random()):
             ts = ts - self._id_delay_secs
 
-        return hex(ts)[2:10] + u
+        return '{:x}{}'.format(ts, u)
 
     def __get_epoch_md5(self):
         u = self.__get_uuid()
