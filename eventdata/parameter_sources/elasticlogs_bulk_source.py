@@ -53,7 +53,8 @@ class ElasticlogsBulkSource:
                                         epoch_uuid   - Assign a UUIO4 identifier prefixed with the hex representation of the current 
                                                        timestamp.
                                         epoch_md5    - Assign a base64 encoded MD5 hash of a UUID prefixed with the hex representation 
-                                                       of the current timestamp.
+                                                       of the current timestamp. (Note: Generating this type of id can be CPU intensive)
+                                        md5          - MD5 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
                                         sha1         - SHA1 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
                                         sha256       - SHA256 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
                                         sha384       - SHA384 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
@@ -75,7 +76,7 @@ class ElasticlogsBulkSource:
 
         self._id_type = "auto"
         if 'id_type' in params.keys():
-            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid', 'epoch_md5', 'sha1', 'sha256', 'sha384', 'sha512']:
+            if params['id_type'] in ['auto', 'uuid', 'epoch_uuid', 'epoch_md5', 'md5', 'sha1', 'sha256', 'sha384', 'sha512']:
                 self._id_type = params['id_type']
             else:
                 logger.warning("[bulk] Invalid id_type ({}) specified. Will use default.".format(params['id_type']))
@@ -124,13 +125,15 @@ class ElasticlogsBulkSource:
                 if self._id_type == 'uuid':
                     docid = self.__get_uuid()
                 elif self._id_type == 'sha1':
-                    docid = hashlib.sha1(self.__get_uuid().encode()).hexdigest()
+                    docid = hashlib.sha1(self.__get_uuid().encode('utf8')).hexdigest()
                 elif self._id_type == 'sha256':
-                    docid = hashlib.sha256(self.__get_uuid().encode()).hexdigest()
+                    docid = hashlib.sha256(self.__get_uuid().encode('utf8')).hexdigest()
                 elif self._id_type == 'sha384':
-                    docid = hashlib.sha384(self.__get_uuid().encode()).hexdigest()
+                    docid = hashlib.sha384(self.__get_uuid().encode('utf8')).hexdigest()
                 elif self._id_type == 'sha512':
-                    docid = hashlib.sha512(self.__get_uuid().encode()).hexdigest()
+                    docid = hashlib.sha512(self.__get_uuid().encode('utf8')).hexdigest()
+                elif self._id_type == 'md5':
+                    docid = hashlib.md5(self.__get_uuid().encode('utf8')).hexdigest()
                 elif self._id_type == 'epoch_md5':
                     docid = self.__get_epoch_md5()
                 else:
