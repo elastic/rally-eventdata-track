@@ -218,7 +218,8 @@ The table below shows the track parameters that can be adjusted along with defau
 
 | Parameter | Explanation | Type | Default Value |
 | --------- | ----------- | ---- | ------------- |
-| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `24` |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `25` |
+| `bulk_indexing_iterations` | Number of bulk requests to send as part of each run | `int` | `200000` |
 | `forcemerge` | Parameter indicating whether index statistics should be gathered following aforcemerge down to a single segment | `string` | `no` |
 
 ## Custom parameter sources

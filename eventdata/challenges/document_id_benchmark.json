@@ -1,4 +1,4 @@
-{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(24)) %}
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(25)) %}
 {% set p_iterations = bulk_indexing_iterations | default(200000) %}
 {% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
 {% set p_forcemerge = ( forcemerge | default('no')) | lower %}
@@ -11,6 +11,56 @@
     "benchmark_type": "document-id-evaluation"
   },
   "schedule": [
+    {
+      "name": "deleteindex_elasticlogs-warmup",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "elasticlogs-warmup"
+      },
+      "include-in-reporting": false
+    },
+    {
+      "name": "create_elasticlogs-warmup",
+      "operation": {
+        "operation-type": "createindex",
+        "index_name": "elasticlogs-warmup",
+        "index_template_body": {
+          "template": "elasticlogs-warmup",
+          "settings": {
+            "index.refresh_interval": "5s",
+            "index.codec": "best_compression",
+            "index.translog.retention.size": "10mb",
+            "index.number_of_replicas": 0,
+            "index.number_of_shards": 1
+          },
+          "mappings": "mappings.json",
+          "aliases": {}
+        },
+        "index_template_name": "elasticlogs-warmup"
+      },
+      "include-in-reporting": false
+    },
+    {
+      "name": "index-append-1000-elasticlogs-warmup",
+      "operation": {
+        "operation-type": "bulk",
+        "param-source": "elasticlogs_bulk",
+        "index": "elasticlogs-warmup",
+        "bulk-size": 1000,
+        "id_type": "auto"
+      },
+      "iterations": 200,
+      "clients": {{ p_bulk_indexing_clients }},
+      "include-in-reporting": false
+    },
+    {
+      "name": "deleteindex_elasticlogs-warmup-final",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "elasticlogs-warmup"
+      },
+      "include-in-reporting": false
+    },
     {% for id in [{ 'type': 'auto', 'desc': 'auto' },
                   { 'type': 'uuid', 'desc': 'uuid' },
                   { 'type': 'sha1',  'desc': 'sha1' },
