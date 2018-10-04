@@ -220,7 +220,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | --------- | ----------- | ---- | ------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `25` |
 | `bulk_indexing_iterations` | Number of bulk requests to send as part of each run | `int` | `200000` |
-| `forcemerge` | Parameter indicating whether index statistics should be gathered following aforcemerge down to a single segment | `string` | `no` |
+| `forcemerge` | Parameter indicating whether index statistics should be gathered following a forcemerge down to a single segment | `boolean` | `false` |
 
 ## Custom parameter sources
 

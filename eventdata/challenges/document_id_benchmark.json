@@ -1,7 +1,7 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(25)) %}
 {% set p_iterations = bulk_indexing_iterations | default(200000) %}
 {% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
-{% set p_forcemerge = ( forcemerge | default('no')) | lower %}
+{% set p_forcemerge = ( forcemerge | default(false)) %}
 
 {
   "name": "document_id_evaluation",
@@ -122,7 +122,7 @@
         "id_mode": "{{ id['desc'] }}"
       }
     },
-    {% if (p_forcemerge != 'no') %}      
+    {% if p_forcemerge %}      
     {
       "name": "force-merge-{{ id['desc'] }}",
       "operation": {
@@ -203,7 +203,7 @@
         "id_mode": "{{ id['desc'] }}"
       }
     },
-    {% if (p_forcemerge != 'no') %}  
+    {% if p_forcemerge %}  
     {
       "name": "force-merge-{{ id['desc'] }}",
       "operation": {
