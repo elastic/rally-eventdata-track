@@ -15,7 +15,6 @@ def kibana(es, params):
         "meta_data" - Dictionary containing meta data information to be carried through into metrics.
     """
     request = params['body']
-    tout = 0
 
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("[kibana_runner] Received request: {}".format(json.dumps(request)))
@@ -36,7 +35,10 @@ def kibana(es, params):
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("[kibana_runner] request: {}".format(request))
 
-    result = es.msearch(body = request)
+    if params['meta_data']['ignore_throttled']:
+        result = es.msearch(body = request)
+    else:
+        result = es.msearch(body = request, params={'ignore_throttled': 'false'})
 
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("[kibana_runner] result: {}".format(result))
