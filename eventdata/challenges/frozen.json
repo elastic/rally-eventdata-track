@@ -43,7 +43,7 @@
         "index": "elasticlogs",
         "bulk-size": 1000
       },
-      "iterations": 28240,
+      "iterations": 30000,
       "clients": 8
     }
   ]
@@ -80,7 +80,7 @@
       "clients": 1
     },
     {
-      "name": "kibana-discover-50%",
+      "name": "kibana-discover-25%",
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
@@ -88,14 +88,14 @@
         "index_pattern": "elasticlogs*",
         "query_string": "*",
         "ignore_frozen": false,
-        "window_end": "START+50%,END",
-        "window_length": "50%"
+        "window_end": "START+25%,END",
+        "window_length": "25%"
       },
       "iterations": 20,
       "clients": 1
     },
     {
-      "name": "kibana-content_issues-50%",
+      "name": "kibana-content_issues-25%",
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
@@ -103,14 +103,14 @@
         "index_pattern": "elasticlogs*",
         "query_string": "*",
         "ignore_frozen": false,
-        "window_end": "START+50%,END",
-        "window_length": "50%"
+        "window_end": "START+25%,END",
+        "window_length": "25%"
       },
       "iterations": 20,
       "clients": 1
     },
     {
-      "name": "kibana-traffic-50%",
+      "name": "kibana-traffic-25%",
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
@@ -118,8 +118,8 @@
         "index_pattern": "elasticlogs*",
         "query_string": "*",
         "ignore_frozen": false,
-        "window_end": "START+50%,END",
-        "window_length": "50%"
+        "window_end": "START+25%,END",
+        "window_length": "25%"
       },
       "iterations": 20,
       "clients": 1
