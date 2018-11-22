@@ -38,7 +38,7 @@ def kibana(es, params):
     if params['meta_data']['ignore_throttled']:
         result = es.msearch(body = request)
     else:
-        result = es.msearch(body = request, params={'ignore_throttled': 'false'})
+        result = es.msearch(body = request, params={'ignore_throttled': 'false', 'pre_filter_shard_size': 1})
 
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("[kibana_runner] result: {}".format(result))
