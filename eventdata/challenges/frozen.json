@@ -77,7 +77,8 @@
       "name": "fieldstats",
       "operation": {
         "operation-type": "fieldstats",
-        "index_pattern": "elasticlogs*"
+        "index_pattern": "elasticlogs*",
+        "ignore_frozen": false
       },
       "iterations": 1,
       "clients": 1
