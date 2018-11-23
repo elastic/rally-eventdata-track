@@ -56,7 +56,8 @@ class ElasticlogsKibanaSource:
                                        '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
         "timeout"              -   Request timeout in milliseconds. Defaults to 60000.
         "discover_size"        -   Nunmber of documents to return in Discover. Defaults to 500.
-        "ignore_frozen"        -   Boolean indicating whether frozen indices should be queried. Defaults to `True`.
+        "ignore_frozen"        -   Boolean indicating whether frozen indices should be queried. Defaults to `true`.
+        "debug"                -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
@@ -67,6 +68,7 @@ class ElasticlogsKibanaSource:
         self._timeout = 60000
         self._discover_size = 500
         self._ignore_frozen = True
+        self._debug = False
         
         random.seed()
 
@@ -80,8 +82,12 @@ class ElasticlogsKibanaSource:
             self._index_pattern = params['index_pattern']
         
         if 'ignore_frozen' in params.keys():
-            if params['ignore_frozen'] == False or params['ignore_frozen'].lower() == 'false':
+            if params['ignore_frozen'] == False:
                 self._ignore_frozen = False
+        
+        if 'debug' in params.keys():
+            if params['debug']:
+                self._debug = True
 
         if 'query_string' in params.keys():
             if isinstance(params['query_string' ], str):    
@@ -185,6 +191,8 @@ class ElasticlogsKibanaSource:
         meta_data['window_length'] = self._window_length
 
         meta_data['ignore_frozen'] = self._ignore_frozen
+
+        meta_data['debug'] = self._debug
 
         if self._dashboard == 'traffic':
             response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}

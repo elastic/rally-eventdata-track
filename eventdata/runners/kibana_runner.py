@@ -15,6 +15,7 @@ def kibana(es, params):
         "meta_data" - Dictionary containing meta data information to be carried through into metrics.
     """
     request = params['body']
+    debug = False
 
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("[kibana_runner] Received request: {}".format(json.dumps(request)))
@@ -32,15 +33,15 @@ def kibana(es, params):
     response['unit'] = "ops"
     response['visualisation_count'] = visualisations
 
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("[kibana_runner] request: {}".format(request))
+    if 'debug' in params['meta_data'] and params['meta_data']['debug']:
+        debug = True
 
     if 'ignore_frozen' not in params['meta_data'] or params['meta_data']['ignore_frozen']:
         result = es.msearch(body = request)
     else:
         result = es.msearch(body = request, params={'ignore_throttled': 'false', 'pre_filter_shard_size': 1})
 
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("[kibana_runner] result: {}".format(result))
+    if debug:
+        logger.debug("[kibana_runner] request: {}\n[kibana_runner] result: {}\n".format(request, result))
 
     return response
