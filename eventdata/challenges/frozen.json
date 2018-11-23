@@ -80,13 +80,13 @@
       "clients": 1
     },
     {
-      "name": "kibana-discover-25%",
+      "name": "kibana-discover-ip-25%",
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
         "dashboard": "discover",
         "index_pattern": "elasticlogs*",
-        "query_string": ["*"],
+        "query_string": "query_string_lists/uncommon_ip_query_strings.json",
         "ignore_frozen": false,
         "window_end": "START+25%,END",
         "window_length": "25%"
@@ -95,13 +95,13 @@
       "clients": 1
     },
     {
-      "name": "kibana-content_issues-25%",
+      "name": "kibana-content_issues-ip-25%",
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
         "dashboard": "content_issues",
         "index_pattern": "elasticlogs*",
-        "query_string": ["*"],
+        "query_string": "query_string_lists/uncommon_ip_query_strings.json",
         "ignore_frozen": false,
         "window_end": "START+25%,END",
         "window_length": "25%"
@@ -110,13 +110,13 @@
       "clients": 1
     },
     {
-      "name": "kibana-traffic-25%",
+      "name": "kibana-traffic-ip-25%",
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
         "dashboard": "traffic",
         "index_pattern": "elasticlogs*",
-        "query_string": ["*"],
+        "query_string": "query_string_lists/uncommon_ip_query_strings.json",
         "ignore_frozen": false,
         "window_end": "START+25%,END",
         "window_length": "25%"
