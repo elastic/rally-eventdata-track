@@ -191,15 +191,16 @@ class ElasticlogsKibanaSource:
         meta_data['window_length'] = self._window_length
 
         meta_data['ignore_frozen'] = self._ignore_frozen
-
-        meta_data['debug'] = self._debug
+        
+        if self._debug:
+            meta_data['debug'] = self._debug
 
         if self._dashboard == 'traffic':
-            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_frozen)}
         elif self._dashboard == 'content_issues':
-            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_frozen)}
         elif self._dashboard == 'discover':
-            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_frozen)}
 
         response['meta_data'] = meta_data
 
@@ -351,49 +352,64 @@ class ElasticlogsKibanaSource:
         dt = datetime.datetime.utcfromtimestamp(ts_s)
         return dt.isoformat()
 
-    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_frozen):
         preference = self.__get_preference()
+        
+        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        if not ignore_frozen:
+            header['ignore_throttled'] = False
+            header['pre_filter_shard_size'] = 1
 
         return [
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"cardinality":{"field":"nginx.access.remote_ip"}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.remote_ip","size":20,"order":{"_count":"desc"}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.url","size":20,"order":{"_count":"desc"}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.referrer","size":20,"order":{"_count":"desc"}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                ]
 
 
-    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_frozen):
         preference = self.__get_preference()
 
+        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        if not ignore_frozen:
+            header['ignore_throttled'] = False
+            header['pre_filter_shard_size'] = 1
+
         return [
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"filter_agg":{"filter":{"geo_bounding_box":{"nginx.access.geoip.location":{"top_left":{"lat":90,"lon":-180},"bottom_right":{"lat":-90,"lon":180}}}},"aggs":{"2":{"geohash_grid":{"field":"nginx.access.geoip.location","precision":2},"aggs":{"3":{"geo_centroid":{"field":"nginx.access.geoip.location"}}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"3":{"filters":{"filters":{"200s":{"query_string":{"query":"nginx.access.response_code: [200 TO 300]","analyze_wildcard":True,"default_field":"*"}},"300s":{"query_string":{"query":"nginx.access.response_code: [300 TO 400]","analyze_wildcard":True,"default_field":"*"}},"400s":{"query_string":{"query":"nginx.access.response_code: [400 TO 500]","analyze_wildcard":True,"default_field":"*"}},"500s":{"query_string":{"query":"nginx.access.response_code: [500 TO 600]","analyze_wildcard":True,"default_field":"*"}}}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.url","size":10,"order":{"_count":"desc"}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"1":{"sum":{"field":"nginx.access.body_sent.bytes"}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.user_agent.name","size":5,"order":{"_count":"desc"}},"aggs":{"3":{"terms":{"field":"nginx.access.user_agent.major","size":5,"order":{"_count":"desc"}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":"*","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.user_agent.os_name","size":5,"order":{"_count":"desc"}},"aggs":{"3":{"terms":{"field":"nginx.access.user_agent.os_major","size":5,"order":{"_count":"desc"}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":"*","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"3":{"terms":{"field":"nginx.access.response_code","size":10,"order":{"_count":"desc"}}}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":"nginx.access.response_code: [400 TO 600]","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                ]
 
 
-    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_frozen):
         preference = self.__get_preference()
 
+        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        if not ignore_frozen:
+            header['ignore_throttled'] = False
+            header['pre_filter_shard_size'] = 1
+
         return [
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"version":True,"size":discover_size,"sort":[{"@timestamp":{"order":"desc","unmapped_type":"boolean"}}],"_source":{"excludes":[]},"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                 ]
 
