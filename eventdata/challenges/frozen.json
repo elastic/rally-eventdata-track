@@ -51,6 +51,9 @@
 {
   "name": "frozen-querying",
   "description": "Frozen node querying.",
+  "meta": {
+    "version": 2
+  },
   "schedule": [
     {
       "operation": {
@@ -100,21 +103,6 @@
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
         "dashboard": "content_issues",
-        "index_pattern": "elasticlogs*",
-        "query_string": "query_string_lists/uncommon_ip_query_strings.json",
-        "ignore_frozen": false,
-        "window_end": "START+25%,END",
-        "window_length": "25%"
-      },
-      "iterations": 20,
-      "clients": 1
-    },
-    {
-      "name": "kibana-traffic-ip-25%",
-      "operation": {
-        "operation-type": "kibana",
-        "param-source": "elasticlogs_kibana",
-        "dashboard": "traffic",
         "index_pattern": "elasticlogs*",
         "query_string": "query_string_lists/uncommon_ip_query_strings.json",
         "ignore_frozen": false,
