@@ -71,9 +71,9 @@
       "clients": 1
     },
     {
-      "name": "indicesstats",
+      "name": "fieldstats",
       "operation": {
-        "operation-type": "indicesstats",
+        "operation-type": "fieldstats",
         "index_pattern": "elasticlogs*"
       },
       "iterations": 1,
