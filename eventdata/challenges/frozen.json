@@ -86,7 +86,7 @@
         "param-source": "elasticlogs_kibana",
         "dashboard": "discover",
         "index_pattern": "elasticlogs*",
-        "query_string": "*",
+        "query_string": ["*"],
         "ignore_frozen": false,
         "window_end": "START+25%,END",
         "window_length": "25%"
@@ -101,7 +101,7 @@
         "param-source": "elasticlogs_kibana",
         "dashboard": "content_issues",
         "index_pattern": "elasticlogs*",
-        "query_string": "*",
+        "query_string": ["*"],
         "ignore_frozen": false,
         "window_end": "START+25%,END",
         "window_length": "25%"
@@ -116,7 +116,7 @@
         "param-source": "elasticlogs_kibana",
         "dashboard": "traffic",
         "index_pattern": "elasticlogs*",
-        "query_string": "*",
+        "query_string": ["*"],
         "ignore_frozen": false,
         "window_end": "START+25%,END",
         "window_length": "25%"
