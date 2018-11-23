@@ -42,6 +42,6 @@ def kibana(es, params):
         result = es.msearch(body = request, params={'ignore_throttled': 'false', 'pre_filter_shard_size': 1})
 
     if debug:
-        logger.debug("[kibana_runner] request: {}\n[kibana_runner] result: {}\n".format(request, result))
+        logger.info("[kibana_runner] request: {}\n[kibana_runner] result: {}\n".format(request, result))
 
     return response
