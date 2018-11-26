@@ -32,7 +32,10 @@ def kibana(es, params):
     response['unit'] = "ops"
     response['visualisation_count'] = visualisations
 
-    result = es.msearch(body = request)
+    if "pre_filter_shard_size" in meta_data:
+        result = es.msearch(body = request, params = {'pre_filter_shard_size': meta_data['pre_filter_shard_size']})
+    else:
+        result = es.msearch(body = request)
 
     if 'debug' in params['meta_data'] and params['meta_data']['debug']:
         logger.info("\n====================\n[kibana_runner] request: {}\n[kibana_runner] result: {}\n====================\n".format(request, result))

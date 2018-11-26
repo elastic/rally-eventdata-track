@@ -34,30 +34,31 @@ class ElasticlogsKibanaSource:
     Simulates a set of sample Kibana dashboards for the elasticlogs data set.
 
     It expects the parameter hash to contain the following keys:
-        "dashboard"            -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'. Defaults to 'traffic'.
-        "query_string"         -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
-                                   to ["*"], If a list has been specified, a random value will be selected.
-        "index_pattern"        -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
-                                   been specified, a random value will be selected.
-        "window_end"           -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
-                                   that will be used to anchor the window. If two values are given in a comma separated list, the end of the window
-                                   will be randomized within this interval. Values can be either absolute or relative:
-                                       'now' - Always evaluated to the current timestamp. This is the default value.
-                                       'now-1h' - Offset to the current timestamp. Consists of a number and either m (minutes), h (hours) or d (days).
-                                       '2016-12-20 20:12:32' - Exact timestamp.
-                                       'START' - If fieldstats has been run for the index pattern and `@timestamp` field, 'START' can be used to reference the start of this interval.
-                                       'END' - If fieldstats has been run for the index pattern and `@timestamp` field, 'END' can be used to reference the end of this interval.
-                                       'END-40%' - When an interval has been specified based on fieldstats, it is possible to express a volume
-                                       relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
-                                       represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
-        "window_length"        -   String indicating length of the time window to aggregate across. Values can be either absolute 
-                                   or relative. Defaults to '1d'.
-                                       '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
-                                       '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
-        "timeout"              -   Request timeout in milliseconds. Defaults to 60000.
-        "discover_size"        -   Nunmber of documents to return in Discover. Defaults to 500.
-        "ignore_frozen"        -   Boolean indicating whether frozen indices should be queried. Defaults to `true`.
-        "debug"                -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
+        "dashboard"             -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'. Defaults to 'traffic'.
+        "query_string"          -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
+                                    to ["*"], If a list has been specified, a random value will be selected.
+        "index_pattern"         -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
+                                    been specified, a random value will be selected.
+        "window_end"            -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
+                                    that will be used to anchor the window. If two values are given in a comma separated list, the end of the window
+                                    will be randomized within this interval. Values can be either absolute or relative:
+                                        'now' - Always evaluated to the current timestamp. This is the default value.
+                                        'now-1h' - Offset to the current timestamp. Consists of a number and either m (minutes), h (hours) or d (days).
+                                        '2016-12-20 20:12:32' - Exact timestamp.
+                                        'START' - If fieldstats has been run for the index pattern and `@timestamp` field, 'START' can be used to reference the start of this interval.
+                                        'END' - If fieldstats has been run for the index pattern and `@timestamp` field, 'END' can be used to reference the end of this interval.
+                                        'END-40%' - When an interval has been specified based on fieldstats, it is possible to express a volume
+                                        relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
+                                        represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
+        "window_length"         -   String indicating length of the time window to aggregate across. Values can be either absolute 
+                                    or relative. Defaults to '1d'.
+                                        '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
+                                        '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
+        "timeout"               -   Request timeout in milliseconds. Defaults to 60000.
+        "discover_size"         -   Nunmber of documents to return in Discover. Defaults to 500.
+        "ignore_frozen"         -   Boolean indicating whether frozen indices should be queried. Defaults to `true`.
+        "pre_filter_shard_size" -   
+        "debug"                 -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
@@ -69,6 +70,7 @@ class ElasticlogsKibanaSource:
         self._discover_size = 500
         self._ignore_frozen = True
         self._debug = False
+        self._pre_filter_shard_size = False
         
         random.seed()
 
@@ -85,6 +87,9 @@ class ElasticlogsKibanaSource:
             if params['ignore_frozen'] == False:
                 self._ignore_frozen = False
         
+        if 'pre_filter_shard_size' in params.keys():
+            self._pre_filter_shard_size = int(params['pre_filter_shard_size'])
+
         if 'debug' in params.keys():
             if params['debug']:
                 self._debug = True
@@ -192,6 +197,9 @@ class ElasticlogsKibanaSource:
 
         meta_data['ignore_frozen'] = self._ignore_frozen
         
+        if self._pre_filter_shard_size:
+            meta_data['pre_filter_shard_size'] = self._pre_filter_shard_size
+
         if self._debug:
             meta_data['debug'] = self._debug
 
@@ -358,7 +366,6 @@ class ElasticlogsKibanaSource:
         header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
         if not ignore_frozen:
             header['ignore_throttled'] = False
-            header['pre_filter_shard_size'] = 1
 
         return [
                    header,
@@ -380,7 +387,6 @@ class ElasticlogsKibanaSource:
         header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
         if not ignore_frozen:
             header['ignore_throttled'] = False
-            header['pre_filter_shard_size'] = 1
 
         return [
                    header,
@@ -406,7 +412,6 @@ class ElasticlogsKibanaSource:
         header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
         if not ignore_frozen:
             header['ignore_throttled'] = False
-            header['pre_filter_shard_size'] = 1
 
         return [
                    header,
