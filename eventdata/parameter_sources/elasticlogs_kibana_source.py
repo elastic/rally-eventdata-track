@@ -56,8 +56,8 @@ class ElasticlogsKibanaSource:
                                         '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
         "timeout"               -   Request timeout in milliseconds. Defaults to 60000.
         "discover_size"         -   Nunmber of documents to return in Discover. Defaults to 500.
-        "ignore_frozen"         -   Boolean indicating whether frozen indices should be queried. Defaults to `true`.
-        "pre_filter_shard_size" -   
+        "ignore_throttled"      -   Boolean indicating whether throttled (frozen) indices should be ignored. Defaults to `true`.
+        "pre_filter_shard_size" -   Defines the `pre_filter_shard_size` parameter used with throttled (frozen) indices. Defgaults to 1.
         "debug"                 -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
     """
     def __init__(self, track, params, **kwargs):
@@ -68,9 +68,9 @@ class ElasticlogsKibanaSource:
         self._dashboard = 'traffic'
         self._timeout = 60000
         self._discover_size = 500
-        self._ignore_frozen = True
+        self._ignore_throttled = True
         self._debug = False
-        self._pre_filter_shard_size = False
+        self._pre_filter_shard_size = 1
         
         random.seed()
 
@@ -83,9 +83,9 @@ class ElasticlogsKibanaSource:
         if 'index_pattern' in params.keys():
             self._index_pattern = params['index_pattern']
         
-        if 'ignore_frozen' in params.keys():
-            if params['ignore_frozen'] == False:
-                self._ignore_frozen = False
+        if 'ignore_throttled' in params.keys():
+            if params['ignore_throttled'] == False:
+                self._ignore_throttled = False
         
         if 'pre_filter_shard_size' in params.keys():
             self._pre_filter_shard_size = int(params['pre_filter_shard_size'])
@@ -195,20 +195,19 @@ class ElasticlogsKibanaSource:
 
         meta_data['window_length'] = self._window_length
 
-        meta_data['ignore_frozen'] = self._ignore_frozen
+        meta_data['ignore_throttled'] = self._ignore_throttled
         
-        if self._pre_filter_shard_size:
-            meta_data['pre_filter_shard_size'] = self._pre_filter_shard_size
+        meta_data['pre_filter_shard_size'] = self._pre_filter_shard_size
 
         if self._debug:
             meta_data['debug'] = self._debug
 
         if self._dashboard == 'traffic':
-            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_frozen)}
+            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
         elif self._dashboard == 'content_issues':
-            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_frozen)}
+            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
         elif self._dashboard == 'discover':
-            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_frozen)}
+            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
 
         response['meta_data'] = meta_data
 
@@ -360,11 +359,11 @@ class ElasticlogsKibanaSource:
         dt = datetime.datetime.utcfromtimestamp(ts_s)
         return dt.isoformat()
 
-    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_frozen):
+    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
         
         header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
-        if not ignore_frozen:
+        if not ignore_throttled:
             header['ignore_throttled'] = False
 
         return [
@@ -381,11 +380,11 @@ class ElasticlogsKibanaSource:
                ]
 
 
-    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_frozen):
+    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
 
         header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
-        if not ignore_frozen:
+        if not ignore_throttled:
             header['ignore_throttled'] = False
 
         return [
@@ -406,11 +405,11 @@ class ElasticlogsKibanaSource:
                ]
 
 
-    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_frozen):
+    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
 
         header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
-        if not ignore_frozen:
+        if not ignore_throttled:
             header['ignore_throttled'] = False
 
         return [
