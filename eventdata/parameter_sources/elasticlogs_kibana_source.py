@@ -34,28 +34,31 @@ class ElasticlogsKibanaSource:
     Simulates a set of sample Kibana dashboards for the elasticlogs data set.
 
     It expects the parameter hash to contain the following keys:
-        "dashboard"            -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'. Defaults to 'traffic'.
-        "query_string"         -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
-                                   to ["*"], If a list has been specified, a random value will be selected.
-        "index_pattern"        -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
-                                   been specified, a random value will be selected.
-        "window_end"           -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
-                                   that will be used to anchor the window. If two values are given in a comma separated list, the end of the window
-                                   will be randomized within this interval. Values can be either absolute or relative:
-                                       'now' - Always evaluated to the current timestamp. This is the default value.
-                                       'now-1h' - Offset to the current timestamp. Consists of a number and either m (minutes), h (hours) or d (days).
-                                       '2016-12-20 20:12:32' - Exact timestamp.
-                                       'START' - If fieldstats has been run for the index pattern and `@timestamp` field, 'START' can be used to reference the start of this interval.
-                                       'END' - If fieldstats has been run for the index pattern and `@timestamp` field, 'END' can be used to reference the end of this interval.
-                                       'END-40%' - When an interval has been specified based on fieldstats, it is possible to express a volume
-                                       relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
-                                       represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
-        "window_length"        -   String indicating length of the time window to aggregate across. Values can be either absolute 
-                                   or relative. Defaults to '1d'.
-                                       '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
-                                       '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
-        "timeout"              -   Request timeout in milliseconds. Defaults to 60000.
-        "discover_size".       -   Nunmber of documents to return in Discover. Defaults to 500.
+        "dashboard"             -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'. Defaults to 'traffic'.
+        "query_string"          -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
+                                    to ["*"], If a list has been specified, a random value will be selected.
+        "index_pattern"         -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
+                                    been specified, a random value will be selected.
+        "window_end"            -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
+                                    that will be used to anchor the window. If two values are given in a comma separated list, the end of the window
+                                    will be randomized within this interval. Values can be either absolute or relative:
+                                        'now' - Always evaluated to the current timestamp. This is the default value.
+                                        'now-1h' - Offset to the current timestamp. Consists of a number and either m (minutes), h (hours) or d (days).
+                                        '2016-12-20 20:12:32' - Exact timestamp.
+                                        'START' - If fieldstats has been run for the index pattern and `@timestamp` field, 'START' can be used to reference the start of this interval.
+                                        'END' - If fieldstats has been run for the index pattern and `@timestamp` field, 'END' can be used to reference the end of this interval.
+                                        'END-40%' - When an interval has been specified based on fieldstats, it is possible to express a volume
+                                        relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
+                                        represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
+        "window_length"         -   String indicating length of the time window to aggregate across. Values can be either absolute 
+                                    or relative. Defaults to '1d'.
+                                        '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
+                                        '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
+        "timeout"               -   Request timeout in milliseconds. Defaults to 60000.
+        "discover_size"         -   Nunmber of documents to return in Discover. Defaults to 500.
+        "ignore_throttled"      -   Boolean indicating whether throttled (frozen) indices should be ignored. Defaults to `true`.
+        "pre_filter_shard_size" -   Defines the `pre_filter_shard_size` parameter used with throttled (frozen) indices. Defgaults to 1.
+        "debug"                 -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
@@ -65,6 +68,9 @@ class ElasticlogsKibanaSource:
         self._dashboard = 'traffic'
         self._timeout = 60000
         self._discover_size = 500
+        self._ignore_throttled = True
+        self._debug = False
+        self._pre_filter_shard_size = 1
         
         random.seed()
 
@@ -77,6 +83,17 @@ class ElasticlogsKibanaSource:
         if 'index_pattern' in params.keys():
             self._index_pattern = params['index_pattern']
         
+        if 'ignore_throttled' in params.keys():
+            if params['ignore_throttled'] == False:
+                self._ignore_throttled = False
+        
+        if 'pre_filter_shard_size' in params.keys():
+            self._pre_filter_shard_size = int(params['pre_filter_shard_size'])
+
+        if 'debug' in params.keys():
+            if params['debug']:
+                self._debug = True
+
         if 'query_string' in params.keys():
             if isinstance(params['query_string' ], str):    
                 if params['query_string'] in gs.global_config.keys():
@@ -178,12 +195,19 @@ class ElasticlogsKibanaSource:
 
         meta_data['window_length'] = self._window_length
 
+        meta_data['ignore_throttled'] = self._ignore_throttled
+        
+        meta_data['pre_filter_shard_size'] = self._pre_filter_shard_size
+
+        if self._debug:
+            meta_data['debug'] = self._debug
+
         if self._dashboard == 'traffic':
-            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
         elif self._dashboard == 'content_issues':
-            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
         elif self._dashboard == 'discover':
-            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms)}
+            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
 
         response['meta_data'] = meta_data
 
@@ -335,49 +359,61 @@ class ElasticlogsKibanaSource:
         dt = datetime.datetime.utcfromtimestamp(ts_s)
         return dt.isoformat()
 
-    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
+        
+        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        if not ignore_throttled:
+            header['ignore_throttled'] = False
 
         return [
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"cardinality":{"field":"nginx.access.remote_ip"}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.remote_ip","size":20,"order":{"_count":"desc"}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.url","size":20,"order":{"_count":"desc"}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.referrer","size":20,"order":{"_count":"desc"}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                ]
 
 
-    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
 
+        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        if not ignore_throttled:
+            header['ignore_throttled'] = False
+
         return [
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"filter_agg":{"filter":{"geo_bounding_box":{"nginx.access.geoip.location":{"top_left":{"lat":90,"lon":-180},"bottom_right":{"lat":-90,"lon":180}}}},"aggs":{"2":{"geohash_grid":{"field":"nginx.access.geoip.location","precision":2},"aggs":{"3":{"geo_centroid":{"field":"nginx.access.geoip.location"}}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"3":{"filters":{"filters":{"200s":{"query_string":{"query":"nginx.access.response_code: [200 TO 300]","analyze_wildcard":True,"default_field":"*"}},"300s":{"query_string":{"query":"nginx.access.response_code: [300 TO 400]","analyze_wildcard":True,"default_field":"*"}},"400s":{"query_string":{"query":"nginx.access.response_code: [400 TO 500]","analyze_wildcard":True,"default_field":"*"}},"500s":{"query_string":{"query":"nginx.access.response_code: [500 TO 600]","analyze_wildcard":True,"default_field":"*"}}}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.url","size":10,"order":{"_count":"desc"}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"1":{"sum":{"field":"nginx.access.body_sent.bytes"}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.user_agent.name","size":5,"order":{"_count":"desc"}},"aggs":{"3":{"terms":{"field":"nginx.access.user_agent.major","size":5,"order":{"_count":"desc"}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":"*","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"terms":{"field":"nginx.access.user_agent.os_name","size":5,"order":{"_count":"desc"}},"aggs":{"3":{"terms":{"field":"nginx.access.user_agent.os_major","size":5,"order":{"_count":"desc"}}}}}},"version":True,"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":"*","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}},
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"3":{"terms":{"field":"nginx.access.response_code","size":10,"order":{"_count":"desc"}}}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":"nginx.access.response_code: [400 TO 600]","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                ]
 
 
-    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms):
+    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
 
+        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        if not ignore_throttled:
+            header['ignore_throttled'] = False
+
         return [
-                   {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference},
+                   header,
                    {"version":True,"size":discover_size,"sort":[{"@timestamp":{"order":"desc","unmapped_type":"boolean"}}],"_source":{"excludes":[]},"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                 ]
 
