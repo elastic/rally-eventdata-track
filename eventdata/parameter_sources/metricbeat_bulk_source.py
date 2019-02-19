@@ -116,7 +116,7 @@ class MetricbeatBulkSource:
             evt, idx, typ = self._randomevent.generate_event()
 
             if self._id_type == 'auto':
-                bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}"' % (idx))
+                bulk_array.append('{"index": {"_index": "%s"}}"' % (idx))
             else:
                 if self._id_type == 'uuid':
                     docid = self.__get_uuid()
@@ -131,7 +131,7 @@ class MetricbeatBulkSource:
                 else:
                     docid = self.__get_epoch_uuid()
                 
-                bulk_array.append('{"index": {"_index": "%s", "_type": "doc", "_id": "%s"}}"' % (idx, docid))
+                bulk_array.append('{"index": {"_index": "%s", "_id": "%s"}}"' % (idx, docid))
 
             bulk_array.append(evt)
 

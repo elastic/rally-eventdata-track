@@ -8,9 +8,7 @@
   "indices": [
     {
       "name": "elasticlogs",
-      "body": "elasticlogs-index.json",
-      "types": [ "doc" ],
-      "auto-managed": false
+      "body": "elasticlogs-index.json"
     }
   ],
   "#COMMENT": "'operations' just define all possible operations but this is not the actual execution schedule. The execution is defined in the 'challenges' block and it just refers to the defined operations. The intention between this separation is to allow reuse of operations",
