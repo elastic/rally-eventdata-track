@@ -267,4 +267,12 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
   "index_pattern": {{ indices_delete_pattern | default("elasticlogs_q-*") | tojson }},
   "max_indices": {{ max_rolledover_indices | default(20) | int | tojson }},
   "suffix_separator": {{ rolledover_indices_suffix_separator | default("-") | tojson }}
+},
+{
+  "name": "index-append-with-pipeline",
+  "operation-type": "bulk",
+  "bulk-size": {{bulk_size | default(500)}},
+  "bulk_size": 100,
+  "pipeline": "{{ingest_pipeline_name | default('baseline')}}",
+  "param-source": "elasticlogs_bulk"
 }
