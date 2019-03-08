@@ -1,0 +1,45 @@
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(16)) %}
+{% set p_replica_count = (number_of_replicas | default(0)) %}
+{% set p_shard_count = (shard_count | default(2)) %}
+
+
+{
+  "name": "append-no-conflicts-with-ingest-pipeline",
+  "description": "Indexes the whole document corpus using Elasticsearch default settings. We only adjust the number of replicas as we benchmark a single node cluster and Rally will only start the benchmark if the cluster turns green. Document ids are unique so all index operations are append only. Runs the documents through an ingest node pipeline. May require --elasticsearch-plugins='ingest-geoip,ingest-user-agent' ",
+  "schedule": [
+    {
+      "operation": "delete-index"
+    },
+    {
+      "operation": {
+        "operation-type": "create-index",
+        "settings": {
+          "index.number_of_replicas": {{ p_replica_count }},
+          "index.number_of_shards": {{ p_shard_count }}
+        }
+      }
+    },
+    {
+      "name": "check-cluster-health",
+      "operation": {
+        "operation-type": "cluster-health",
+        "request-params": {
+          "wait_for_status": "{{cluster_health | default('green')}}",
+          "wait_for_no_relocating_shards": "true"
+        }
+      }
+    },
+    {
+      "operation": "create-{{ ingest_pipeline_name | default('baseline')}}-pipeline"
+    },
+    {
+      "operation": "index-append-with-pipeline",
+      "warmup-time-period": {{warm_up_period | default(1) }},
+      "clients": {{p_bulk_indexing_clients}}
+    },
+    {
+      "operation": "force-merge",
+      "clients": 1
+    }
+  ]
+}
