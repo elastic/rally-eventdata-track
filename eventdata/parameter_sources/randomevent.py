@@ -1,16 +1,20 @@
-import json
-import random
 import gzip
-import re
+import json
+import logging
 import os
+import random
+import re
 from eventdata.utils import elasticlogs_bulk_source as ebs
 from eventdata.parameter_sources.weightedarray import WeightedArray
 from eventdata.parameter_sources.timeutils import TimestampStructGenerator
 
 cwd = os.path.dirname(__file__)
+logger = logging.getLogger("track.eventdata.randomevent")
+
 
 class Agent:
-    def __init__(self):
+    def __init__(self, params):
+        self._has_pipeline = True if 'pipeline' in params.keys() else False
         
         if '_agents' in ebs.global_lookups.keys():
             self._agents = ebs.global_lookups['_agents']
@@ -70,15 +74,17 @@ class Agent:
 
     def add_fields(self, event):
         agent = self._agents.get_random()
-
-        event['useragent_name'] = self.__get_lookup_value(self._agents_name_lookup, agent[0])
-        event['useragent_os'] = self.__get_lookup_value(self._agents_os_lookup, agent[1])
-        event['useragent_os_name'] = self.__get_lookup_value(self._agents_os_name_lookup, agent[2])
-        event['useragent_device'] = self.__get_lookup_value(self._agents_device_lookup, agent[3])
-        event['useragent_os_major'] = self.__get_lookup_value(self._agents_os_major_lookup, agent[4])
-        event['useragent_major'] = self.__get_lookup_value(self._agents_major_lookup, agent[5])
         event['agent'] = self.__get_lookup_value(self._agent_lookup, agent[6])
 
+        if self._has_pipeline is False :
+            event['useragent_name'] = self.__get_lookup_value(self._agents_name_lookup, agent[0])
+            event['useragent_os'] = self.__get_lookup_value(self._agents_os_lookup, agent[1])
+            event['useragent_os_name'] = self.__get_lookup_value(self._agents_os_name_lookup, agent[2])
+            event['useragent_device'] = self.__get_lookup_value(self._agents_device_lookup, agent[3])
+            event['useragent_os_major'] = self.__get_lookup_value(self._agents_os_major_lookup, agent[4])
+            event['useragent_major'] = self.__get_lookup_value(self._agents_major_lookup, agent[5])
+
+            
     def __get_lookup_value(self, lookup, key):
         if key == "":
             return key
@@ -87,7 +93,9 @@ class Agent:
 
 
 class ClientIp:
-    def __init__(self):
+    def __init__(self, params):
+        self._has_pipeline = True if 'pipeline' in params.keys() else False
+        
         self._rare_clientip_probability = 0.269736965199
 
         if '_clientips' in ebs.global_lookups.keys():
@@ -147,13 +155,14 @@ class ClientIp:
             data = self._clientips.get_random()
             event['clientip'] = data[0]
 
-        event['geoip_location_lat'] = data[1][0]
-        event['geoip_location_lon'] = data[1][1]
-        event['geoip_city_name'] = self.__get_lookup_value(self._clientips_city_name_lookup, data[2])
-        event['geoip_country_name'] = self.__get_lookup_value(self._clientips_country_name_lookup, data[3])
-        event['geoip_country_iso_code'] = self.__get_lookup_value(self._clientips_country_iso_code_lookup, data[4])
-        event['geoip_continent_name'] = self.__get_lookup_value(self._clientips_continent_name_lookup, data[5])
-        event['geoip_continent_code'] = self.__get_lookup_value(self._clientips_continent_code_lookup, data[5])
+        if self._has_pipeline is False :
+            event['geoip_location_lat'] = data[1][0]
+            event['geoip_location_lon'] = data[1][1]
+            event['geoip_city_name'] = self.__get_lookup_value(self._clientips_city_name_lookup, data[2])
+            event['geoip_country_name'] = self.__get_lookup_value(self._clientips_country_name_lookup, data[3])
+            event['geoip_country_iso_code'] = self.__get_lookup_value(self._clientips_country_iso_code_lookup, data[4])
+            event['geoip_continent_name'] = self.__get_lookup_value(self._clientips_continent_name_lookup, data[5])
+            event['geoip_continent_code'] = self.__get_lookup_value(self._clientips_continent_code_lookup, data[5])
 
     def __fill_out_ip_prefix(self, ip_prefix):
         rnd1 = random.random()
@@ -218,8 +227,9 @@ class Request:
 
 class RandomEvent:
     def __init__(self, params):
-        self._agent = Agent()
-        self._clientip = ClientIp()
+        self._has_pipeline = True if "pipeline" in params.keys() else False
+        self._agent = Agent(params)
+        self._clientip = ClientIp(params)
         self._referrer = Referrer()
         self._request = Request()
         # We will reuse the event dictionary. This assumes that each field will be present (and thus overwritten) in each event.
@@ -276,29 +286,58 @@ class RandomEvent:
         self._request.add_fields(event)
 
         # set host name
-        event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"],random.randrange(1,3))
+        event["hostname"] = "web-{}-{}.elastic.co".format("global",random.randrange(1,3))
 
-        line = '{"@timestamp": "%s", ' \
-               '"offset":%s, ' \
-               '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
-               '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
-               '"prospector":{"type":"log"},' \
-               '"nginx":{"access":{"user_name": "-",' \
-               '"agent":"%s","user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
-               '"remote_ip": "%s","remote_ip_list":["%s"],' \
-               '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
-               '"referrer":"%s",' \
-               '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":%s,"http_version":"%s"} } }' % \
-               (event["@timestamp"],
-                event["offset"],
-                event["hostname"],event["hostname"],
-                event["agent"], event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
-                event["clientip"], event["clientip"],
-                event["geoip_continent_name"], event["geoip_city_name"], event["geoip_country_name"], event["geoip_country_iso_code"], event["geoip_location_lat"], event["geoip_location_lon"],
-                event["referrer"],
-                event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
+        line = {
+            "@timestamp": event['@timestamp'],
+            "offset": event['offset'],
+            "source": "/usr/local/var/log/nginx/access.log",
+            "fileset": {"module": "nginx", "name": "access"},
+            "input": {"type": "log"},
+            "beat": {"version": "6.3.0", "hostname": event['hostname'], "name": event['hostname']},
+            "prospector": {"type": "log"},
+            "nginx": {
+                "access": {
+                    "user_name": "-",
+                    "agent": event['agent'],
+                    "remote_ip": event['clientip'],
+                    "remote_ip_list": [event['clientip']],
+                    "referrer": event['referrer'],
+                    "url": event['request'],
+                    "body_sent": {"bytes": event['bytes']},
+                    "method": event['verb'],
+                    "response_code": event['response'],
+                    "http_version": event['httpversion']
+                }
+            }
+        }
+        if self._has_pipeline is False:
+            line['beat']['hostname']= "web-{}-{}.elastic.co".format(event['geoip_continent_name'],random.randrange(1,3))
+            line['nginx']['access']['user_agent'] = {
+                "name": event['useragent_name'],
+                "original": event['agent'],
+                "os": {
+                    "name": event['useragent_os_name'],
+                    "version": event['useragent_os_major'],
+                    "full": event['useragent_os']
+                },
+                "device": {
+                    "name": event['useragent_device']
+                },
+                "version": ""
 
-        return line, index_name, self._type
+            }
+            line['nginx']['access']['geoip'] = {
+                "continent_name": event['geoip_continent_name'],
+                "city_name": event['geoip_city_name'],
+                "country_name": event['geoip_country_name'],
+                "country_iso_code": event['geoip_country_iso_code'],
+                "location": {
+                    "lat": event['geoip_location_lat'],
+                    "lon": event['geoip_location_lon']
+                }
+            }
+        return json.dumps(line), index_name, self._type
 
     def __generate_index_pattern(self, timestruct):
         if self._index_pattern:
