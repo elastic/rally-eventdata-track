@@ -24,14 +24,7 @@
       {
         "geoip": {
           "field": "nginx.access.remote_ip",
-          "target_field": "nginx.access.geoip",
-          "properties": [
-            "continent_name",
-            "city_name",
-            "country_name",
-            "country_iso_code",
-            "location"
-          ]
+          "target_field": "nginx.access.geoip"
         }
       }
     ]
@@ -47,15 +40,7 @@
       {
         "user_agent": {
           "field": "nginx.access.agent",
-          "target_field": "nginx.access.user_agent",
-          "properties": [
-            "name",
-            "major",
-            "device",
-            "os_major",
-            "os",
-            "os_name"
-          ]
+          "target_field": "nginx.access.user_agent"
         }
       }
     ]
@@ -71,26 +56,11 @@
       {
         "geoip": {
           "field": "nginx.access.remote_ip",
-          "target_field": "nginx.access.geoip",
-          "properties": [
-            "continent_name",
-            "city_name",
-            "country_name",
-            "country_iso_code",
-            "location"
-          ]
+          "target_field": "nginx.access.geoip"
         },
         "user_agent": {
           "field": "nginx.access.agent",
-          "target_field": "nginx.access.user_agent",
-          "properties": [
-            "name",
-            "major",
-            "device",
-            "os_major",
-            "os",
-            "os_name"
-          ]
+          "target_field": "nginx.access.user_agent"
         }
       }
     ]
