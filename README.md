@@ -222,6 +222,17 @@ The table below shows the track parameters that can be adjusted along with defau
 | `bulk_indexing_iterations` | Number of bulk requests to send as part of each run | `int` | `200000` |
 | `forcemerge` | Parameter indicating whether index statistics should be gathered following a forcemerge down to a single segment | `boolean` | `false` |
 
+### 11) append-no-conflicts-with-ingest-pipeline
+
+This challenge is similar with the `append-no-conflicts` challenge but uses an ingest pipeline to perform the ingestion. 
+
+This challenge accepts the following parameters in addition to the ones from the `append-no-conflicts` challenge
+
+| Parameter              | Exlpanation                                                                                                | Type     | Default Value  |
+| ---------              | -----------                                                                                                | ----     | -------------- |
+| `ingest_pipeline_name` | String of the ingest pipeline to be used, accepted values are `baseline`, `geoip`, `useragent`, `combined` | `string` | `baseline`     |
+
+
 ## Custom parameter sources
 
 ### elasticlogs\_bulk\_source
