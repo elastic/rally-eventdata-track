@@ -34,28 +34,40 @@
               "user_agent": {
                 "properties": {
                   "device": {
-                    "ignore_above": 1024,
-                    "type": "keyword"
-                  },
-                  "major": {
-                    "ignore_above": 1024,
-                    "type": "keyword"
-                  },
-                  "os_major": {
-                    "ignore_above": 1024,
-                    "type": "keyword"
+                    "properties":{
+                      "name":{                   
+                        "ignore_above": 1024,
+                        "type": "keyword"
+                      }
+                    }
                   },
                   "name": {
                     "type": "keyword",
                     "ignore_above": 1024
                   },
                   "os": {
-                    "type": "keyword",
-                    "ignore_above": 1024
+                    "properties": {
+                      "name": {
+                        "ignore_above": 1024,
+                        "type": "keyword"
+                      },
+                      "version": {
+                        "ignore_above": 1024,
+                        "type": "keyword"
+                      },
+                      "full": {
+                        "ignore_above": 1024,
+                        "type": "keyword"
+                      }
+                    }
                   },
-                  "os_name": {
+                  "original": {
                     "type": "keyword",
-                    "ignore_above": 1024
+                    "ignore_above":1024
+                  },
+                  "version": {
+                    "type": "keyword",
+                    "ignore_above":1024
                   }
                 }
               },
