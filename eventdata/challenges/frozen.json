@@ -49,7 +49,7 @@
       "operation": {
         "operation-type": "force-merge",
         "max-num-segments": 1,
-        "request-timeout": 7200
+        "request-timeout": 18000
       }
     }
   ]
