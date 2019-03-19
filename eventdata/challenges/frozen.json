@@ -20,7 +20,6 @@
         "index_template_body": {
           "template": "elasticlogs",
           "settings": {
-            "index.refresh_interval": "5s",
             "index.codec": "best_compression",
             "index.number_of_replicas": 0,
             "index.number_of_shards": 2
@@ -44,6 +43,13 @@
       },
       "iterations": 30000,
       "clients": 8
+    },
+    {
+      "operation": {
+        "operation-type": "force-merge",
+        "max-num-segments": 1,
+        "request-timeout": 7200
+      }
     }
   ]
 },
