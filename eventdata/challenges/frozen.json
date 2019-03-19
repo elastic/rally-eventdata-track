@@ -20,6 +20,7 @@
         "index_template_body": {
           "template": "elasticlogs",
           "settings": {
+            "index.store.type": "hybridfs",
             "index.codec": "best_compression",
             "index.number_of_replicas": 0,
             "index.number_of_shards": 2
