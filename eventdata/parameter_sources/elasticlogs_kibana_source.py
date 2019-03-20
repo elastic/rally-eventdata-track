@@ -29,6 +29,7 @@ class ConfigurationError(Error):
     def __init__(self, message):
         self.message = message
 
+
 class ElasticlogsKibanaSource:
     """
     Simulates a set of sample Kibana dashboards for the elasticlogs data set.
@@ -54,7 +55,6 @@ class ElasticlogsKibanaSource:
                                     or relative. Defaults to '1d'.
                                         '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
                                         '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
-        "timeout"               -   Request timeout in milliseconds. Defaults to 60000.
         "discover_size"         -   Nunmber of documents to return in Discover. Defaults to 500.
         "ignore_throttled"      -   Boolean indicating whether throttled (frozen) indices should be ignored. Defaults to `true`.
         "pre_filter_shard_size" -   Defines the `pre_filter_shard_size` parameter used with throttled (frozen) indices. Defgaults to 1.
@@ -66,16 +66,12 @@ class ElasticlogsKibanaSource:
         self._index_pattern = 'elasticlogs-*'
         self._query_string_list = ['*']
         self._dashboard = 'traffic'
-        self._timeout = 60000
         self._discover_size = 500
         self._ignore_throttled = True
         self._debug = False
         self._pre_filter_shard_size = 1
         
         random.seed()
-
-        if 'timeout' in params.keys():
-            self._timeout = params['timeout']
 
         if 'discover_size' in params.keys():
             self._discover_size = params['discover_size']
@@ -203,11 +199,11 @@ class ElasticlogsKibanaSource:
             meta_data['debug'] = self._debug
 
         if self._dashboard == 'traffic':
-            response = {"body": self.__traffic_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
+            response = {"body": self.__traffic_dashboard(index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
         elif self._dashboard == 'content_issues':
-            response = {"body": self.__content_issues_dashboard(self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
+            response = {"body": self.__content_issues_dashboard(index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
         elif self._dashboard == 'discover':
-            response = {"body": self.__discover(self._discover_size, self._timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
+            response = {"body": self.__discover(self._discover_size, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
 
         response['meta_data'] = meta_data
 
@@ -359,10 +355,10 @@ class ElasticlogsKibanaSource:
         dt = datetime.datetime.utcfromtimestamp(ts_s)
         return dt.isoformat()
 
-    def __content_issues_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
+    def __content_issues_dashboard(self, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
-        
-        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+
+        header = {"index": index_pattern, "ignore_unavailable": True, "preference": preference}
         if not ignore_throttled:
             header['ignore_throttled'] = False
 
@@ -379,11 +375,10 @@ class ElasticlogsKibanaSource:
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"match_all":{}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"match_phrase":{"nginx.access.response_code":{"query":404}}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                ]
 
-
-    def __traffic_dashboard(self, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
+    def __traffic_dashboard(self, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
 
-        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        header = {"index": index_pattern, "ignore_unavailable": True, "preference": preference}
         if not ignore_throttled:
             header['ignore_throttled'] = False
 
@@ -404,11 +399,10 @@ class ElasticlogsKibanaSource:
                    {"size":0,"aggs":{"2":{"date_histogram":{"field":"@timestamp","interval":interval,"time_zone":"Europe/London","min_doc_count":1},"aggs":{"3":{"terms":{"field":"nginx.access.response_code","size":10,"order":{"_count":"desc"}}}}}},"version":True,"_source":{"excludes":[]},"stored_fields":["*"],"script_fields":{},"docvalue_fields":["@timestamp"],"query":{"bool":{"must":[{"match_all":{}},{"query_string":{"query":"nginx.access.response_code: [400 TO 600]","analyze_wildcard":True,"default_field":"*"}},{"query_string":{"query":query_string,"analyze_wildcard":True,"default_field":"*"}},{"range":{"@timestamp":{"gte":ts_min_ms,"lte":ts_max_ms,"format":"epoch_millis"}}}],"filter":[],"should":[],"must_not":[]}},"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"fragment_size":2147483647}}
                ]
 
-
-    def __discover(self, discover_size, timeout, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
+    def __discover(self, discover_size, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
 
-        header = {"index":index_pattern,"ignore_unavailable":True,"timeout":timeout,"preference":preference}
+        header = {"index": index_pattern, "ignore_unavailable": True, "preference": preference}
         if not ignore_throttled:
             header['ignore_throttled'] = False
 
