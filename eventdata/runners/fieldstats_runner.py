@@ -29,13 +29,10 @@ def fieldstats(es, params):
     
     if 'fieldname' not in params:
         params['fieldname'] = '@timestamp'
-    
-    ignore_frozen = True
-    if 'ignore_frozen' in params.keys():
-        if params['ignore_frozen'] == False:
-            ignore_frozen = False
 
-    if ignore_frozen:
+    ignore_throttled = params.get('ignore_throttled', True)
+
+    if ignore_throttled:
         result = es.search(index=params['index_pattern'], body={"query": {"match_all": {}},"aggs" : {"maxval" : { "max" : { "field" : params['fieldname'] } },"minval" : { "min" : { "field" : params['fieldname'] } }},"size":0})
     else:
         result = es.search(index=params['index_pattern'], body={"query": {"match_all": {}},"aggs" : {"maxval" : { "max" : { "field" : params['fieldname'] } },"minval" : { "min" : { "field" : params['fieldname'] } }},"size":0}, params={'ignore_throttled': 'false'})
