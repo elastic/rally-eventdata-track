@@ -37,7 +37,14 @@ def fieldstats(es, params):
     else:
         result = es.search(index=params['index_pattern'], body={"query": {"match_all": {}},"aggs" : {"maxval" : { "max" : { "field" : params['fieldname'] } },"minval" : { "min" : { "field" : params['fieldname'] } }},"size":0}, params={'ignore_throttled': 'false'})
 
-    if result['hits']['total'] > 0:
+    hits = result['hits']['total']
+    # ES 7.0+
+    if isinstance(hits, dict):
+        total_hits = hits["value"]
+    else:
+        total_hits = hits
+
+    if total_hits > 0:
         key = "{}_{}".format(params['index_pattern'], params['fieldname']);
         gs.global_fieldstats[key] = {'max': int(result['aggregations']['maxval']['value']), 'min': int(result['aggregations']['minval']['value'])};
 
