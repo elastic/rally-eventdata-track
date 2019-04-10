@@ -1,5 +1,5 @@
 {% set p_pre_filter_shard_size = (pre_filter_shard_size | default(1)) %}
-{% set p_query_iterations = (query_iterations | default(20)) %}
+{% set p_query_iterations = (query_iterations | default(3)) %}
 
 {
   "name": "frozen-data-generation",
