@@ -1,0 +1,60 @@
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(20)) %}
+{% set p_iterations = bulk_indexing_iterations | default(1000000) %}
+{% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
+{% set number_of_replicas = (number_of_replicas | default(1)) %}
+{% set number_of_shards = (number_of_shards | default(2)) %}
+{
+  "name": "bulk-update",
+  "default": false,
+  "description": "Index documents into an elasticlogs index. IDs are sequential and 40% are updates, with a uniform ID bias.",
+  "schedule": [
+    {
+      "name": "delete-index",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "elasticlogs"
+      }
+    },
+    {
+      "operation": {
+        "operation-type": "create-index",
+        "index_name": "elasticlogs",
+        "settings": {
+            {% if index_refresh_interval is defined %}
+            "index.refresh_interval": {{ index_refresh_interval | int }},
+            {% endif %}
+            "index.number_of_replicas": {{ number_of_replicas }},
+            "index.number_of_shards": {{ number_of_shards }}
+        }
+      }
+    },
+    {
+      "name": "check-cluster-health",
+      "operation": {
+        "operation-type": "cluster-health",
+        "index": "elasticlogs",
+        "request-params": {
+          "wait_for_status": "{{cluster_health | default('green')}}",
+          "wait_for_no_relocating_shards": "true"
+        }
+      }
+    },
+    {
+      "warmup-iterations": 20,
+      "operation": {
+        "operation-type": "bulk",
+        "param-source": "elasticlogs_bulk",
+        "id_type": "seq",
+        "id_seq_probability": 0.4,
+        "id_seq_low_id_bias": false,
+        "bulk-size": {{ bulk_size | default(1000) }},
+        "index": "elasticlogs"
+      },
+      "iterations": {{ p_iterations_per_client }},
+      {% if target_throughput is defined %}
+      "target-throughput": {{ target_throughput }},
+      {% endif %}
+      "clients": {{ p_bulk_indexing_clients }}
+    }
+  ]
+}
