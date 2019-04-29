@@ -15,7 +15,9 @@
     {
       "operation": "create_elasticlogs_index"
     },
-    {% for n in range(1,50) %}
+    {% set comma = joiner() %}
+    {% for n in range(1,51) %}
+    {{comma()}}
     {
       "name": "index-append-1000-shard-sizing-{{n}}",
       "operation": "index-append-1000-shard-sizing",
@@ -28,26 +30,10 @@
     {
       "name": "indicesstats_elasticlogs-{{n}}",
       "operation": "indicesstats_elasticlogs",
-      "iterations": 1,
       "meta": {
         "iteration_number": {{ n }}
       }
-    },
-    {% endfor %}
-    {
-      "operation": "index-append-1000-shard-sizing",
-      "iterations": {{ p_iterations_per_client }},
-      "clients": {{ p_bulk_indexing_clients }},
-      "meta": {
-        "iteration_number": {{ 50 }}
-      }
-    },
-    {
-      "operation": "indicesstats_elasticlogs",
-      "iterations": 1,
-      "meta": {
-        "iteration_number": {{ 50 }}
-      }
     }
+    {% endfor %}
   ]
 }
