@@ -78,7 +78,6 @@
       "clients": 1
     },
     {
-      "name": "fieldstats",
       "operation": {
         "operation-type": "fieldstats",
         "index_pattern": "elasticlogs*",
