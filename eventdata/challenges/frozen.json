@@ -1,4 +1,5 @@
 {% set p_pre_filter_shard_size = (pre_filter_shard_size | default(1)) %}
+{% set p_bulk_idx_iterations = (bulk_indexing_iterations | default(30000)) %}
 {% set p_query_iterations = (query_iterations | default(3)) %}
 
 {
@@ -42,7 +43,7 @@
         "index": "elasticlogs",
         "bulk-size": 1000
       },
-      "iterations": 30000,
+      "iterations": {{p_bulk_idx_iterations}},
       "clients": 8
     },
     {
