@@ -51,7 +51,7 @@
         "operation-type": "force-merge",
         "include-in-reporting": true,
         "max-num-segments": 1,
-        "request-timeout": 180000
+        "request-timeout": 360000
       }
     }
   ]
