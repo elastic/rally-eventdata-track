@@ -32,7 +32,9 @@
             "operation": "index-append-1000-elasticlogs_q_write",    
             "iterations": {{ p_iterations_per_client }},
             "clients": {{ p_bulk_indexing_clients }}
-          },
+          }
+          {% if rollover_enabled | default(true) %}
+          ,
           {
             "operation": "rollover_elasticlogs_q_write_100M",
             "clients": 1,
@@ -40,6 +42,7 @@
             "iterations": 1000000,
             "target-interval": 30
           }
+          {% endif %}
         ]
       }
     },
