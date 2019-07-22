@@ -74,6 +74,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `20` |
 | `disk_type` | Type of disk used. If disk_type is not `ssd`, a single merge scheduler thread will be specified in the index template | `string` | `ssd` |
 | `translog_sync` | If value is not `request`, translog will be configured to use `async` mode | `string` | `request` |
+| `rollover_enabled` | Enables the automatic rollover of indices after 100 million entries or 1 day. | `bool` | `true` |
 
 ### 5) elasticlogs-querying
 
