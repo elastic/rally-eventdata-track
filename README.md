@@ -21,7 +21,7 @@ Another option is to download the repository and point to it using the `--track-
 
 ## Track parameters supported by all challenges
 
-Note: In general, track parameters are only be defined for a subset of the challenges so please refer to the documentation of the respective challenge for a list of supported track parameters. Only the parameters documented in the table below are guaranteed to work with all challenges as intended.
+Note: In general, track parameters are only defined for a subset of the challenges so please refer to the documentation of the respective challenge for a list of supported track parameters. Only the parameters documented in the table below are guaranteed to work with all challenges as intended.
 
 | Parameter | Explanation | Type | Default Value |
 | --------- | ----------- | ---- | ------------- |
