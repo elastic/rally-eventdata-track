@@ -47,6 +47,7 @@
         "param-source": "elasticlogs_bulk",
         "index": "elasticlogs-warmup",
         "bulk-size": 1000,
+        "record_raw_event_size": {{p_record_raw_event_size}},
         "id_type": "auto"
       },
       "iterations": 200,
@@ -103,6 +104,7 @@
         "param-source": "elasticlogs_bulk",
         "index": "elasticlogs-{{ id['desc'] }}",
         "bulk-size": 1000,
+        "record_raw_event_size": {{p_record_raw_event_size}},
         "id_type": "{{ id['type'] }}"
       },
       "iterations": {{ p_iterations_per_client }},
@@ -182,6 +184,7 @@
         "param-source": "elasticlogs_bulk",
         "index": "elasticlogs-{{ id['desc'] }}",
         "bulk-size": 1000,
+        "record_raw_event_size": {{p_record_raw_event_size}},
         "id_type": "{{ id['type'] }}",
         "id_delay_probability": 0.1,
         "id_delay_secs": {{ id['delay'] }}

@@ -19,6 +19,14 @@ The track can be run by specifying the following runtime parameters: `--track=ev
 
 Another option is to download the repository and point to it using the `--track-path` command line parameter.
 
+## Track parameters supported by all challenges
+
+Note: In general, track parameters are only be defined for a subset of the challenges so please refer to the documentation of the respective challenge for a list of supported track parameters. Only the parameters documented in the table below are guaranteed to work with all challenges as intended.
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
+
 ## Available Challenges
 
 ### 1) append-no-conflicts

@@ -36,7 +36,8 @@
               "operation-type": "bulk",
               "index": "elasticlogs_q_write",
               "param-source": "elasticlogs_bulk",
-              "bulk-size": {{ p1_bulk_size | default(1000) | int }}
+              "bulk-size": {{ p1_bulk_size | default(1000) | int }},
+              "record_raw_event_size": {{p_record_raw_event_size}}
             },
             "clients": {{ p1_bulk_indexing_clients }},
             "meta": {
@@ -71,7 +72,8 @@
               "operation-type": "bulk",
               "index": "elasticlogs_q_write",
               "param-source": "elasticlogs_bulk",
-              "bulk-size": {{ p2_bulk_size | default(1000) | int }}
+              "bulk-size": {{ p2_bulk_size | default(1000) | int }},
+              "record_raw_event_size": {{p_record_raw_event_size}}
             },
             "target-throughput": {{ p2_ops }},
             "clients": {{ p2_bulk_indexing_clients }},

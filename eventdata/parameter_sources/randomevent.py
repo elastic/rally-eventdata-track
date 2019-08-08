@@ -260,7 +260,7 @@ class RandomEvent:
             for d in params['delete_fields']:
                 self._delete_fields.append(d.split('.'))
 
-        self.record_raw_event_size = params.get("record_raw_event_size", True)
+        self.record_raw_event_size = params.get("record_raw_event_size", False)
 
     def generate_event(self):
         timestruct = self._timestamp_generator.generate_timestamp_struct()
@@ -288,31 +288,49 @@ class RandomEvent:
                                                                          event["httpversion"], event["response"],
                                                                          event["bytes"], event["referrer"],
                                                                          event["agent"])
-            raw_event_size = len(raw_event)
+            # we are on the hot code path here and thus we want to avoid conditionally creating strings so we duplicate
+            # the event.
+            line = '{"@timestamp": "%s", ' \
+                   '"_raw_event_size":%d, ' \
+                   '"offset":%s, ' \
+                   '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
+                   '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
+                   '"prospector":{"type":"log"},' \
+                   '"nginx":{"access":{"user_name": "-",' \
+                   '"agent":"%s","user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
+                   '"remote_ip": "%s","remote_ip_list":["%s"],' \
+                   '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
+                   '"referrer":"%s",' \
+                   '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":%s,"http_version":"%s"} } }' % \
+                   (event["@timestamp"],
+                    len(raw_event),
+                    event["offset"],
+                    event["hostname"],event["hostname"],
+                    event["agent"], event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
+                    event["clientip"], event["clientip"],
+                    event["geoip_continent_name"], event["geoip_city_name"], event["geoip_country_name"], event["geoip_country_iso_code"], event["geoip_location_lat"], event["geoip_location_lon"],
+                    event["referrer"],
+                    event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
         else:
-            raw_event_size = 0
-
-        line = '{"@timestamp": "%s", ' \
-               '"_raw_event_size":%d, ' \
-               '"offset":%s, ' \
-               '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
-               '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
-               '"prospector":{"type":"log"},' \
-               '"nginx":{"access":{"user_name": "-",' \
-               '"agent":"%s","user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
-               '"remote_ip": "%s","remote_ip_list":["%s"],' \
-               '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
-               '"referrer":"%s",' \
-               '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":%s,"http_version":"%s"} } }' % \
-               (event["@timestamp"],
-                raw_event_size,
-                event["offset"],
-                event["hostname"],event["hostname"],
-                event["agent"], event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
-                event["clientip"], event["clientip"],
-                event["geoip_continent_name"], event["geoip_city_name"], event["geoip_country_name"], event["geoip_country_iso_code"], event["geoip_location_lat"], event["geoip_location_lon"],
-                event["referrer"],
-                event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
+            line = '{"@timestamp": "%s", ' \
+                   '"offset":%s, ' \
+                   '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
+                   '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
+                   '"prospector":{"type":"log"},' \
+                   '"nginx":{"access":{"user_name": "-",' \
+                   '"agent":"%s","user_agent": {"major": "%s","os": "%s","os_major": "%s","name": "%s","os_name": "%s","device": "%s"},' \
+                   '"remote_ip": "%s","remote_ip_list":["%s"],' \
+                   '"geoip":{"continent_name": "%s","city_name": "%s","country_name": "%s","country_iso_code": "%s","location":{"lat": %s,"lon": %s} },' \
+                   '"referrer":"%s",' \
+                   '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":%s,"http_version":"%s"} } }' % \
+                   (event["@timestamp"],
+                    event["offset"],
+                    event["hostname"],event["hostname"],
+                    event["agent"], event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],
+                    event["clientip"], event["clientip"],
+                    event["geoip_continent_name"], event["geoip_city_name"], event["geoip_country_name"], event["geoip_country_iso_code"], event["geoip_location_lat"], event["geoip_location_lon"],
+                    event["referrer"],
+                    event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
 
         return line, index_name, self._type
 
