@@ -260,6 +260,8 @@ class RandomEvent:
             for d in params['delete_fields']:
                 self._delete_fields.append(d.split('.'))
 
+        self.record_raw_event_size = params.get("record_raw_event_size", True)
+
     def generate_event(self):
         timestruct = self._timestamp_generator.generate_timestamp_struct()
         index_name = self.__generate_index_pattern(timestruct)
@@ -278,7 +280,20 @@ class RandomEvent:
         # set host name
         event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"],random.randrange(1,3))
 
+        # determine the raw event size (as if this were contained in nginx log file. We do not bother to
+        # reformat the timestamp as this is not worth the overhead.
+        if self.record_raw_event_size:
+            raw_event = '%s - - [%s] "%s %s HTTP/%s" %s %s "%s" "%s"' % (event["clientip"], event["@timestamp"],
+                                                                         event["verb"], event["request"],
+                                                                         event["httpversion"], event["response"],
+                                                                         event["bytes"], event["referrer"],
+                                                                         event["agent"])
+            raw_event_size = len(raw_event)
+        else:
+            raw_event_size = 0
+
         line = '{"@timestamp": "%s", ' \
+               '"_raw_event_size":%d, ' \
                '"offset":%s, ' \
                '"source":"/usr/local/var/log/nginx/access.log","fileset":{"module":"nginx","name":"access"},"input":{"type":"log"},' \
                '"beat":{"version":"6.3.0","hostname":"%s","name":"%s"},' \
@@ -290,6 +305,7 @@ class RandomEvent:
                '"referrer":"%s",' \
                '"url": "%s","body_sent":{"bytes": %s},"method":"%s","response_code":%s,"http_version":"%s"} } }' % \
                (event["@timestamp"],
+                raw_event_size,
                 event["offset"],
                 event["hostname"],event["hostname"],
                 event["agent"], event["useragent_major"], event["useragent_os"], event["useragent_os_major"], event["useragent_name"], event["useragent_os_name"], event["useragent_device"],

@@ -12,6 +12,9 @@
       "@timestamp": {
         "type": "date"
       },
+      "_raw_event_size": {
+        "type": "short"
+      },
       "source": {
         "type": "keyword",
         "ignore_above": 1024
