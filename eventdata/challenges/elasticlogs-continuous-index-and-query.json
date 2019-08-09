@@ -14,16 +14,25 @@
   },
   "schedule": [
     {
-      "operation": "deleteindex_elasticlogs_q-*",
-      "clients": 1,
-      "warmup-iterations": 0,
-      "iterations": 1
+      "operation": "delete-index-template"
     },
     {
-      "operation": "create_elasticlogs_q_write",
-      "clients": 1,
-      "warmup-iterations": 0,
-      "iterations": 1
+      "operation": "deleteindex_elasticlogs_q-*"
+    },
+    {
+      "operation": "create-index-template"
+    },
+    {
+      "operation": {
+        "name": "create_elasticlogs_q_write",
+        "operation-type": "create-index",
+        "index": "elasticlogs_q-000001",
+        "body": {
+          "aliases" : {
+            "elasticlogs_q_write" : {}
+          }
+        }
+      }
     },
     {
       "parallel": {

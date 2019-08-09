@@ -8,11 +8,24 @@
     "benchmark_type": "generate-historic-data"
   },
   "schedule": [
-     {
-      "operation": "load_elasticlogs_snapshot_template",
-      "clients": 1,
-      "warmup-iterations": 0,
-      "iterations": 1
+    {
+      "operation": "delete-index-template"
+    },
+    {
+      "name": "delete-index-elasticlogs-h-*",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "elasticlogs-h*"
+      }
+    },
+    {
+      "operation": {
+        "operation-type": "create-index-template",
+        "settings": {
+          "index.refresh_interval": "10s",
+          "index.number_of_shards": {{ shard_count | default(4) }}
+        }
+      }
     },
     {
       "operation": "index_6x_speed",

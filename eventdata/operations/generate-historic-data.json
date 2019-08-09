@@ -1,22 +1,4 @@
 {
-  "name": "load_elasticlogs_snapshot_template",
-  "operation-type": "create-index-template",
-  "template": "elasticlogs-historic",
-  "body": {
-    "template": "elasticlogs-h-*",
-    "settings": {
-      "index.refresh_interval": "10s",
-      "index.codec": "best_compression",
-      "index.number_of_replicas": 0,
-      "index.number_of_shards": 4
-    },
-    "mappings": 
-      {% include "mappings.json" %}
-    ,
-    "aliases": {}
-  }
-},
-{
   "name": "index_6x_speed",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
