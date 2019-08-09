@@ -29,19 +29,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 
 ## Available Challenges
 
-### 1) append-no-conflicts
-
-This is the default challenge, which performs bulk indexing at maximum throughput against a single index for a period of 20 minutes.
-
-The table below shows the track parameters that can be adjusted along with default values:
-
-| Parameter | Explanation | Type | Default Value |
-| --------- | ----------- | ---- | ------------- |
-| `number_of_replicas` | Number of index replicas | `int` | `0` |
-| `shard_count` | Number of primary shards | `int` | `2` |
-| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `8` |
-
-### 2) bulk-size-evaluation
+### bulk-size-evaluation
 
 This challenge performs bulk-indexing against a single index with varying bulk request sizes, ranging from 125 events/request to 50000 events/request.
 
@@ -53,7 +41,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `shard_count` | Number of primary shards | `int` | `2` |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `16` |
 
-### 3) shard-sizing
+### shard-sizing
 
 This challenge indexes 2 million events into an index consisting of a single shard 25 times. After each group of 2 million events has been inserted, 4 different Kibana dashboard configurations are benchmarked against the index. At this time no indexing takes place. There are two different dashboards being simulated, aggregating across 50% and 90% of the data in the shard.
 
@@ -69,7 +57,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `shard_sizing_iterations` | Number of indexing querying iterations to run | `int` | `25` |
 | `shard_sizing_queries` | Number of queries of each type to run for each iteration | `int` | `20` |
 
-### 4) elasticlogs-1bn-load
+### elasticlogs-1bn-load
 
 This challenge indexes 1 billion events into a number of indices of 2 primary shards each, and results in around 200GB of indices being generated on disk. This can vary depending on the environment. It can be used give an idea of how max indexing performance behaves over an extended period of time.
 
@@ -84,11 +72,11 @@ The table below shows the track parameters that can be adjusted along with defau
 | `translog_sync` | If value is not `request`, translog will be configured to use `async` mode | `string` | `request` |
 | `rollover_enabled` | Enables the automatic rollover of indices after 100 million entries or 1 day. | `bool` | `true` |
 
-### 5) elasticlogs-querying
+### elasticlogs-querying
 
 This challenge runs mixed Kibana queries against the index created in the **elasticlogs-1bn-load** track. No concurrent indexing is performed.
 
-### 6) combined-indexing-and-querying
+### combined-indexing-and-querying
 
 This challenge assumes that the *elasticlogs-1bn-load* track has been executed as it simulates querying against these indices. It shows how indexing and querying through simulated Kibana dashboards can be combined to provide a more realistic benchmark.
 
@@ -107,7 +95,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `rate_limit_step` | Number of requests per second to use as a rate_limit_step. `2` indicates rate limiting will increase in steps of 2k EPS | `int` | `2` |
 | `rate_limit_max` | Maximum number of requests per second to use for rate-limiting. `32` indicates a top target indexing rate of 32k EPS | `int` | `32` |
 
-### 7) elasticlogs-continuous-index-and-query
+### elasticlogs-continuous-index-and-query
 
 This challenge is suitable for long term execution and runs in two phases. Both phases (`p1`, `p2`) index documents containing auto-generated event, however, `p1` indexes events at the max possible speed, whereas `p2` throttles indexing to a specified rate and in parallel executes four queries simulating Kibana dashboards and queries. The created index gets rolled over after the configured max size and the maximum amount of rolled over indices are also configurable.
 
@@ -167,7 +155,7 @@ $ cat params-file.json
 }
 ```
 
-### 8) large-shard-sizing
+### large-shard-sizing
 
 This challenge examines the performance and memory usage of large shards. It indexes data into a single shard index ~25GB at a time and runs up to a shard size of ~300GB. After every 25GB that has been indexed, select index statistics are recorded and a number of simulated Kibana dashboards are run against the index to show how query performance varies with shard size.
 
@@ -184,7 +172,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `32` |
 | `query_iterations` | Number of times each dashboard is simulated at each level | `int` | `10` |
 
-### 9) large-shard-id-type-evaluation
+### large-shard-id-type-evaluation
 
 This challenge examines the storage and heap usage implications of a wide variety of document ID types. It indexes data into a set of ~25GB single shard index, each for a different type of document ID (`auto`, `uuid`, `epoch_uuid`, `sha1`, `sha256`, `sha384`, and `sha512`). For each index a refresh is then run before select index statistics are recorded.
 
@@ -197,7 +185,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | --------- | ----------- | ---- | ------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `32` |
 
-### 10) document_id_evaluation
+### document_id_evaluation
 
 This challenge examines the indexing throughput as a function of shard size as well as the resulting storage requirements for a set of different types of document IDs. For each document ID type, it indexes 200 million documents into a single-shard index, which should be about 40GB in size. Once all data has been indexed, index statistics are recorded before and after a forcemerge down to a single segment.
 
@@ -357,7 +345,7 @@ License
 
 This software is licensed under the Apache License, version 2 ("ALv2"), quoted below.
 
-Copyright 2015-2018 Elasticsearch <https://www.elastic.co>
+Copyright 2015-2019 Elasticsearch <https://www.elastic.co>
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
