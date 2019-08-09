@@ -10,60 +10,19 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {% set p_translog_sync = translog_sync | default('request') | lower %}
 
 {% set p_disk_type = disk_type | default('ssd') | lower %}
+
+{% set comma = joiner() %}
+{% for bulk_size in [50000, 20000, 10000, 5000, 2000, 1000, 500, 250, 125] %}
+{{comma()}}
 {
-  "name": "index-append-50000",
+  "name": "index-append-{{bulk_size}}",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
-  "bulk-size": 50000
-},
-{
-  "name": "index-append-20000",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 20000
-},
-{
-  "name": "index-append-10000",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 10000
-},
-{
-  "name": "index-append-5000",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 5000
-},
-{
-  "name": "index-append-2000",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 2000
-},
-{
-  "name": "index-append-1000",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 1000
-},
-{
-  "name": "index-append-500",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 500
-},
-{
-  "name": "index-append-250",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 250
-},
-{
-  "name": "index-append-125",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "bulk-size": 125
-},
+  "bulk-size": {{bulk_size}},
+  "record_raw_event_size": {{p_record_raw_event_size}}
+}
+{% endfor%}
+,
 {
   "name": "index-append-1000-shard-sizing",
   "operation-type": "bulk",
@@ -71,21 +30,24 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
   "index": "elasticlogs",
   "starting_point": "2017-01-01:02:00:00",
   "end_point": "2017-01-01:12:00:00",
-  "bulk-size": 1000
+  "bulk-size": 1000,
+  "record_raw_event_size": {{p_record_raw_event_size}}
 },
 {
   "name": "index-append-1000-elasticlogs_q_write",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "index": "elasticlogs_q_write",
-  "bulk-size": 1000
+  "bulk-size": 1000,
+  "record_raw_event_size": {{p_record_raw_event_size}}
 },
 {
   "name": "index-append-1000-elasticlogs_i_write",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
   "index": "elasticlogs_i_write",
-  "bulk-size": 1000
+  "bulk-size": 1000,
+  "record_raw_event_size": {{p_record_raw_event_size}}
 },
 {
   "name": "create_elasticlogs_q_write",

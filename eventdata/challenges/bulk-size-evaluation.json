@@ -138,7 +138,8 @@
       "operation": {
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
-        "bulk-size": 1000
+        "bulk-size": 1000,
+        "record_raw_event_size": {{p_record_raw_event_size}}
       },
       "warmup-time-period": 300,
       "time-period": 600,
@@ -163,7 +164,8 @@
       "operation": {
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
-        "bulk-size": 100
+        "bulk-size": 100,
+        "record_raw_event_size": {{p_record_raw_event_size}}
       },
       "warmup-time-period": 300,
       "time-period": 600,
@@ -188,7 +190,8 @@
       "operation": {
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
-        "bulk-size": 10
+        "bulk-size": 10,
+        "record_raw_event_size": {{p_record_raw_event_size}}
       },
       "warmup-time-period": 300,
       "time-period": 600,

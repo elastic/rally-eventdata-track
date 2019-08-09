@@ -41,7 +41,8 @@
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
         "index": "elasticlogs",
-        "bulk-size": 1000
+        "bulk-size": 1000,
+        "record_raw_event_size": {{p_record_raw_event_size}}
       },
       "iterations": {{p_bulk_idx_iterations}},
       "clients": 8

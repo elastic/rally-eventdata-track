@@ -48,6 +48,7 @@
         "id_seq_probability": 0.4,
         "id_seq_low_id_bias": false,
         "bulk-size": {{ bulk_size | default(1000) }},
+        "record_raw_event_size": {{p_record_raw_event_size}},
         "index": "elasticlogs"
       },
       "iterations": {{ p_iterations_per_client }},
