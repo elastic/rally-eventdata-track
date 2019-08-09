@@ -1,6 +1,7 @@
 {% import "rally.helpers" as rally with context %}
 
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_record_raw_event_size = record_raw_event_size | default(False) | tojson %}
 
 {
   "version": 2,

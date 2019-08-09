@@ -24,5 +24,6 @@
   "daily_index": true,
   "starting_point": "2018-05-01:00:00:00",
   "acceleration_factor": 12,
-  "bulk-size": 1000
+  "bulk-size": 1000,
+  "record_raw_event_size": {{p_record_raw_event_size}}
 }

@@ -12,6 +12,11 @@
       "@timestamp": {
         "type": "date"
       },
+{%- if record_raw_event_size is defined and record_raw_event_size %}
+      "_raw_event_size": {
+        "type": "short"
+      },
+{%- endif %}
       "source": {
         "type": "keyword",
         "ignore_above": 1024
