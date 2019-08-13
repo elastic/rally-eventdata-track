@@ -10,10 +10,10 @@
   },
   "schedule": [
     {
-      "operation": "delete-index-template"
+      "operation": "deleteindex_elasticlogs"
     },
     {
-      "operation": "deleteindex_elasticlogs"
+      "operation": "delete-index-template"
     },
     {
       "operation": "create-index-template"

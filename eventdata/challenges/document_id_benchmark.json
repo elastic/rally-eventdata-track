@@ -12,14 +12,14 @@
   },
   "schedule": [
     {
-      "operation": "delete-index-template"
-    },
-    {
       "name": "delete-index-elasticlogs-warmup",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-warmup"
       }
+    },
+    {
+      "operation": "delete-index-template"
     },
     {
       "operation": {

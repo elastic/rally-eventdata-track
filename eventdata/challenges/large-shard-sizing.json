@@ -13,14 +13,14 @@
   },
   "schedule": [
     {
-      "operation": "delete-index-template"
-    },
-    {
       "name": "deleteindex-elasticlogs-auto",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-auto"
       }
+    },
+    {
+      "operation": "delete-index-template"
     },
     {
       "operation": {
@@ -157,15 +157,15 @@
   "schedule": [
     {% for id_type in ['auto', 'uuid', 'epoch_uuid', 'sha1', 'sha256', 'sha384', 'sha512'] %}
     {
-      "name": "delete-index-template-elasticlogs-{{ id_type }}",
-      "operation": "delete-index-template"
-    },
-    {
       "name": "delete-index-elasticlogs-{{ id_type }}",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-{{ id_type }}"
       }
+    },
+    {
+      "name": "delete-index-template-elasticlogs-{{ id_type }}",
+      "operation": "delete-index-template"
     },
     {
       "name": "create-index-template-elasticlogs-{{ id_type }}",

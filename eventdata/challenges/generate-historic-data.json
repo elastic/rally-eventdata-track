@@ -9,14 +9,14 @@
   },
   "schedule": [
     {
-      "operation": "delete-index-template"
-    },
-    {
       "name": "delete-index-elasticlogs-h-*",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-h*"
       }
+    },
+    {
+      "operation": "delete-index-template"
     },
     {
       "operation": {

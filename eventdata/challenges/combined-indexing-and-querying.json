@@ -18,6 +18,9 @@
       "operation": "deleteindex_elasticlogs_i-*"
     },
     {
+    "operation": "delete-index-template"
+    },
+    {
       "operation": "fieldstats_elasticlogs_q-*",
       "warmup-iterations": {{ p_client_count }},
       "iterations": 1,

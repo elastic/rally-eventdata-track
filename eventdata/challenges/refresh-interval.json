@@ -16,12 +16,12 @@
 {% for refresh_interval in [1, 5, 10, 30, 60] %}
 {{comma()}}
     {
-      "name": "delete-index-template-elasticlogs-{{ p_disk_type }}-{{refresh_interval}}s",
-      "operation": "delete-index-template"
-    },
-    {
       "name": "delete-index-elasticlogs-{{ p_disk_type }}-{{refresh_interval}}s",
       "operation": "deleteindex_elasticlogs"
+    },
+    {
+      "name": "delete-index-template-elasticlogs-{{ p_disk_type }}-{{refresh_interval}}s",
+      "operation": "delete-index-template"
     },
     {
       "name": "create-index-template-elasticlogs-{{ p_disk_type }}-{{refresh_interval}}s",
