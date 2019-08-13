@@ -12,33 +12,30 @@
   },
   "schedule": [
     {
-      "name": "deleteindex_elasticlogs-warmup",
+      "name": "delete-index-elasticlogs-warmup",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-warmup"
-      },
-      "include-in-reporting": false
+      }
     },
     {
-      "name": "create_elasticlogs-warmup",
+      "operation": "delete-index-template"
+    },
+    {
       "operation": {
-        "operation-type": "createindex",
-        "index_name": "elasticlogs-warmup",
-        "index_template_body": {
-          "template": "elasticlogs-warmup",
-          "settings": {
-            "index.refresh_interval": "5s",
-            "index.codec": "best_compression",
+        "operation-type": "create-index-template",
+        "settings": {
             "index.translog.retention.size": "10mb",
-            "index.number_of_replicas": 0,
-            "index.number_of_shards": 1
-          },
-          "mappings": "mappings.json",
-          "aliases": {}
-        },
-        "index_template_name": "elasticlogs-warmup"
-      },
-      "include-in-reporting": false
+            "index.number_of_shards": {{ shard_count | default(1) }}
+        }
+      }
+    },
+    {
+      "name": "create-index-elasticlogs-warmup",
+      "operation": {
+        "operation-type": "create-index",
+        "index": "elasticlogs-warmup"
+      }
     },
     {
       "name": "index-append-1000-elasticlogs-warmup",
@@ -55,12 +52,11 @@
       "include-in-reporting": false
     },
     {
-      "name": "deleteindex_elasticlogs-warmup-final",
+      "name": "delete-index-elasticlogs-warmup-final",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-warmup"
-      },
-      "include-in-reporting": false
+      }
     },
     {% for id in [{ 'type': 'auto', 'desc': 'auto' },
                   { 'type': 'uuid', 'desc': 'uuid' },
@@ -69,33 +65,18 @@
                   { 'type': 'epoch_uuid',  'desc': 'epoch_uuid' },
                   { 'type': 'epoch_md5',  'desc': 'epoch_md5'} ] %}
     {
-      "name": "deleteindex_elasticlogs-{{ id['desc'] }}",
+      "name": "delete-index-elasticlogs-{{ id['desc'] }}",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-{{ id['desc'] }}"
-      },
-      "include-in-reporting": false
+      }
     },
     {
-      "name": "create_elasticlogs-{{ id['desc'] }}",
+      "name": "create-index-elasticlogs-{{ id['desc'] }}",
       "operation": {
-        "operation-type": "createindex",
-        "index_name": "elasticlogs-{{ id['desc'] }}",
-        "index_template_body": {
-          "template": "elasticlogs-{{ id['desc'] }}",
-          "settings": {
-            "index.refresh_interval": "5s",
-            "index.codec": "best_compression",
-            "index.translog.retention.size": "10mb",
-            "index.number_of_replicas": 0,
-            "index.number_of_shards": 1
-          },
-          "mappings": "mappings.json",
-          "aliases": {}
-        },
-        "index_template_name": "elasticlogs-{{ id['desc'] }}"
-      },
-      "include-in-reporting": false
+        "operation-type": "create-index",
+        "index": "elasticlogs-{{ id['desc'] }}"
+      }
     },
     {
       "name": "index-append-1000-elasticlogs-{{ id['desc'] }}",
@@ -149,33 +130,18 @@
     {% for id in [{ 'type': 'epoch_md5', 'desc': 'epoch_md5-10pct_60s', 'delay': 60 },
                   { 'type': 'epoch_md5', 'desc': 'epoch_md5-10pct_300s', 'delay': 300 }] %}
         {
-      "name": "deleteindex_elasticlogs-{{ id['desc'] }}",
+      "name": "delete-index-elasticlogs-{{ id['desc'] }}",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs-{{ id['desc'] }}"
-      },
-      "include-in-reporting": false
+      }
     },
     {
-      "name": "create_elasticlogs-{{ id['desc'] }}",
+      "name": "create-index-elasticlogs-{{ id['desc'] }}",
       "operation": {
-        "operation-type": "createindex",
-        "index_name": "elasticlogs-{{ id['desc'] }}",
-        "index_template_body": {
-          "template": "elasticlogs-{{ id['desc'] }}",
-          "settings": {
-            "index.refresh_interval": "5s",
-            "index.codec": "best_compression",
-            "index.translog.retention.size": "10mb",
-            "index.number_of_replicas": 0,
-            "index.number_of_shards": 1
-          },
-          "mappings": "mappings.json",
-          "aliases": {}
-        },
-        "index_template_name": "elasticlogs-{{ id['desc'] }}"
-      },
-      "include-in-reporting": false
+        "operation-type": "create-index",
+        "index": "elasticlogs-{{ id['desc'] }}"
+      }
     },
     {
       "name": "index-append-1000-elasticlogs-{{ id['desc'] }}",
@@ -230,10 +196,7 @@
     {% endfor %}  
     {
       "name": "refresh-final",
-      "operation": "refresh", 
-      "iterations": 1,
-      "clients": 1,
-      "include-in-reporting": false
+      "operation": "refresh"
     }
   ]
 }

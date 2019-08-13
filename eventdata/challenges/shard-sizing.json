@@ -15,7 +15,16 @@
       "operation": "deleteindex_elasticlogs"
     },
     {
-      "operation": "create_elasticlogs_index"
+      "operation": "delete-index-template"
+    },
+    {
+      "operation": "create-index-template"
+    },
+    {
+      "operation": {
+        "operation-type": "create-index",
+        "index": "elasticlogs"
+      }
     },
     {% for n in range(1, p_shard_sizing_iterations) %}
     {
