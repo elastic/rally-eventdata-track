@@ -13,7 +13,16 @@
       "operation": "deleteindex_elasticlogs"
     },
     {
-      "operation": "create_elasticlogs_index"
+      "operation": "delete-index-template"
+    },
+    {
+      "operation": "create-index-template"
+    },
+    {
+      "operation": {
+        "operation-type": "create-index",
+        "index": "elasticlogs"
+      }
     },
     {% set comma = joiner() %}
     {% for n in range(1,51) %}

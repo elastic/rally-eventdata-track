@@ -18,6 +18,9 @@
       "operation": "deleteindex_elasticlogs_i-*"
     },
     {
+    "operation": "delete-index-template"
+    },
+    {
       "operation": "fieldstats_elasticlogs_q-*",
       "warmup-iterations": {{ p_client_count }},
       "iterations": 1,
@@ -35,10 +38,19 @@
       }
     },
     {
-      "operation": "create_elasticlogs_i_write",
-      "clients": 1,
-      "warmup-iterations": 0,
-      "iterations": 1
+      "operation": "create-index-template"
+    },
+    {
+      "operation": {
+        "name": "create_elasticlogs_i_write",
+        "operation-type": "create-index",
+        "index": "elasticlogs_i-000001",
+        "body": {
+          "aliases" : {
+            "elasticlogs_i_write" : {}
+          }
+        }
+      }
     },
     {# Add some data to index so it does not start empty #}
     {
