@@ -15,7 +15,7 @@ eventdata.url = https://github.com/elastic/rally-eventdata-track
 
 ```
 
-The track can be run by specifying the following runtime parameters: `--track=eventdata` and `--track-repository=eventdata`
+The track can be run by specifying the following runtime parameters: `--track=eventdata` and `--track-repository=eventdata`.
 
 Another option is to download the repository and point to it using the `--track-path` command line parameter.
 
