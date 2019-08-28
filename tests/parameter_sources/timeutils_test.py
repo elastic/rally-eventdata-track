@@ -102,6 +102,53 @@ def test_generate_interval_from_fixed_starting_point():
     }
 
 
+def test_generate_interval_and_skip():
+    clock = ReproducibleClock(start=datetime.datetime(year=2019, month=1, day=5, hour=15),
+                              delta=datetime.timedelta(seconds=1))
+
+    g = TimestampStructGenerator(starting_point="2018-05-01:00:59:56",
+                                 acceleration_factor=3.0,
+                                 utcnow=clock)
+
+    assert g.next_timestamp() == {
+        "iso": "2018-05-01T00:59:59.000Z",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "01",
+        "hh": "00"
+    }
+
+    assert g.next_timestamp() == {
+        "iso": "2018-05-01T01:00:02.000Z",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "01",
+        "hh": "01"
+    }
+
+    g.skip(datetime.timedelta(days=1))
+
+    assert g.next_timestamp() == {
+        "iso": "2018-05-02T00:59:59.000Z",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "02",
+        "hh": "00"
+    }
+
+    assert g.next_timestamp() == {
+        "iso": "2018-05-02T01:00:02.000Z",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "02",
+        "hh": "01"
+    }
+
+
 def test_generate_invalid_time_interval():
     # "w" is unsupported
     with pytest.raises(TimeParsingError) as ex:

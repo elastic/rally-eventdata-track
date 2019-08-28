@@ -47,6 +47,12 @@ class TimestampStructGenerator:
         delta = (self._utcnow() - self._start) * self._acceleration_factor
         return self.__to_struct(self._starting_point + delta)
 
+    def skip(self, delta):
+        # advance the generated timestamp by delta
+        self._starting_point = self._starting_point + delta
+        # also reset the generator start as we want to ensure the same delta in #next_timestamp()
+        self._start = self._utcnow()
+
     def __to_struct(self, dt):
         # string formatting is about 4 times faster than strftime.
         iso = "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ" % (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
