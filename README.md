@@ -340,6 +340,19 @@ If you want to contribute to this track, please ensure that it works against the
 
 See all details in the [contributor guidelines](https://github.com/elastic/rally/blob/master/CONTRIBUTING.md).
 
+Running tests
+-------------
+
+This track contains associated unit tests. In order to run them, please issue the following commands
+
+```
+# only required once for the initial setup
+make prereq
+make install
+# to run the tests
+make test
+```
+
 License
 -------
 
