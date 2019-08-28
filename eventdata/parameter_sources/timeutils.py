@@ -27,14 +27,6 @@ class TimestampStructGenerator:
         # reuse to reduce object churn
         self._ts = {}
 
-    @classmethod
-    def StartingPoint(cls, starting_point, acceleration_factor=1.0):
-        return cls(starting_point, None, acceleration_factor)
-
-    @classmethod
-    def Interval(cls, starting_point, end_point):
-        return cls(starting_point, end_point)
-
     def generate_timestamp_struct(self):
         if self._end_point is None:
             if self._starting_point['type'] == 'relative':

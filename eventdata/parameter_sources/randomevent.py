@@ -226,39 +226,25 @@ class RandomEvent:
         # This reduces object churn and improves peak indexing throughput.
         self._event = {}
 
-        self._index = 'elasticlogs'
-        self._index_pattern = False
-        if 'index' in params.keys():
-            index = re.sub(r'<\s*yyyy\s*>', '{ts[yyyy]}', params['index'], flags=re.IGNORECASE)
-            index = re.sub(r'<\s*yy\s*>', '{ts[yy]}', index, flags=re.IGNORECASE)
-            index = re.sub(r'<\s*mm\s*>', '{ts[mm]}', index, flags=re.IGNORECASE)
-            index = re.sub(r'<\s*dd\s*>', '{ts[dd]}', index, flags=re.IGNORECASE)
-            index = re.sub(r'<\s*hh\s*>', '{ts[hh]}', index, flags=re.IGNORECASE)
+        if "index" in params:
+            index = re.sub(r"<\s*yyyy\s*>", "{ts[yyyy]}", params["index"], flags=re.IGNORECASE)
+            index = re.sub(r"<\s*yy\s*>", "{ts[yy]}", index, flags=re.IGNORECASE)
+            index = re.sub(r"<\s*mm\s*>", "{ts[mm]}", index, flags=re.IGNORECASE)
+            index = re.sub(r"<\s*dd\s*>", "{ts[dd]}", index, flags=re.IGNORECASE)
+            index = re.sub(r"<\s*hh\s*>", "{ts[hh]}", index, flags=re.IGNORECASE)
 
             self._index = index
             self._index_pattern = True
-
-        self._type = 'doc'
-
-        if 'starting_point' in params.keys():
-            sp = params['starting_point']
         else:
-            sp = "now"
+            self._index = "elasticlogs"
+            self._index_pattern = False
 
-        if 'end_point' in params.keys():
-            ep = params['end_point']
-            self._timestamp_generator = TimestampStructGenerator.Interval(sp, ep)
-        else:
-            if 'acceleration_factor' in params.keys():
-                af = float(params['acceleration_factor'])
-                self._timestamp_generator = TimestampStructGenerator.StartingPoint(sp, af)
-            else:
-                self._timestamp_generator = TimestampStructGenerator.StartingPoint(sp)
-
-        self._delete_fields = []
-        if 'delete_fields' in params.keys():
-            for d in params['delete_fields']:
-                self._delete_fields.append(d.split('.'))
+        self._type = "doc"
+        self._timestamp_generator = TimestampStructGenerator(
+            params.get("starting_point", "now"),
+            params.get("end_point"),
+            float(params.get("acceleration_factor", "1.0"))
+        )
 
         self.record_raw_event_size = params.get("record_raw_event_size", False)
 
@@ -278,7 +264,7 @@ class RandomEvent:
         self._request.add_fields(event)
 
         # set host name
-        event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"],random.randrange(1,3))
+        event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"], random.randrange(1, 3))
 
         # determine the raw event size (as if this were contained in nginx log file. We do not bother to
         # reformat the timestamp as this is not worth the overhead.
