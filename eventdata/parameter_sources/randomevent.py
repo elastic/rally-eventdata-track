@@ -260,7 +260,6 @@ class RandomEvent:
         self._type = "doc"
         self._timestamp_generator = TimestampStructGenerator(
             params.get("starting_point", "now"),
-            params.get("end_point"),
             float(params.get("acceleration_factor", "1.0"))
         )
 

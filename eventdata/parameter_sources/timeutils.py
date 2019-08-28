@@ -18,7 +18,6 @@
 
 import datetime
 import re
-import random
 
 epoch = datetime.datetime.utcfromtimestamp(0)
 
@@ -34,42 +33,21 @@ class TimeParsingError(Exception):
 
 
 class TimestampStructGenerator:
-    def __init__(self, starting_point, end_point=None, acceleration_factor=1.0, utcnow=datetime.datetime.utcnow):
+    def __init__(self, starting_point, acceleration_factor=1.0, utcnow=datetime.datetime.utcnow):
         self._start_dt = None
         self._starting_point = self.__parse_point_def(starting_point)
-        if end_point is None:
-            self._end_point = None
-        else:
-            self._end_point = self.__parse_point_def(end_point)
         self._acceleration_factor = acceleration_factor
         self._utcnow = utcnow
         # reuse to reduce object churn
         self._ts = {}
 
     def generate_timestamp_struct(self):
-        if self._end_point is None:
-            if self._starting_point["type"] == "relative":
-                dt = self._utcnow() + self._starting_point["offset"]
-            else:
-                self.__set_start_dt_if_not_set()
-                td = (self._utcnow() - self._start_dt) * self._acceleration_factor
-                dt = self._starting_point["dt"] + td
+        if self._starting_point["type"] == "relative":
+            dt = self._utcnow() + self._starting_point["offset"]
         else:
-            if self._starting_point["type"] == "relative":
-                dt1 = self._utcnow() + self._starting_point["offset"]
-            else:
-                dt1 = self._starting_point["dt"]
-
-            if self._end_point["type"] == "relative":
-                dt2 = self._utcnow() + self._end_point["offset"]
-            else:
-                dt2 = self._end_point["dt"]
-
-            interval_length = (dt2 - dt1)
-            random_offset = interval_length * random.random()
-
-            dt = dt1 + random_offset
-
+            self.__set_start_dt_if_not_set()
+            td = (self._utcnow() - self._start_dt) * self._acceleration_factor
+            dt = self._starting_point["dt"] + td
         return self.__generate_timestamp_struct_from_datetime(dt)
 
     def __generate_timestamp_struct_from_datetime(self, dt):

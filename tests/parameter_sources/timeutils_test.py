@@ -17,7 +17,6 @@
 
 import datetime
 import pytest
-import unittest.mock as mock
 
 from eventdata.parameter_sources.timeutils import TimestampStructGenerator, TimeParsingError
 
@@ -99,24 +98,6 @@ def test_generate_open_interval_from_fixed_starting_point():
         "mm": "05",
         "dd": "01",
         "hh": "01"
-    }
-
-
-@mock.patch("random.random")
-def test_generate_closed_interval_from_now(mocked_random):
-    # 0.2 * interval (one day) = 4 hours and 48 minutes
-    mocked_random.return_value = 0.2
-    clock = ReproducibleClock(start=datetime.datetime(year=2019, month=1, day=5, hour=15))
-
-    g = TimestampStructGenerator(starting_point="now", end_point="now+1d", utcnow=clock)
-
-    assert g.generate_timestamp_struct() == {
-        "iso": "2019-01-05T19:48:00.000Z",
-        "yyyy": "2019",
-        "yy": "19",
-        "mm": "01",
-        "dd": "05",
-        "hh": "19"
     }
 
 
