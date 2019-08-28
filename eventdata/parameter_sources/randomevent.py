@@ -266,7 +266,7 @@ class RandomEvent:
         self.record_raw_event_size = params.get("record_raw_event_size", False)
 
     def generate_event(self):
-        timestruct = self._timestamp_generator.generate_timestamp_struct()
+        timestruct = self._timestamp_generator.next_timestamp()
         index_name = self.__generate_index_pattern(timestruct)
 
         event = self._event

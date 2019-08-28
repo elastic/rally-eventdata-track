@@ -32,22 +32,14 @@ class ReproducibleClock:
         return now
 
 
-def test_generate_open_interval_from_now():
+def test_generate_interval_from_now():
     clock = ReproducibleClock(start=datetime.datetime(year=2019, month=1, day=5, hour=15),
                               delta=datetime.timedelta(seconds=5))
 
     g = TimestampStructGenerator(starting_point="now", utcnow=clock)
 
-    assert g.generate_timestamp_struct() == {
-        "iso": "2019-01-05T15:00:00.000Z",
-        "yyyy": "2019",
-        "yy": "19",
-        "mm": "01",
-        "dd": "05",
-        "hh": "15"
-    }
-
-    assert g.generate_timestamp_struct() == {
+    # first generated timestamp will be one (clock) invocation after the original start
+    assert g.next_timestamp() == {
         "iso": "2019-01-05T15:00:05.000Z",
         "yyyy": "2019",
         "yy": "19",
@@ -56,7 +48,7 @@ def test_generate_open_interval_from_now():
         "hh": "15"
     }
 
-    assert g.generate_timestamp_struct() == {
+    assert g.next_timestamp() == {
         "iso": "2019-01-05T15:00:10.000Z",
         "yyyy": "2019",
         "yy": "19",
@@ -65,8 +57,17 @@ def test_generate_open_interval_from_now():
         "hh": "15"
     }
 
+    assert g.next_timestamp() == {
+        "iso": "2019-01-05T15:00:15.000Z",
+        "yyyy": "2019",
+        "yy": "19",
+        "mm": "01",
+        "dd": "05",
+        "hh": "15"
+    }
 
-def test_generate_open_interval_from_fixed_starting_point():
+
+def test_generate_interval_from_fixed_starting_point():
     clock = ReproducibleClock(start=datetime.datetime(year=2019, month=1, day=5, hour=15),
                               delta=datetime.timedelta(seconds=1))
 
@@ -74,7 +75,7 @@ def test_generate_open_interval_from_fixed_starting_point():
                                  acceleration_factor=3.0,
                                  utcnow=clock)
 
-    assert g.generate_timestamp_struct() == {
+    assert g.next_timestamp() == {
         "iso": "2018-05-01T00:59:59.000Z",
         "yyyy": "2018",
         "yy": "18",
@@ -83,7 +84,7 @@ def test_generate_open_interval_from_fixed_starting_point():
         "hh": "00"
     }
 
-    assert g.generate_timestamp_struct() == {
+    assert g.next_timestamp() == {
         "iso": "2018-05-01T01:00:02.000Z",
         "yyyy": "2018",
         "yy": "18",
@@ -91,7 +92,7 @@ def test_generate_open_interval_from_fixed_starting_point():
         "dd": "01",
         "hh": "01"
     }
-    assert g.generate_timestamp_struct() == {
+    assert g.next_timestamp() == {
         "iso": "2018-05-01T01:00:05.000Z",
         "yyyy": "2018",
         "yy": "18",
