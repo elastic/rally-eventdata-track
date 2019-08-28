@@ -16,16 +16,19 @@
 # under the License.
 
 
-import json
-import random
+import datetime
 import gzip
-import re
+import json
 import os
-from eventdata.utils import elasticlogs_bulk_source as ebs
-from eventdata.parameter_sources.weightedarray import WeightedArray
+import random
+import re
+
 from eventdata.parameter_sources.timeutils import TimestampStructGenerator
+from eventdata.parameter_sources.weightedarray import WeightedArray
+from eventdata.utils import elasticlogs_bulk_source as ebs
 
 cwd = os.path.dirname(__file__)
+
 
 class Agent:
     def __init__(self):
@@ -84,7 +87,6 @@ class Agent:
             with gzip.open('%s/data/agent_lookup.json.gz' % cwd, 'rt') as data_file:
                 self._agent_lookup = json.load(data_file)
             ebs.global_lookups['_agent_lookup'] = self._agent_lookup
-
 
     def add_fields(self, event):
         agent = self._agents.get_random()
@@ -154,7 +156,6 @@ class ClientIp:
             with gzip.open('%s/data/clientips_city_name_lookup.json.gz' % cwd, 'rt') as data_file:
                 self._clientips_city_name_lookup = json.load(data_file)
             ebs.global_lookups['_clientips_city_name_lookup'] = self._clientips_city_name_lookup
-
 
     def add_fields(self, event):
         p = random.random()
@@ -234,12 +235,32 @@ class Request:
         event['httpversion'] = data[5]
 
 
+def convert_to_bytes(size):
+    matched_size = re.match(r"^(\d+)\s?(kB|MB|GB)?$", size)
+    if matched_size:
+        value = int(matched_size.group(1))
+        unit = matched_size.group(2)
+        if unit == "kB":
+            return value << 10
+        elif unit == "MB":
+            return value << 20
+        elif unit == "GB":
+            return value << 30
+        elif unit is None:
+            return value
+        else:
+            # we should only reach this if the regex does not match the code here
+            raise ValueError("Unrecognized unit [{}] for byte size value [{}]".format(unit, size))
+    else:
+        raise ValueError("Invalid byte size value [{}]".format(size))
+
+
 class RandomEvent:
-    def __init__(self, params):
-        self._agent = Agent()
-        self._clientip = ClientIp()
-        self._referrer = Referrer()
-        self._request = Request()
+    def __init__(self, params, agent=Agent, client_ip=ClientIp, referrer=Referrer, request=Request):
+        self._agent = agent()
+        self._clientip = client_ip()
+        self._referrer = referrer()
+        self._request = request()
         # We will reuse the event dictionary. This assumes that each field will be present (and thus overwritten) in each event.
         # This reduces object churn and improves peak indexing throughput.
         self._event = {}
@@ -260,12 +281,24 @@ class RandomEvent:
         self._type = "doc"
         self._timestamp_generator = TimestampStructGenerator(
             params.get("starting_point", "now"),
-            float(params.get("acceleration_factor", "1.0"))
+            float(params.get("acceleration_factor", "1.0")),
+            # this is only expected to be used in tests
+            params.get("__utc_now")
         )
-
+        if "daily_logging_volume" in params and "client_count" in params:
+            # in bytes
+            self.daily_logging_volume = convert_to_bytes(params["daily_logging_volume"]) // int(params["client_count"])
+            self.current_logging_volume = 0
+            self.remaining_days = params.get("number_of_days")
+        else:
+            self.daily_logging_volume = None
+            self.current_logging_volume = 0
+            self.remaining_days = None
         self.record_raw_event_size = params.get("record_raw_event_size", False)
 
     def generate_event(self):
+        if self.remaining_days == 0:
+            raise StopIteration()
         timestruct = self._timestamp_generator.next_timestamp()
         index_name = self.__generate_index_pattern(timestruct)
 
@@ -273,7 +306,7 @@ class RandomEvent:
         event["@timestamp"] = timestruct["iso"]
 
         # set random offset
-        event["offset"] = random.randrange(0,10000000)
+        event["offset"] = random.randrange(0, 10000000)
 
         self._agent.add_fields(event)
         self._clientip.add_fields(event)
@@ -283,14 +316,23 @@ class RandomEvent:
         # set host name
         event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"], random.randrange(1, 3))
 
-        # determine the raw event size (as if this were contained in nginx log file. We do not bother to
-        # reformat the timestamp as this is not worth the overhead.
-        if self.record_raw_event_size:
+        if self.record_raw_event_size or self.daily_logging_volume:
+            # determine the raw event size (as if this were contained in nginx log file. We do not bother to
+            # reformat the timestamp as this is not worth the overhead.
             raw_event = '%s - - [%s] "%s %s HTTP/%s" %s %s "%s" "%s"' % (event["clientip"], event["@timestamp"],
                                                                          event["verb"], event["request"],
                                                                          event["httpversion"], event["response"],
                                                                          event["bytes"], event["referrer"],
                                                                          event["agent"])
+            if self.daily_logging_volume:
+                self.current_logging_volume += len(raw_event)
+                if self.current_logging_volume > self.daily_logging_volume:
+                    if self.remaining_days is not None:
+                        self.remaining_days -= 1
+                    self._timestamp_generator.skip(datetime.timedelta(days=1))
+                    self.current_logging_volume = 0
+
+        if self.record_raw_event_size:
             # we are on the hot code path here and thus we want to avoid conditionally creating strings so we duplicate
             # the event.
             line = '{"@timestamp": "%s", ' \

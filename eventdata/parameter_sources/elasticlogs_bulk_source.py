@@ -77,8 +77,8 @@ class ElasticlogsBulkSource:
         "id_delay_secs"            -    If an event is delayed, this number of seconds will be deducted from the current timestamp.
     """
     def __init__(self, track, params, **kwargs):
+        self.orig_args = [track, params, kwargs]
         self._indices = track.indices
-        self._params = params
         self._params = params
         self._randomevent = RandomEvent(params)
 
@@ -107,7 +107,6 @@ class ElasticlogsBulkSource:
                 self._id_delay_secs = 0
 
         if self._id_type == "seq":
-            self.orig_args = [track, params, kwargs]
             self._id_seq_probability = float(params['id_seq_probability']) if 'id_seq_probability' in params else 0.0
             self._low_id_bias = str(params.get('id_seq_low_id_bias', False)).lower() == "true"
             if self._low_id_bias:
@@ -129,14 +128,13 @@ class ElasticlogsBulkSource:
             logger.debug("[bulk] Index pattern specified in parameters ({}) will be used".format(params['index']))
 
     def partition(self, partition_index, total_partitions):
-        if self._params.get("id_type") == "seq":
-            new_params = copy.deepcopy(self.orig_args[1])
-            new_params["client_id"] = partition_index
-            return ElasticlogsBulkSource(self.orig_args[0], new_params, **self.orig_args[2])
-        else:
+        if self._params.get("id_type") != "seq":
             seed = partition_index * self._params["seed"] if "seed" in self._params else None
             random.seed(seed)
-            return self
+        new_params = copy.deepcopy(self.orig_args[1])
+        new_params["client_id"] = partition_index
+        new_params["client_count"] = total_partitions
+        return ElasticlogsBulkSource(self.orig_args[0], new_params, **self.orig_args[2])
 
     def size(self):
         return 1
@@ -145,7 +143,15 @@ class ElasticlogsBulkSource:
         # Build bulk array
         bulk_array = []
         for x in range(0, self._bulk_size):
-            evt, idx, typ = self._randomevent.generate_event()
+            try:
+                evt, idx, typ = self._randomevent.generate_event()
+            except StopIteration:
+                if len(bulk_array) > 0:
+                    # return any remaining items if there are any (otherwise we'd lose the last bulk request)
+                    break
+                else:
+                    # otherwise stop immediately
+                    raise
 
             if self._id_type == 'auto':
                 bulk_array.append('{"index": {"_index": "%s"}}"' % (idx))
@@ -173,7 +179,11 @@ class ElasticlogsBulkSource:
 
             bulk_array.append(evt)
 
-        response = { "body": "\n".join(bulk_array), "action-metadata-present": True, "bulk-size": self._bulk_size }
+        response = {
+            "body": "\n".join(bulk_array),
+            "action-metadata-present": True,
+            "bulk-size": len(bulk_array)
+        }
 
         if "pipeline" in self._params.keys():
             response["pipeline"] = self._params["pipeline"]

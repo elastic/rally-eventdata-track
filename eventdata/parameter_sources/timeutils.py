@@ -33,8 +33,8 @@ class TimeParsingError(Exception):
 
 
 class TimestampStructGenerator:
-    def __init__(self, starting_point, acceleration_factor=1.0, utcnow=datetime.datetime.utcnow):
-        self._utcnow = utcnow
+    def __init__(self, starting_point, acceleration_factor=1.0, utcnow=None):
+        self._utcnow = utcnow if utcnow else datetime.datetime.utcnow
         # the (actual) time when this generator has started
         self._start = self._utcnow()
         # the logical point in time for which we'll generate timestamps
