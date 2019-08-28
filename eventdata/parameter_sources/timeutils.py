@@ -16,7 +16,7 @@ class TimeParsingError(Exception):
 
 
 class TimestampStructGenerator:
-    def __init__(self, starting_point, end_point=None, acceleration_factor=1.0):
+    def __init__(self, starting_point, end_point=None, acceleration_factor=1.0, utcnow=datetime.datetime.utcnow):
         self._start_dt = None
         self._starting_point = self.__parse_point_def(starting_point)
         if end_point is None:
@@ -24,27 +24,28 @@ class TimestampStructGenerator:
         else:
             self._end_point = self.__parse_point_def(end_point)
         self._acceleration_factor = acceleration_factor
+        self._utcnow = utcnow
         # reuse to reduce object churn
         self._ts = {}
 
     def generate_timestamp_struct(self):
         if self._end_point is None:
-            if self._starting_point['type'] == 'relative':
-                dt = datetime.datetime.utcnow() + self._starting_point['offset']
+            if self._starting_point["type"] == "relative":
+                dt = self._utcnow() + self._starting_point["offset"]
             else:
                 self.__set_start_dt_if_not_set()
-                td = (datetime.datetime.utcnow() - self._start_dt) * self._acceleration_factor
-                dt = self._starting_point['dt'] + td
+                td = (self._utcnow() - self._start_dt) * self._acceleration_factor
+                dt = self._starting_point["dt"] + td
         else:
-            if self._starting_point['type'] == 'relative':
-                dt1 = datetime.datetime.utcnow() + self._starting_point['offset']
+            if self._starting_point["type"] == "relative":
+                dt1 = self._utcnow() + self._starting_point["offset"]
             else:
-                dt1 = self._starting_point['dt']
+                dt1 = self._starting_point["dt"]
 
-            if self._end_point['type'] == 'relative':
-                dt2 = datetime.datetime.utcnow() + self._end_point['offset']
+            if self._end_point["type"] == "relative":
+                dt2 = self._utcnow() + self._end_point["offset"]
             else:
-                dt2 = self._end_point['dt']
+                dt2 = self._end_point["dt"]
 
             interval_length = (dt2 - dt1)
             random_offset = interval_length * random.random()
@@ -56,45 +57,54 @@ class TimestampStructGenerator:
     def __generate_timestamp_struct_from_datetime(self, dt):
         # string formatting is about 4 times faster than strftime.
         iso = "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ" % (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
-        self._ts['iso'] = iso
-        self._ts['yyyy'] = iso[:4]
-        self._ts['yy'] = iso[2:4]
-        self._ts['mm'] = iso[5:7]
-        self._ts['dd'] = iso[8:10]
-        self._ts['hh'] = iso[11:13]
+        self._ts["iso"] = iso
+        self._ts["yyyy"] = iso[:4]
+        self._ts["yy"] = iso[2:4]
+        self._ts["mm"] = iso[5:7]
+        self._ts["dd"] = iso[8:10]
+        self._ts["hh"] = iso[11:13]
         return self._ts
 
     def __set_start_dt_if_not_set(self):
         if self._start_dt is None:
-            self._start_dt = datetime.datetime.utcnow()
+            self._start_dt = self._utcnow()
 
     def __parse_point_def(self, point):
         if point == "now":
-            return { 'type': "relative", 'offset': datetime.timedelta()}
+            return {"type": "relative", "offset": datetime.timedelta()}
 
-        match = re.match("^now([+-]\d+)([hmd])$", point)
+        match = re.match(r"^now([+-]\d+)([hmd])$", point)
         if match:
-            int_offset = int(match.group(1))
+            offset = int(match.group(1))
 
             if match.group(2) == "m":
-                return { 'type': "relative", 'offset': datetime.timedelta(minutes=int_offset)}
+                return {'type': "relative", "offset": datetime.timedelta(minutes=offset)}
 
             if match.group(2) == "h":
-                return { 'type': "relative", 'offset': datetime.timedelta(hours=int_offset)}
+                return {'type': "relative", "offset": datetime.timedelta(hours=offset)}
 
             if match.group(2) == "d":
-                return { 'type': "relative", 'offset': datetime.timedelta(days=int_offset)}
+                return {'type': "relative", "offset": datetime.timedelta(days=offset)}
 
         else:
-            match = re.match("^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$", point)
+            match = re.match(r"^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$", point)
             if match:
-                dt = datetime.datetime.strptime('{} {} {} {} {} {} UTC'.format(match.group(1), match.group(2), match.group(3), match.group(4), match.group(5), match.group(6)), "%Y %m %d %H %M %S %Z")
-                return { 'type': "absolute", 'dt': dt}
+                dt = datetime.datetime(year=int(match.group(1)),
+                                       month=int(match.group(2)),
+                                       day=int(match.group(3)),
+                                       hour=int(match.group(4)),
+                                       minute=int(match.group(5)),
+                                       second=int(match.group(6)),
+                                       tzinfo=datetime.timezone.utc)
+                return {"type": "absolute", "dt": dt}
 
             else:
-                match = re.match("^(\d{4})\D(\d{2})\D(\d{2})$", point)
+                match = re.match(r"^(\d{4})\D(\d{2})\D(\d{2})$", point)
                 if match:
-                    dt = datetime.datetime.strptime('{} {} {} 00 00 00 UTC'.format(match.group(1), match.group(2), match.group(3)), "%Y %m %d %H %M %S %Z")
-                    return { 'type': "absolute", 'dt': dt}
+                    dt = datetime.datetime(year=int(match.group(1)),
+                                           month=int(match.group(2)),
+                                           day=int(match.group(3)),
+                                           tzinfo=datetime.timezone.utc)
+                    return {"type": "absolute", "dt": dt}
 
         raise TimeParsingError("Invalid time format: {}".format(point))
