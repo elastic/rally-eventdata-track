@@ -219,6 +219,17 @@ The table below shows the track parameters that can be adjusted along with defau
 | `bulk_indexing_iterations` | Number of bulk requests to send as part of each run | `int` | `200000` |
 | `forcemerge` | Parameter indicating whether index statistics should be gathered following a forcemerge down to a single segment | `boolean` | `false` |
 
+### index-logs-fixed-daily-volume
+
+This challenge indexes a fixed amount of logs per day into daily indices. The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter               | Explanation                                                                                                                            | Type  | Default Value |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------- |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`           |
+| `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`       |
+| `number_of_days`        | The number of days for which data should be generated.                                                                                 | `int` | `24`          |
+| `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`           |
+
 ## Custom parameter sources
 
 ### elasticlogs\_bulk\_source

@@ -1,0 +1,49 @@
+{% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_number_of_days = (number_of_days | default(24)) %}
+{% set p_daily_logging_volume = (daily_logging_volume | default("100GB")) %}
+
+{
+  "name": "index-logs-fixed-daily-volume",
+  "description": "Indexes {{p_number_of_days}} days of logs with a fixed (raw) logging volume of {{p_daily_logging_volume}} per day",
+  "meta": {
+    "client_count": {{ p_bulk_indexing_clients }},
+    "benchmark_type": "logs-fixed-daily-volume"
+  },
+  "schedule": [
+    {
+      "name": "delete-index-elasticlogs-*",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "elasticlogs-*"
+      }
+    },
+    {
+      "operation": "delete-index-template"
+    },
+    {
+      "operation": {
+        "operation-type": "create-index-template",
+        "settings": {
+          "index.number_of_shards": {{ shard_count | default(3) }}
+        }
+      }
+    },
+    {
+      "name": "bulk-index-logs",
+      "operation": {
+        "operation-type": "bulk",
+        "param-source": "elasticlogs_bulk",
+        "index": "elasticlogs-<yyyy>-<mm>-<dd>",
+        "starting_point": "2018-05-01:00:00:00",
+        "bulk-size": 1000,
+        "daily_logging_volume": "{{p_daily_logging_volume}}",
+        "number_of_days": {{p_number_of_days}},
+        "record_raw_event_size": {{p_record_raw_event_size}}
+      },
+      "warmup-time-period": 0,
+      "#COMMENT": "We need to have the parameter source define this!",
+      "time-period": 72000,
+      "clients": {{ p_bulk_indexing_clients }}
+    }
+  ]
+}
