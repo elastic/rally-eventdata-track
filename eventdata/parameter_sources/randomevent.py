@@ -317,7 +317,7 @@ class RandomEvent:
         event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"], random.randrange(1, 3))
 
         if self.record_raw_event_size or self.daily_logging_volume:
-            # determine the raw event size (as if this were contained in nginx log file. We do not bother to
+            # determine the raw event size (as if this were contained in nginx log file). We do not bother to
             # reformat the timestamp as this is not worth the overhead.
             raw_event = '%s - - [%s] "%s %s HTTP/%s" %s %s "%s" "%s"' % (event["clientip"], event["@timestamp"],
                                                                          event["verb"], event["request"],
