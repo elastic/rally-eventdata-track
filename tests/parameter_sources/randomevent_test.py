@@ -99,6 +99,8 @@ def test_random_events_with_daily_logging_volume():
         referrer=StaticReferrer,
         request=StaticRequest)
 
+    assert e.percent_completed is None
+
     # 5 events fit into one kilobyte
     for i in range(5):
         doc, index, _ = e.generate_event()
@@ -109,6 +111,8 @@ def test_random_events_with_daily_logging_volume():
     for i in range(5):
         doc, index, _ = e.generate_event()
         assert index == "logs-20190107"
+
+    assert e.percent_completed is None
 
 
 def test_random_events_with_daily_logging_volume_and_maximum_days():
@@ -127,18 +131,23 @@ def test_random_events_with_daily_logging_volume_and_maximum_days():
         referrer=StaticReferrer,
         request=StaticRequest)
 
+    assert e.percent_completed == 0.0
+
     # 5 events fit into one kilobyte
     for i in range(5):
         doc, index, _ = e.generate_event()
         assert index == "logs-20190105"
+
+    assert e.percent_completed == 0.5
+
     for i in range(5):
         doc, index, _ = e.generate_event()
         assert index == "logs-20190106"
     # no more events allowed on the next day
     with pytest.raises(StopIteration):
         doc, index, _ = e.generate_event()
-        print(index)
 
+    assert e.percent_completed == 1.0
 
 
 def test_convert_bytes_to_bytes():
