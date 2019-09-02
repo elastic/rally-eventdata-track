@@ -41,8 +41,6 @@
         "record_raw_event_size": {{p_record_raw_event_size}}
       },
       "warmup-time-period": 0,
-      "#COMMENT": "We need to have the parameter source define this!",
-      "time-period": 72000,
       "clients": {{ p_bulk_indexing_clients }}
     }
   ]
