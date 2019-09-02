@@ -288,13 +288,22 @@ class RandomEvent:
         if "daily_logging_volume" in params and "client_count" in params:
             # in bytes
             self.daily_logging_volume = convert_to_bytes(params["daily_logging_volume"]) // int(params["client_count"])
-            self.current_logging_volume = 0
-            self.remaining_days = params.get("number_of_days")
         else:
             self.daily_logging_volume = None
-            self.current_logging_volume = 0
-            self.remaining_days = None
+        self.current_logging_volume = 0
+        self.total_days = params.get("number_of_days")
+        self.remaining_days = self.total_days
         self.record_raw_event_size = params.get("record_raw_event_size", False)
+
+    @property
+    def percent_completed(self):
+        if self.daily_logging_volume is None or self.total_days is None:
+            return None
+        else:
+            full_days = self.total_days - self.remaining_days
+            already_generated = self.daily_logging_volume * full_days + self.current_logging_volume
+            total = self.total_days * self.daily_logging_volume
+            return already_generated / total
 
     def generate_event(self):
         if self.remaining_days == 0:

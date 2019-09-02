@@ -137,7 +137,15 @@ class ElasticlogsBulkSource:
         return ElasticlogsBulkSource(self.orig_args[0], new_params, **self.orig_args[2])
 
     def size(self):
-        return 1
+        # progress is determined either by:
+        #
+        # * the `time-period` or `iteration` property specified on the corresponding task
+        # * `#params()` raising `StopIteration` when `RandomEvent` is exhausted
+        return None
+
+    @property
+    def percent_completed(self):
+        return self._randomevent.percent_completed
 
     def params(self):
         # Build bulk array
