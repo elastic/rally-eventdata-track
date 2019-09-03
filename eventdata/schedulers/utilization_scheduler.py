@@ -62,7 +62,7 @@ class UtilizationBasedScheduler:
                 median_response_time_at_full_utilization = statistics.median(self.response_times)
                 # To determine the waiting time we need to subtract the (expected) response time from the total expected
                 # response time.
-                self.wait_time = median_response_time_at_full_utilization * (1 / self.target_utilization - 1)
+                self.wait_time = median_response_time_at_full_utilization * ((1 / self.target_utilization) - 1)
                 self.logger.info("Waiting time is [%.2f] seconds for a utilization of [%.2f]%% (based on [%d] samples).",
                                  self.wait_time, (self.target_utilization * 100), len(self.response_times))
             # run unthrottled while determining the target utilization
