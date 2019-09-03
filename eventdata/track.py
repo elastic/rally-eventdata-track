@@ -27,6 +27,7 @@ from eventdata.runners import indicesstats_runner
 from eventdata.runners import kibana_runner
 from eventdata.runners import nodestorage_runner
 from eventdata.runners import rollover_runner
+from eventdata.schedulers import utilization_scheduler
 
 
 def register(registry):
@@ -41,3 +42,4 @@ def register(registry):
     registry.register_runner("kibana", kibana_runner.kibana)
     registry.register_runner("node_storage", nodestorage_runner.nodestorage)
     registry.register_runner("rollover", rollover_runner.rollover)
+    registry.register_scheduler("utilization", utilization_scheduler.UtilizationBasedScheduler)
