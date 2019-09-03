@@ -55,13 +55,12 @@ class UtilizationBasedScheduler:
             return 0
         elif self.in_warmup:
             now = self.perf_counter()
-            self.response_times.append((now - self.last_request_start))
+            self.response_times.append(now - self.last_request_start)
             self.last_request_start = now
             if now >= self.end_warmup:
                 self.in_warmup = False
                 median_response_time_at_full_utilization = statistics.median(self.response_times)
-                # the total response time at the targeted utilization is determined by self.relative_target. However
-                # to determine the waiting time we need to subtract the (expected) response time from the total expected
+                # To determine the waiting time we need to subtract the (expected) response time from the total expected
                 # response time.
                 self.wait_time = median_response_time_at_full_utilization * (1 / self.target_utilization - 1)
                 self.logger.info("Waiting time is [%.2f] seconds for a utilization of [%.2f]%% (based on [%d] samples).",
