@@ -33,12 +33,12 @@ class TimeParsingError(Exception):
 
 
 class TimestampStructGenerator:
-    def __init__(self, starting_point, acceleration_factor=1.0, utcnow=None):
+    def __init__(self, starting_point, offset=None, acceleration_factor=1.0, utcnow=None):
         self._utcnow = utcnow if utcnow else datetime.datetime.utcnow
         # the (actual) time when this generator has started
         self._start = self._utcnow()
         # the logical point in time for which we'll generate timestamps
-        self._starting_point = self.__parse_point_def(starting_point)
+        self._starting_point = self.__parse_starting_point(starting_point) + self.__parse_offset(offset)
         self._acceleration_factor = acceleration_factor
         # reuse to reduce object churn
         self._ts = {}
@@ -64,26 +64,10 @@ class TimestampStructGenerator:
         self._ts["hh"] = iso[11:13]
         return self._ts
 
-    def __parse_point_def(self, point):
+    def __parse_starting_point(self, point):
         if point == "now":
             # this is "now" at this point
             return self._start
-
-        match = re.match(r"^now([+-]\d+)([hmd])$", point)
-        if match:
-            offset_amount = int(match.group(1))
-
-            if match.group(2) == "m":
-                offset = datetime.timedelta(minutes=offset_amount)
-            elif match.group(2) == "h":
-                offset = datetime.timedelta(hours=offset_amount)
-            elif match.group(2) == "d":
-                offset = datetime.timedelta(days=offset_amount)
-            else:
-                raise TimeParsingError("Invalid time format: {}".format(point))
-
-            return self._start + offset
-
         else:
             match = re.match(r"^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$", point)
             if match:
@@ -103,3 +87,21 @@ class TimestampStructGenerator:
                                              tzinfo=datetime.timezone.utc)
 
         raise TimeParsingError("Invalid time format: {}".format(point))
+
+    def __parse_offset(self, offset):
+        if offset is None:
+            return datetime.timedelta()
+        match = re.match(r"^([+-]\d+)([hmd])$", offset)
+        if match:
+            offset_amount = int(match.group(1))
+            if match.group(2) == "m":
+                return datetime.timedelta(minutes=offset_amount)
+            elif match.group(2) == "h":
+                return datetime.timedelta(hours=offset_amount)
+            elif match.group(2) == "d":
+                return datetime.timedelta(days=offset_amount)
+            else:
+                raise TimeParsingError("Invalid offset: {}".format(offset))
+        else:
+            raise TimeParsingError("Invalid offset: {}".format(offset))
+
