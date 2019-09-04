@@ -91,6 +91,7 @@ class ElasticlogsKibanaSource:
         self._debug = params.get("debug", False)
         self._pre_filter_shard_size = params.get("pre_filter_shard_size", 1)
         self._window_length = params.get("window_length", "1d")
+        self.infinite = True
         
         random.seed()
 
@@ -155,8 +156,9 @@ class ElasticlogsKibanaSource:
         random.seed(seed)
         return self
 
+    # Deprecated - only there for BWC reasons with Rally < 1.4.0
     def size(self):
-        return 1
+        return None
 
     def params(self):
         # Determine window_end boundaries
