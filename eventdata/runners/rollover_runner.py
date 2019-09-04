@@ -16,8 +16,6 @@
 # under the License.
 
 
-import elasticsearch
-
 def rollover(es, params):
     """
     Runs a rollover operation against Elasticsearch.
