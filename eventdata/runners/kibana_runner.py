@@ -16,13 +16,12 @@
 # under the License.
 
 
-import elasticsearch
 import json
-import time
 
 import logging
 
 logger = logging.getLogger("track.eventdata")
+
 
 def kibana(es, params):
     """

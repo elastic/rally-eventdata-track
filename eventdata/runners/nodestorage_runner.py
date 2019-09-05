@@ -17,13 +17,13 @@
 
 
 import elasticsearch
-import json
 
 import logging
 
 logger = logging.getLogger("track.eventdata")
 
 BYTES_PER_TB = 1024 * 1024 * 1024 * 1024
+
 
 def nodestorage(es, params):
     """
