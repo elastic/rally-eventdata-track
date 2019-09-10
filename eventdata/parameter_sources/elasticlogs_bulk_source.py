@@ -77,6 +77,7 @@ class ElasticlogsBulkSource:
         "id_delay_secs"            -    If an event is delayed, this number of seconds will be deducted from the current timestamp.
     """
     def __init__(self, track, params, **kwargs):
+        self.infinite = False
         self.orig_args = [track, params, kwargs]
         self._indices = track.indices
         self._params = params
@@ -136,15 +137,16 @@ class ElasticlogsBulkSource:
         new_params["client_count"] = total_partitions
         return ElasticlogsBulkSource(self.orig_args[0], new_params, **self.orig_args[2])
 
+    # Deprecated - only there for BWC reasons with Rally < 1.4.0
     def size(self):
-        # progress is determined either by:
-        #
-        # * the `time-period` or `iteration` property specified on the corresponding task
-        # * `#params()` raising `StopIteration` when `RandomEvent` is exhausted
         return None
 
     @property
     def percent_completed(self):
+        # progress is determined either by:
+        #
+        # * the `time-period` or `iteration` property specified on the corresponding task
+        # * `#params()` raising `StopIteration` when `RandomEvent` is exhausted
         return self._randomevent.percent_completed
 
     def params(self):
