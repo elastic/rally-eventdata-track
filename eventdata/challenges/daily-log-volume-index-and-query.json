@@ -24,6 +24,7 @@
     {
       "parallel": {
         "completed-by": "{{bulk_index_task_name}}",
+        "warmup-time-period": 600,
         "tasks": [
           {
             "operation": {
