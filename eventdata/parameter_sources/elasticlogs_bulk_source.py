@@ -81,7 +81,13 @@ class ElasticlogsBulkSource:
         self.orig_args = [track, params, kwargs]
         self._indices = track.indices
         self._params = params
-        self._randomevent = RandomEvent(params)
+        # we could also do `kwargs.get("random_event, RandomEvent(params))` but that would call the constructor eagerly
+        # which we want to avoid because this can cause significant overhead.
+        if "random_event" in kwargs:
+            self._randomevent = kwargs["random_event"]
+        else:
+            self._randomevent = RandomEvent(params)
+
 
         self._bulk_size = 1000
         if 'bulk-size' in params.keys():
@@ -192,7 +198,8 @@ class ElasticlogsBulkSource:
         response = {
             "body": "\n".join(bulk_array),
             "action-metadata-present": True,
-            "bulk-size": len(bulk_array)
+            # the bulk array contains the action-and-metadata line and the actual document
+            "bulk-size": len(bulk_array) // 2
         }
 
         if "pipeline" in self._params.keys():
