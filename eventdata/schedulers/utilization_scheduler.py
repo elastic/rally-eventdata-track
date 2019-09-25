@@ -22,63 +22,59 @@ import statistics
 
 
 class UtilizationBasedScheduler:
+    RESPONSE_TIMES = []
     """
-    This scheduler schedules events at 100% utilization (unthrottled) during the warmup time-period. It tracks this
-    period itself (i.e. independently of Rally) using the task parameter ``warmup-time-period``. During this period
-    it gathers response time metrics. The median response time and the provided target utilization (via the task
+    This scheduler schedules events at 100% utilization (unthrottled) if is is in recording mode (enabled by setting 
+    ``record-response-times`` to ``True``). The median response time and the provided target utilization (via the task
     parameter ``target-utilization``) determine the average waiting time during the actual measurement phase of the
     benchmark. In order to avoid that clients coordinate, we randomize waiting time using a Poisson distribution.
     """
     def __init__(self, params, perf_counter=time.perf_counter):
         self.logger = logging.getLogger(__name__)
         self.perf_counter = perf_counter
-        self.target_utilization = float(params["target-utilization"])
-        if self.target_utilization <= 0.0 or self.target_utilization > 1.0:
-            raise ValueError("target-utilization must be in the range (0.0, 1.0] but is {}".format(
-                self.target_utilization))
-        self.warmup_time_period = int(params["warmup-time-period"])
-        # to determine the target utilization
-        self.response_times = []
-        self.start_warmup = None
-        self.end_warmup = None
-        self.in_warmup = None
-        self.last_request_start = None
-        # determined by the utilization calculation
-        self.time_between_requests = None
+        self.recording = params.get("record-response-times", False)
+        if self.recording:
+            self.logger.info("Running in recording mode.")
+            self.last_request_start = None
+        else:
+            self.logger.info("Running in measurement mode.")
+            self.target_utilization = float(params["target-utilization"])
+            if self.target_utilization <= 0.0 or self.target_utilization > 1.0:
+                raise ValueError("target-utilization must be in the range (0.0, 1.0] but is {}".format(
+                    self.target_utilization))
+            response_times = UtilizationBasedScheduler.RESPONSE_TIMES
+            if len(response_times) == 0:
+                raise ValueError("No response times recorded. Please run first with 'record-response-times'.")
+            median_response_time_at_full_utilization = statistics.median(response_times)
+            self.time_between_requests = median_response_time_at_full_utilization * (1 / self.target_utilization)
+            self.logger.info("Time between requests is [%.3f] seconds for a utilization of [%.2f]%% (based on "
+                             "[%d] samples with a median response time of [%.3f] seconds).",
+                             self.time_between_requests, (self.target_utilization * 100), len(response_times),
+                             median_response_time_at_full_utilization)
 
     def next(self, current):
-        if self.in_warmup is None:
-            self.in_warmup = True
-            self.start_warmup = self.perf_counter()
-            self.end_warmup = self.start_warmup + self.warmup_time_period
-            self.last_request_start = self.start_warmup
-            return 0
-        elif self.in_warmup:
+        if self.recording:
             now = self.perf_counter()
-            self.response_times.append(now - self.last_request_start)
+            # skip the very first sample
+            if self.last_request_start is not None:
+                UtilizationBasedScheduler.RESPONSE_TIMES.append(now - self.last_request_start)
             self.last_request_start = now
-            if now >= self.end_warmup:
-                self.in_warmup = False
-                median_response_time_at_full_utilization = statistics.median(self.response_times)
-                self.time_between_requests = median_response_time_at_full_utilization * (1 / self.target_utilization)
-                self.logger.info("Time between requests is [%.3f] seconds for a utilization of [%.2f]%% (based on "
-                                 "[%d] samples with a median response time of [%.3f] seconds).",
-                                 self.time_between_requests, (self.target_utilization * 100), len(self.response_times),
-                                 median_response_time_at_full_utilization)
-            else:
-                # run unthrottled while determining the target utilization
-                return 0
+            # run unthrottled while determining the target utilization
+            return 0
 
         if self.target_utilization == 1.0:
             return 0
-        # this happens *exactly* when the warmup period is over. It is the first throttled sample that we provide. As
-        # the load driver will consider this time stamp relative to the start of the benchmark, we now need to "fix" it
-        # by providing a proper relative time stamp otherwise we constantly attempt to catch up.
-        elif current == 0:
-            return self.perf_counter() - self.start_warmup
         else:
             # don't let every client send requests at the same time
             return current + random.expovariate(1 / self.time_between_requests)
 
+    # intended for testing
+    @classmethod
+    def reset_recorded_response_times(cls):
+        UtilizationBasedScheduler.RESPONSE_TIMES = []
+
     def __str__(self):
-        return "Utilization scheduler with target utilization of {:.2f}%.".format(self.target_utilization * 100)
+        if self.recording:
+            return "Utilization scheduler in recording mode."
+        else:
+            return "Utilization scheduler with target utilization of {:.2f}%.".format(self.target_utilization * 100)
