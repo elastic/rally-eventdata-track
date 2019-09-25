@@ -1,5 +1,5 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
-{% set p_starting_point = (number_of_days | default("2018-05-25 00:00:00")) %}
+{% set p_starting_point = (starting_point | default("2018-05-25 00:00:00")) %}
 {% set p_number_of_days = (number_of_days | default(6)) %}
 {% set p_daily_logging_volume = (daily_logging_volume | default("100GB")) %}
 
