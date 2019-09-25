@@ -230,6 +230,19 @@ This challenge indexes a fixed amount of logs per day into daily indices. The ta
 | `number_of_days`        | The number of days for which data should be generated.                                                                                 | `int` | `24`          |
 | `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`           |
 
+### index-and-query-logs-fixed-daily-volume
+
+Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
+| `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
+| `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
+| `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
+| `number_of_days`        | The number of days for which data should be generated.                                                                                 | `int` | `24`                  |
+| `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`                   |
+
+
 ## Custom parameter sources
 
 ### elasticlogs\_bulk\_source
