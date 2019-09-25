@@ -81,7 +81,7 @@ class ElasticlogsBulkSource:
         self.orig_args = [track, params, kwargs]
         self._indices = track.indices
         self._params = params
-        # we could also do `kwargs.get("random_event, RandomEvent(params))` but that would call the constructor eagerly
+        # we could also do `kwargs.get("random_event", RandomEvent(params))` but that would call the constructor eagerly
         # which we want to avoid because this can cause significant overhead.
         if "random_event" in kwargs:
             self._randomevent = kwargs["random_event"]
