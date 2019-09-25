@@ -237,6 +237,7 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
+| `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
 | `number_of_days`        | The number of days for which data should be generated.                                                                                 | `int` | `24`                  |
