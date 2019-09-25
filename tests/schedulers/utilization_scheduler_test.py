@@ -95,28 +95,30 @@ def test_throttled_calculation():
     }, perf_counter=perf_counter)
 
     # warmup phase, response time is always 20 seconds
+    next_scheduled = 0
     for t in range(0, 100, 20):
         perf_counter.now = t
-        assert s.next(t) == 0
+        next_scheduled = s.next(next_scheduled)
+        assert next_scheduled == 0
         assert s.in_warmup
         assert s.start_warmup == 0
         assert s.end_warmup == 100
 
     # simulate end of warmup
     perf_counter.now = 100
-    assert s.next(100) == 0
+    next_scheduled = s.next(next_scheduled)
+    assert next_scheduled == 100
     assert not s.in_warmup
-    # 20 seconds * (1 / target utilization - 1) = 20 seconds * (1 / 0.1 - 1) = 20 seconds * 9 = 180 seconds
-    assert s.wait_time == 180
+    # 20 seconds * (1 / target utilization) = 20 seconds * (1 / 0.1) = 20 seconds * 10 = 200 seconds
+    assert s.time_between_requests == 200
 
     # normal mode of operation
-    t = 101
     waiting_times = []
-    while t < 1000000:
-        next_request = s.next(t)
-        waiting_times.append((next_request - t))
+    while next_scheduled < 1000000:
+        next_request = s.next(next_scheduled)
+        waiting_times.append((next_request - next_scheduled))
         # 20 seconds is our expected response time
-        t = next_request + 20
+        next_scheduled = next_request
 
-    # mean response time should approach 180 seconds
-    assert 170 <= statistics.mean(waiting_times) <= 190
+    # mean response time should approach 200 seconds
+    assert 190 <= statistics.mean(waiting_times) <= 210

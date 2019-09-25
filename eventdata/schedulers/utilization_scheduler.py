@@ -44,7 +44,7 @@ class UtilizationBasedScheduler:
         self.in_warmup = None
         self.last_request_start = None
         # determined by the utilization calculation
-        self.wait_time = None
+        self.time_between_requests = None
 
     def next(self, current):
         if self.in_warmup is None:
@@ -60,19 +60,25 @@ class UtilizationBasedScheduler:
             if now >= self.end_warmup:
                 self.in_warmup = False
                 median_response_time_at_full_utilization = statistics.median(self.response_times)
-                # To determine the waiting time we need to subtract the (expected) response time from the total expected
-                # response time.
-                self.wait_time = median_response_time_at_full_utilization * ((1 / self.target_utilization) - 1)
-                self.logger.info("Waiting time is [%.2f] seconds for a utilization of [%.2f]%% (based on [%d] samples).",
-                                 self.wait_time, (self.target_utilization * 100), len(self.response_times))
-            # run unthrottled while determining the target utilization
-            return 0
+                self.time_between_requests = median_response_time_at_full_utilization * (1 / self.target_utilization)
+                self.logger.info("Time between requests is [%.3f] seconds for a utilization of [%.2f]%% (based on "
+                                 "[%d] samples with a median response time of [%.3f] seconds).",
+                                 self.time_between_requests, (self.target_utilization * 100), len(self.response_times),
+                                 median_response_time_at_full_utilization)
+            else:
+                # run unthrottled while determining the target utilization
+                return 0
 
         if self.target_utilization == 1.0:
             return 0
+        # this happens *exactly* when the warmup period is over. It is the first throttled sample that we provide. As
+        # the load driver will consider this time stamp relative to the start of the benchmark, we now need to "fix" it
+        # by providing a proper relative time stamp otherwise we constantly attempt to catch up.
+        elif current == 0:
+            return self.perf_counter() - self.start_warmup
         else:
             # don't let every client send requests at the same time
-            return current + random.expovariate(1 / self.wait_time)
+            return current + random.expovariate(1 / self.time_between_requests)
 
     def __str__(self):
         return "Utilization scheduler with target utilization of {:.2f}%.".format(self.target_utilization * 100)
