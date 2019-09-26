@@ -21,6 +21,11 @@ import statistics
 from eventdata.schedulers.utilization_scheduler import UtilizationBasedScheduler
 
 
+@pytest.fixture()
+def reset_recorded_times():
+    UtilizationBasedScheduler.reset_recorded_response_times()
+
+
 class StaticPerfCounter:
     def __init__(self, start):
         self.now = start
@@ -29,11 +34,12 @@ class StaticPerfCounter:
         return self.now
 
 
+@pytest.mark.usefixtures("reset_recorded_times")
 def test_invalid_target_utilization():
     with pytest.raises(ValueError) as ex:
         UtilizationBasedScheduler(params={
             "target-utilization": 200.432,
-            "warmup-time-period": 100
+            "record-response-times": False
         })
 
     assert "target-utilization must be in the range (0.0, 1.0] but is 200.432" == str(ex.value)
@@ -41,16 +47,31 @@ def test_invalid_target_utilization():
     with pytest.raises(ValueError) as ex:
         UtilizationBasedScheduler(params={
             "target-utilization": 0.0,
-            "warmup-time-period": 100
+            "record-response-times": False
         })
 
     assert "target-utilization must be in the range (0.0, 1.0] but is 0.0" == str(ex.value)
 
 
+@pytest.mark.usefixtures("reset_recorded_times")
+def test_no_response_times_recorded():
+    with pytest.raises(ValueError) as ex:
+        UtilizationBasedScheduler(params={
+            "target-utilization": 0.5,
+            "record-response-times": False
+        })
+
+    assert "No response times recorded. Please run first with 'record-response-times'." == str(ex.value)
+
+
+@pytest.mark.usefixtures("reset_recorded_times")
 def test_valid_params():
+    # simulate that response times have been recorded previously...
+    UtilizationBasedScheduler.RESPONSE_TIMES.append(1)
+
     s = UtilizationBasedScheduler(params={
         "target-utilization": 0.0000001,
-        "warmup-time-period": 100
+        "record-response-times": False
     })
 
     assert s is not None
@@ -63,60 +84,60 @@ def test_valid_params():
     assert s is not None
 
 
+@pytest.mark.usefixtures("reset_recorded_times")
 def test_unthrottled_calculation():
     perf_counter = StaticPerfCounter(start=0)
 
     s = UtilizationBasedScheduler(params={
-        "target-utilization": 1.0,
-        "warmup-time-period": 100
+        "record-response-times": True
     }, perf_counter=perf_counter)
 
+    # simulate two requests 10 seconds apart
     assert s.next(0) == 0
-    assert s.in_warmup
-    assert s.start_warmup == 0
-    assert s.end_warmup == 100
+    perf_counter.now = 10
+    assert s.next(0) == 0
 
-    # simulate end of warmup
-    perf_counter.now = 100
-    assert s.next(100) == 0
-    assert not s.in_warmup
+    s = UtilizationBasedScheduler(params={
+        "target-utilization": 1.0,
+        "record-response-times": False
+    }, perf_counter=perf_counter)
 
-    # normal mode of operation
+    # normal mode of operation (unthrottled)
     assert s.next(200) == 0
     assert s.next(300) == 0
 
 
+@pytest.mark.usefixtures("reset_recorded_times")
 def test_throttled_calculation():
     perf_counter = StaticPerfCounter(start=0)
 
     s = UtilizationBasedScheduler(params={
-        "target-utilization": 0.1,
-        "warmup-time-period": 100
+        "record-response-times": True
     }, perf_counter=perf_counter)
 
-    # warmup phase, response time is always 20 seconds
+    # recording phase, response time is always 20 seconds
+    next_scheduled = 0
     for t in range(0, 100, 20):
         perf_counter.now = t
-        assert s.next(t) == 0
-        assert s.in_warmup
-        assert s.start_warmup == 0
-        assert s.end_warmup == 100
+        next_scheduled = s.next(next_scheduled)
+        assert next_scheduled == 0
 
-    # simulate end of warmup
-    perf_counter.now = 100
-    assert s.next(100) == 0
-    assert not s.in_warmup
-    # 20 seconds * (1 / target utilization - 1) = 20 seconds * (1 / 0.1 - 1) = 20 seconds * 9 = 180 seconds
-    assert s.wait_time == 180
+    # now we're in throttled mode
+    s = UtilizationBasedScheduler(params={
+        "target-utilization": 0.1,
+        "record-response-times": False
+    }, perf_counter=perf_counter)
+    # 20 seconds * (1 / target utilization) = 20 seconds * (1 / 0.1) = 20 seconds * 10 = 200 seconds
+    assert s.time_between_requests == 200
 
     # normal mode of operation
-    t = 101
     waiting_times = []
-    while t < 1000000:
-        next_request = s.next(t)
-        waiting_times.append((next_request - t))
+    next_scheduled = 0
+    while next_scheduled < 1000000:
+        next_request = s.next(next_scheduled)
+        waiting_times.append((next_request - next_scheduled))
         # 20 seconds is our expected response time
-        t = next_request + 20
+        next_scheduled = next_request
 
-    # mean response time should approach 180 seconds
-    assert 170 <= statistics.mean(waiting_times) <= 190
+    # mean response time should approach 200 seconds
+    assert 190 <= statistics.mean(waiting_times) <= 210
