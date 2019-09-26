@@ -24,10 +24,11 @@ import statistics
 class UtilizationBasedScheduler:
     RESPONSE_TIMES = []
     """
-    This scheduler schedules events at 100% utilization (unthrottled) if is is in recording mode (enabled by setting 
-    ``record-response-times`` to ``True``). The median response time and the provided target utilization (via the task
-    parameter ``target-utilization``) determine the average waiting time during the actual measurement phase of the
-    benchmark. In order to avoid that clients coordinate, we randomize waiting time using a Poisson distribution.
+    This scheduler schedules events at 100% utilization (unthrottled) if it is in recording mode (enabled by setting 
+    ``record-response-times`` to ``True``). Otherwise it runs in measurement mode where median response time and the
+     provided target utilization (via the task parameter ``target-utilization``) determine the average waiting time. 
+     To prevent clients from coordinating (i.e. executing requests at exactly the same time), we randomize waiting 
+     time using a Poisson distribution.
     """
     def __init__(self, params, perf_counter=time.perf_counter):
         self.logger = logging.getLogger(__name__)
