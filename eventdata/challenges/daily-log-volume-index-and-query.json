@@ -16,6 +16,31 @@
     "benchmark_type": "logs-fixed-daily-volume"
   },
   "schedule": [
+    {
+      "name": "measure-maximum-utilization",
+       "operation": {
+          "operation-type": "bulk",
+          "param-source": "elasticlogs_bulk",
+          "index": "throughput-test-elasticlogs-2999-01-01",
+          "bulk-size": {{p_bulk_size}},
+          "daily_logging_volume": "{{p_daily_logging_volume}}",
+          "number_of_days": 1,
+          "record_raw_event_size": false
+       },
+      {# Whatever is shorter will win - either we run for this long or we finished ingesting the daily logging volume #}
+      "time-period": 600,
+      "schedule": "utilization",
+      "record-response-times": true,
+      "clients": {{ p_bulk_indexing_clients }},
+      "include-in-reporting": false
+    },
+    {
+      "name": "delete-measurement-index",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "throughput-test-elasticlogs-2999-01-01"
+      }
+    },
 {% set comma = joiner() %}
 {% for day in range(p_number_of_days) %}
 {% set utilization = (day + 1) / p_number_of_days %}
@@ -25,6 +50,7 @@
     {
       "parallel": {
         "completed-by": "{{bulk_index_task_name}}",
+        {# We are assuming that indexing one day of logs takes longer than the warmup-time-period #}
         "warmup-time-period": 600,
         "tasks": [
           {
@@ -40,8 +66,6 @@
               "number_of_days": 1,
               "record_raw_event_size": {{p_record_raw_event_size}}
             },
-            {# We are assuming that indexing one day of logs takes longer than the warmup-time-period #}
-            "warmup-time-period": 600,
             "schedule": "utilization",
             "target-utilization": {{ utilization }},
             "clients": {{ p_bulk_indexing_clients }},
