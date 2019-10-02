@@ -21,7 +21,7 @@
        "operation": {
           "operation-type": "bulk",
           "param-source": "elasticlogs_bulk",
-          "index": "throughput-test-elasticlogs-2999-01-01",
+          "index": "elasticlogs-2999-01-01-throughput-test",
           "bulk-size": {{p_bulk_size}},
           "daily_logging_volume": "{{p_daily_logging_volume}}",
           "number_of_days": 1,
@@ -31,14 +31,13 @@
       "time-period": 600,
       "schedule": "utilization",
       "record-response-times": true,
-      "clients": {{ p_bulk_indexing_clients }},
-      "include-in-reporting": false
+      "clients": {{ p_bulk_indexing_clients }}
     },
     {
       "name": "delete-measurement-index",
       "operation": {
         "operation-type": "delete-index",
-        "index": "throughput-test-elasticlogs-2999-01-01"
+        "index": "elasticlogs-2999-01-01-throughput-test"
       }
     },
 {% set comma = joiner() %}
