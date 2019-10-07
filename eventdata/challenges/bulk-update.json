@@ -9,17 +9,17 @@
   "description": "Index documents into an elasticlogs index. IDs are sequential and 40% are updates, with a uniform ID bias.",
   "schedule": [
     {
-      "operation": "delete-index-template"
-    },
-    {
-      "operation": "create-index-template"
-    },
-    {
       "name": "delete-index",
       "operation": {
         "operation-type": "delete-index",
         "index": "elasticlogs"
       }
+    },
+    {
+      "operation": "delete-index-template"
+    },
+    {
+      "operation": "create-index-template"
     },
     {
       "operation": {
