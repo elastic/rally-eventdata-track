@@ -24,7 +24,7 @@ set -u
 # fail on pipeline errors, e.g. when grepping
 set -o pipefail
 
-readonly ES_VERSION=7.3.0
+readonly ES_VERSION=${ES_VERSION:-7.3.0}
 # intentionally not tested (at the moment) because these challenges require running a different challenge first against the same cluster:
 #
 # * frozen-querying (depends on frozen-data-generation)
