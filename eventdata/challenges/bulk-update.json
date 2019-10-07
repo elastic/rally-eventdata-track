@@ -9,6 +9,12 @@
   "description": "Index documents into an elasticlogs index. IDs are sequential and 40% are updates, with a uniform ID bias.",
   "schedule": [
     {
+      "operation": "delete-index-template"
+    },
+    {
+      "operation": "create-index-template"
+    },
+    {
       "name": "delete-index",
       "operation": {
         "operation-type": "delete-index",
@@ -19,12 +25,14 @@
       "operation": {
         "operation-type": "create-index",
         "index": "elasticlogs",
-        "settings": {
-            {% if index_refresh_interval is defined %}
-            "index.refresh_interval": {{ index_refresh_interval | int }},
-            {% endif %}
-            "index.number_of_replicas": {{ number_of_replicas }},
-            "index.number_of_shards": {{ number_of_shards }}
+        "body": {
+          "settings": {
+              {% if index_refresh_interval is defined %}
+              "index.refresh_interval": {{ index_refresh_interval | int }},
+              {% endif %}
+              "index.number_of_replicas": {{ number_of_replicas }},
+              "index.number_of_shards": {{ number_of_shards }}
+          }
         }
       }
     },
