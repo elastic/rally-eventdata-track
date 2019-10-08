@@ -16,15 +16,23 @@
       }
     },
     {
+      "operation": "delete-index-template"
+    },
+    {
+      "operation": "create-index-template"
+    },
+    {
       "operation": {
         "operation-type": "create-index",
         "index": "elasticlogs",
-        "settings": {
-            {% if index_refresh_interval is defined %}
-            "index.refresh_interval": {{ index_refresh_interval | int }},
-            {% endif %}
-            "index.number_of_replicas": {{ number_of_replicas }},
-            "index.number_of_shards": {{ number_of_shards }}
+        "body": {
+          "settings": {
+              {% if index_refresh_interval is defined %}
+              "index.refresh_interval": {{ index_refresh_interval | int }},
+              {% endif %}
+              "index.number_of_replicas": {{ number_of_replicas }},
+              "index.number_of_shards": {{ number_of_shards }}
+          }
         }
       }
     },
