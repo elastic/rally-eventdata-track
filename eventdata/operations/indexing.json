@@ -14,6 +14,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
   "name": "index-append-{{bulk_size}}",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
+  "index": "elasticlogs",
   "bulk-size": {{bulk_size}},
   "record_raw_event_size": {{p_record_raw_event_size}}
 }
