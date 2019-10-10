@@ -33,7 +33,7 @@ class ElasticlogsBulkSource:
     Generates a bulk indexing request for elasticlogs data.
 
     It expects the parameter hash to contain the following keys:
-        "bulk-size"                -    Integer indicating events generated per bulk request. Defaults to 1000.
+        "bulk-size"                -    Integer indicating events generated per bulk request.
         "index"                    -    Name of index, index prefix or alias documents should be indexed into. The index name
                                         can be made to generate time based indices by including date formatting in the name.
                                         'test-<yyyy>-<mm>-<dd>-<hh>' will generate an hourly index. (mandatory)
@@ -88,33 +88,19 @@ class ElasticlogsBulkSource:
         else:
             self._randomevent = RandomEvent(params)
 
-
-        self._bulk_size = 1000
-        if 'bulk-size' in params.keys():
-            self._bulk_size = params['bulk-size']
-
-        self._id_type = "auto"
+        self._bulk_size = params["bulk-size"]
         self.seq_id = 0
 
-        if 'id_type' in params.keys():
-            if params['id_type'] in ['auto', "seq", 'uuid', 'epoch_uuid', 'epoch_md5', 'md5', 'sha1', 'sha256', 'sha384', 'sha512']:
-                self._id_type = params['id_type']
-            else:
-                logger.warning("[bulk] Invalid id_type ({}) specified. Will use default.".format(params['id_type']))
+        self._id_type = params.get("id_type", "auto")
+        if self._id_type not in ["auto", "seq", "uuid", "epoch_uuid", "epoch_md5", "md5", "sha1", "sha256", "sha384", "sha512"]:
+            raise AssertionError("The value [{}] is invalid for the parameter [id_type]".format(self._id_type))
 
         if self._id_type in ["epoch_uuid", "epoch_md5"]:
-            if 'id_delay_probability' in params.keys():
-                self._id_delay_probability = float(params['id_delay_probability'])
-            else:
-                self._id_delay_probability = 0.0
-
-            if 'id_delay_secs' in params.keys():
-                self._id_delay_secs = int(params['id_delay_secs'])
-            else:
-                self._id_delay_secs = 0
+            self._id_delay_probability = float(params.get("id_delay_probability", 0.0))
+            self._id_delay_secs = int(params.get("id_delay_secs", 0))
 
         if self._id_type == "seq":
-            self._id_seq_probability = float(params['id_seq_probability']) if 'id_seq_probability' in params else 0.0
+            self._id_seq_probability = float(params.get("id_seq_probability", 0.0))
             self._low_id_bias = str(params.get('id_seq_low_id_bias', False)).lower() == "true"
             if self._low_id_bias:
                 logger.info("Will use low id bias for updates")
@@ -122,17 +108,17 @@ class ElasticlogsBulkSource:
                 logger.info("Will use uniform distribution for updates")
 
         self._default_index = False
-        if 'index' not in params.keys():
+        if "index" not in params.keys():
+            index_name = self._indices[0].name
             if len(self._indices) > 1:
-                logger.debug("[bulk] More than one index specified in track configuration. Will use the first one ({})".format(self._indices[0].name))
+                logger.debug("[bulk] More than one index specified in track configuration. Will use the first one ({})".format(index_name))
             else:
-                logger.debug("[bulk] Using index specified in track configuration ({})".format(self._indices[0].name))
+                logger.debug("[bulk] Using index specified in track configuration ({})".format(index_name))
 
-            self._params['index'] = self._indices[0].name
+            self._params["index"] = index_name
             self._default_index = True
-
         else:
-            logger.debug("[bulk] Index pattern specified in parameters ({}) will be used".format(params['index']))
+            logger.debug("[bulk] Index pattern specified in parameters ({}) will be used".format(params["index"]))
 
     def partition(self, partition_index, total_partitions):
         if self._params.get("id_type") != "seq":
@@ -169,24 +155,24 @@ class ElasticlogsBulkSource:
                     # otherwise stop immediately
                     raise
 
-            if self._id_type == 'auto':
-                bulk_array.append('{"index": {"_index": "%s"}}"' % (idx))
+            if self._id_type == "auto":
+                bulk_array.append('{"index": {"_index": "%s"}}"' % idx)
             else:
-                if self._id_type == 'uuid':
+                if self._id_type == "uuid":
                     docid = self.__get_uuid()
                 elif self._id_type == "seq":
                     docid = "%s-%d" % (self.__get_seq_id(), self._params["client_id"])
-                elif self._id_type == 'sha1':
-                    docid = hashlib.sha1(self.__get_uuid().encode('utf8')).hexdigest()
-                elif self._id_type == 'sha256':
-                    docid = hashlib.sha256(self.__get_uuid().encode('utf8')).hexdigest()
-                elif self._id_type == 'sha384':
-                    docid = hashlib.sha384(self.__get_uuid().encode('utf8')).hexdigest()
-                elif self._id_type == 'sha512':
-                    docid = hashlib.sha512(self.__get_uuid().encode('utf8')).hexdigest()
-                elif self._id_type == 'md5':
-                    docid = hashlib.md5(self.__get_uuid().encode('utf8')).hexdigest()
-                elif self._id_type == 'epoch_md5':
+                elif self._id_type == "sha1":
+                    docid = hashlib.sha1(self.__get_uuid().encode("utf8")).hexdigest()
+                elif self._id_type == "sha256":
+                    docid = hashlib.sha256(self.__get_uuid().encode("utf8")).hexdigest()
+                elif self._id_type == "sha384":
+                    docid = hashlib.sha384(self.__get_uuid().encode("utf8")).hexdigest()
+                elif self._id_type == "sha512":
+                    docid = hashlib.sha512(self.__get_uuid().encode("utf8")).hexdigest()
+                elif self._id_type == "md5":
+                    docid = hashlib.md5(self.__get_uuid().encode("utf8")).hexdigest()
+                elif self._id_type == "epoch_md5":
                     docid = self.__get_epoch_md5()
                 else:
                     docid = self.__get_epoch_uuid()
@@ -208,7 +194,7 @@ class ElasticlogsBulkSource:
         return response
 
     def __get_uuid(self):
-        return str(uuid.uuid4()).replace('-', '')
+        return str(uuid.uuid4()).replace("-", "")
 
     def __get_epoch_uuid(self):
         u = self.__get_uuid()
@@ -217,11 +203,11 @@ class ElasticlogsBulkSource:
         if 0 < self._id_delay_probability < random.random():
             ts = ts - self._id_delay_secs
 
-        return '{:x}{}'.format(ts, u)
+        return "{:x}{}".format(ts, u)
 
     def __get_epoch_md5(self):
         u = self.__get_uuid()
-        md5_str = str(base64.urlsafe_b64encode(hashlib.md5(u.encode('utf8')).digest()))[2:24]
+        md5_str = str(base64.urlsafe_b64encode(hashlib.md5(u.encode("utf8")).digest()))[2:24]
         ts = int(time.time())
 
         if 0 < self._id_delay_probability < random.random():
