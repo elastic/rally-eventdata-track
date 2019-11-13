@@ -279,21 +279,6 @@ class ElasticlogsKibanaSource:
 
         return window_end_spec
 
-    def __unit_string_to_milliseconds(self, string):
-        m = re.match(r"^(\d+\.*\d*)([dhm])$", string)
-        if m:
-            val = float(m.group(1))
-            unit = m.group(2)
-
-            if unit == "m":
-                return False, int(60*val*1000)
-            elif unit == "h":
-                return False, int(3600*val*1000)
-            else:
-                return False, int(86400*val*1000)
-        else:
-            return True, None
-
     def __determine_interval(self, window_size_seconds, target_bars, max_bars):
         available_intervals = [
             {"unit": "1s",      "length_sec": 1},
@@ -340,11 +325,6 @@ class ElasticlogsKibanaSource:
 
     def __get_preference(self):
         return int(round(time.time() * 1000))
-
-    def __print_ts(self, ts):
-        ts_s = int(ts / 1000)
-        dt = datetime.datetime.utcfromtimestamp(ts_s)
-        return dt.isoformat()
 
     def __content_issues_dashboard(self, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, ignore_throttled):
         preference = self.__get_preference()
