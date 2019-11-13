@@ -1,4 +1,5 @@
 from eventdata.parameter_sources.elasticlogs_bulk_source import ElasticlogsBulkSource
+from parameter_sources import StaticTrack
 
 
 class StaticEventGenerator:
@@ -13,11 +14,6 @@ class StaticEventGenerator:
             raise StopIteration()
         self.at_most -= 1
         return self.doc, self.index, self.type
-
-
-class StaticTrack:
-    def __init__(self):
-        self.indices = []
 
 
 def test_generates_a_complete_bulk():

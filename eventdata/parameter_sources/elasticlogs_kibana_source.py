@@ -55,7 +55,7 @@ class ElasticlogsKibanaSource:
     Simulates a set of sample Kibana dashboards for the elasticlogs data set.
 
     It expects the parameter hash to contain the following keys:
-        "dashboard"             -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'. Defaults to 'traffic'.
+        "dashboard"             -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'.
         "query_string"          -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
                                     to ["*"], If a list has been specified, a random value will be selected.
         "index_pattern"         -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
@@ -85,13 +85,14 @@ class ElasticlogsKibanaSource:
         self._indices = track.indices
         self._index_pattern = params.get("index_pattern", "elasticlogs-*")
         self._query_string_list = ["*"]
-        self._dashboard = "traffic"
+        self._dashboard = params["dashboard"]
         self._discover_size = params.get("discover_size", 500)
         self._ignore_throttled = params.get("ignore_throttled", True)
         self._debug = params.get("debug", False)
         self._pre_filter_shard_size = params.get("pre_filter_shard_size", 1)
         self._window_length = params.get("window_length", "1d")
         self.infinite = True
+        self.utcnow = kwargs.get("utcnow", datetime.datetime.utcnow)
         
         random.seed()
 
@@ -106,11 +107,8 @@ class ElasticlogsKibanaSource:
             else:
                 self._query_string_list = params["query_string"]
 
-        if "dashboard" in params.keys():
-            if params["dashboard"] in available_dashboards:
-                self._dashboard = params["dashboard"]
-            else:
-                logger.info("[kibana] Illegal dashboard configured (%s). Using default dashboard instead.", params["dashboard"])
+        if self._dashboard not in available_dashboards:
+            raise ConfigurationError("Unknown dashboard [{}]. Must be one of {}.".format(self._dashboard, available_dashboards))
 
         key = "{}_@timestamp".format(self._index_pattern)
         if key in gs.global_fieldstats.keys():
@@ -121,8 +119,8 @@ class ElasticlogsKibanaSource:
         else:
             self._fieldstats_provided = False
 
-        re1 = re.compile("^(\d+\.*\d*)([dhm])$")
-        re2 = re.compile("^(\d+\.*\d*)%$")
+        re1 = re.compile(r"^(\d+\.*\d*)([dhm])$")
+        re2 = re.compile(r"^(\d+\.*\d*)%$")
 
         m1 = re1.match(self._window_length)
         m2 = re2.match(self._window_length)
@@ -218,7 +216,7 @@ class ElasticlogsKibanaSource:
             return wb["ts_ms"]
     
     def __current_epoch_ms(self):
-        dt = datetime.datetime.utcnow()
+        dt = self.utcnow()
         return (dt-epoch).total_seconds() *1000
 
     def __parse_window_parameters(self, window_spec):
@@ -250,7 +248,7 @@ class ElasticlogsKibanaSource:
 
                 window_end_spec.append({"type": "relative", "offset_ms": offset_ms})
             elif m2:
-                c = re.split("\D+", i)
+                c = re.split(r"\D+", i)
 
                 dt = datetime.datetime.strptime("{} {} {} {} {} {} UTC".format(c[0], c[1], c[2], c[3], c[4], c[5]), "%Y %m %d %H %M %S %Z")
                 epoch_ms = (int)((dt-epoch).total_seconds() * 1000)
