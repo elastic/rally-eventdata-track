@@ -1,5 +1,5 @@
 from eventdata.parameter_sources.elasticlogs_bulk_source import ElasticlogsBulkSource
-from parameter_sources import StaticTrack
+from tests.parameter_sources import StaticTrack
 
 
 class StaticEventGenerator:

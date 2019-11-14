@@ -21,7 +21,7 @@ from unittest import mock
 import pytest
 
 from eventdata.parameter_sources.elasticlogs_kibana_source import ElasticlogsKibanaSource, ConfigurationError
-from parameter_sources import StaticTrack
+from tests.parameter_sources import StaticTrack
 
 
 @mock.patch("time.time")
@@ -59,9 +59,7 @@ def test_create_discover(time):
                 },
                 "stored_fields": ["*"],
                 "script_fields": {},
-                "docvalue_fields": [
-                    {"field": "@timestamp", "format": "date_time"}
-                ],
+                "docvalue_fields": ["@timestamp"],
                 "query": {
                     "bool": {
                         "must": [
