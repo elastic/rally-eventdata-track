@@ -312,7 +312,7 @@ The generator allows data to be generated in real-time or against a set date/tin
 
 ### elasticlogs\_kibana\_source
 
-This parameter source supports simulating two different types of dashboards.
+This parameter source supports simulating three different types of dashboards.
 
 **traffic** - This dashboard contains 7 visualisations and presents different types of traffic statistics. In structure it is similar to the `Nginx Overview` dashboard that comes with the Filebeat Nginx Module. It does aggregate across all records in the index and is therefore a quite 'heavy' dashboard.
 
