@@ -334,7 +334,7 @@
         "2": {
           "date_histogram": {
             "field": "@timestamp",
-            "fixed_interval": "30m",
+            "interval": "30m",
             "min_doc_count": 1,
             "time_zone": "Europe/London"
           }
