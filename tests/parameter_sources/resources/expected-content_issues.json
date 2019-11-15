@@ -1,0 +1,414 @@
+{
+  "body": [
+    {
+      "ignore_throttled": true,
+      "ignore_unavailable": true,
+      "index": "elasticlogs-*",
+      "preference": 5000000
+    },
+    {
+      "_source": {
+        "excludes": []
+      },
+      "aggs": {
+        "2": {
+          "cardinality": {
+            "field": "nginx.access.remote_ip"
+          }
+        }
+      },
+      "docvalue_fields": [
+        "@timestamp"
+      ],
+      "highlight": {
+        "fields": {
+          "*": {}
+        },
+        "fragment_size": 2147483647,
+        "post_tags": [
+          "@/kibana-highlighted-field@"
+        ],
+        "pre_tags": [
+          "@kibana-highlighted-field@"
+        ]
+      },
+      "query": {
+        "bool": {
+          "filter": [],
+          "must": [
+            {
+              "match_all": {}
+            },
+            {
+              "match_all": {}
+            },
+            {
+              "query_string": {
+                "analyze_wildcard": true,
+                "default_field": "*",
+                "query": "*"
+              }
+            },
+            {
+              "match_phrase": {
+                "nginx.access.response_code": {
+                  "query": 404
+                }
+              }
+            },
+            {
+              "range": {
+                "@timestamp": {
+                  "format": "epoch_millis",
+                  "gte": 1573344000000,
+                  "lte": 1573430400000
+                }
+              }
+            }
+          ],
+          "must_not": [],
+          "should": []
+        }
+      },
+      "script_fields": {},
+      "size": 0,
+      "stored_fields": [
+        "*"
+      ],
+      "version": true
+    },
+    {
+      "ignore_throttled": true,
+      "ignore_unavailable": true,
+      "index": "elasticlogs-*",
+      "preference": 5000000
+    },
+    {
+      "_source": {
+        "excludes": []
+      },
+      "aggs": {
+        "2": {
+          "terms": {
+            "field": "nginx.access.remote_ip",
+            "order": {
+              "_count": "desc"
+            },
+            "size": 20
+          }
+        }
+      },
+      "docvalue_fields": [
+        "@timestamp"
+      ],
+      "highlight": {
+        "fields": {
+          "*": {}
+        },
+        "fragment_size": 2147483647,
+        "post_tags": [
+          "@/kibana-highlighted-field@"
+        ],
+        "pre_tags": [
+          "@kibana-highlighted-field@"
+        ]
+      },
+      "query": {
+        "bool": {
+          "filter": [],
+          "must": [
+            {
+              "match_all": {}
+            },
+            {
+              "match_all": {}
+            },
+            {
+              "query_string": {
+                "analyze_wildcard": true,
+                "default_field": "*",
+                "query": "*"
+              }
+            },
+            {
+              "match_phrase": {
+                "nginx.access.response_code": {
+                  "query": 404
+                }
+              }
+            },
+            {
+              "range": {
+                "@timestamp": {
+                  "format": "epoch_millis",
+                  "gte": 1573344000000,
+                  "lte": 1573430400000
+                }
+              }
+            }
+          ],
+          "must_not": [],
+          "should": []
+        }
+      },
+      "script_fields": {},
+      "size": 0,
+      "stored_fields": [
+        "*"
+      ],
+      "version": true
+    },
+    {
+      "ignore_throttled": true,
+      "ignore_unavailable": true,
+      "index": "elasticlogs-*",
+      "preference": 5000000
+    },
+    {
+      "_source": {
+        "excludes": []
+      },
+      "aggs": {
+        "2": {
+          "terms": {
+            "field": "nginx.access.url",
+            "order": {
+              "_count": "desc"
+            },
+            "size": 20
+          }
+        }
+      },
+      "docvalue_fields": [
+        "@timestamp"
+      ],
+      "highlight": {
+        "fields": {
+          "*": {}
+        },
+        "fragment_size": 2147483647,
+        "post_tags": [
+          "@/kibana-highlighted-field@"
+        ],
+        "pre_tags": [
+          "@kibana-highlighted-field@"
+        ]
+      },
+      "query": {
+        "bool": {
+          "filter": [],
+          "must": [
+            {
+              "match_all": {}
+            },
+            {
+              "match_all": {}
+            },
+            {
+              "query_string": {
+                "analyze_wildcard": true,
+                "default_field": "*",
+                "query": "*"
+              }
+            },
+            {
+              "match_phrase": {
+                "nginx.access.response_code": {
+                  "query": 404
+                }
+              }
+            },
+            {
+              "range": {
+                "@timestamp": {
+                  "format": "epoch_millis",
+                  "gte": 1573344000000,
+                  "lte": 1573430400000
+                }
+              }
+            }
+          ],
+          "must_not": [],
+          "should": []
+        }
+      },
+      "script_fields": {},
+      "size": 0,
+      "stored_fields": [
+        "*"
+      ],
+      "version": true
+    },
+    {
+      "ignore_throttled": true,
+      "ignore_unavailable": true,
+      "index": "elasticlogs-*",
+      "preference": 5000000
+    },
+    {
+      "_source": {
+        "excludes": []
+      },
+      "aggs": {
+        "2": {
+          "terms": {
+            "field": "nginx.access.referrer",
+            "order": {
+              "_count": "desc"
+            },
+            "size": 20
+          }
+        }
+      },
+      "docvalue_fields": [
+        "@timestamp"
+      ],
+      "highlight": {
+        "fields": {
+          "*": {}
+        },
+        "fragment_size": 2147483647,
+        "post_tags": [
+          "@/kibana-highlighted-field@"
+        ],
+        "pre_tags": [
+          "@kibana-highlighted-field@"
+        ]
+      },
+      "query": {
+        "bool": {
+          "filter": [],
+          "must": [
+            {
+              "match_all": {}
+            },
+            {
+              "match_all": {}
+            },
+            {
+              "query_string": {
+                "analyze_wildcard": true,
+                "default_field": "*",
+                "query": "*"
+              }
+            },
+            {
+              "match_phrase": {
+                "nginx.access.response_code": {
+                  "query": 404
+                }
+              }
+            },
+            {
+              "range": {
+                "@timestamp": {
+                  "format": "epoch_millis",
+                  "gte": 1573344000000,
+                  "lte": 1573430400000
+                }
+              }
+            }
+          ],
+          "must_not": [],
+          "should": []
+        }
+      },
+      "script_fields": {},
+      "size": 0,
+      "stored_fields": [
+        "*"
+      ],
+      "version": true
+    },
+    {
+      "ignore_throttled": true,
+      "ignore_unavailable": true,
+      "index": "elasticlogs-*",
+      "preference": 5000000
+    },
+    {
+      "_source": {
+        "excludes": []
+      },
+      "aggs": {
+        "2": {
+          "date_histogram": {
+            "field": "@timestamp",
+            "fixed_interval": "30m",
+            "min_doc_count": 1,
+            "time_zone": "Europe/London"
+          }
+        }
+      },
+      "docvalue_fields": [
+        "@timestamp"
+      ],
+      "highlight": {
+        "fields": {
+          "*": {}
+        },
+        "fragment_size": 2147483647,
+        "post_tags": [
+          "@/kibana-highlighted-field@"
+        ],
+        "pre_tags": [
+          "@kibana-highlighted-field@"
+        ]
+      },
+      "query": {
+        "bool": {
+          "filter": [],
+          "must": [
+            {
+              "match_all": {}
+            },
+            {
+              "match_all": {}
+            },
+            {
+              "query_string": {
+                "analyze_wildcard": true,
+                "default_field": "*",
+                "query": "*"
+              }
+            },
+            {
+              "match_phrase": {
+                "nginx.access.response_code": {
+                  "query": 404
+                }
+              }
+            },
+            {
+              "range": {
+                "@timestamp": {
+                  "format": "epoch_millis",
+                  "gte": 1573344000000,
+                  "lte": 1573430400000
+                }
+              }
+            }
+          ],
+          "must_not": [],
+          "should": []
+        }
+      },
+      "script_fields": {},
+      "size": 0,
+      "stored_fields": [
+        "*"
+      ],
+      "version": true
+    }
+  ],
+  "meta_data": {
+    "dashboard": "content_issues",
+    "debug": false,
+    "ignore_throttled": true,
+    "index_pattern": "elasticlogs-*",
+    "interval": "30m",
+    "pre_filter_shard_size": 1,
+    "query_string": "*",
+    "window_length": "1d"
+  }
+}
