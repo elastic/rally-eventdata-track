@@ -15,6 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import json
+import os
 from datetime import datetime
 from unittest import mock
 
@@ -22,6 +24,12 @@ import pytest
 
 from eventdata.parameter_sources.elasticlogs_kibana_source import ElasticlogsKibanaSource, ConfigurationError
 from tests.parameter_sources import StaticTrack
+
+
+def load(dashboard_name):
+    cwd = os.path.dirname(__file__)
+    with open(os.path.join(cwd, "resources", "expected-{}.json".format(dashboard_name)), "rt") as f:
+        return json.load(f)
 
 
 @mock.patch("time.time")
@@ -33,77 +41,31 @@ def test_create_discover(time):
     }, utcnow=lambda: datetime(year=2019, month=11, day=11))
     response = param_source.params()
 
-    assert response == {
-        "body": [
-            {
-                "index": "elasticlogs-*",
-                "ignore_unavailable": True,
-                "preference": 5000000,
-                "ignore_throttled": True
-            },
-            {
-                "version": True,
-                "size": 500,
-                "sort": [
-                    {"@timestamp": {"order": "desc", "unmapped_type": "boolean"}}
-                ],
-                "_source": {"excludes": []},
-                "aggs": {
-                    "2": {
-                        "date_histogram": {
-                            "field": "@timestamp",
-                            "interval": "30m",
-                            "time_zone": "Europe/London",
-                            "min_doc_count": 1}
-                    }
-                },
-                "stored_fields": ["*"],
-                "script_fields": {},
-                "docvalue_fields": ["@timestamp"],
-                "query": {
-                    "bool": {
-                        "must": [
-                            {
-                                "query_string": {
-                                    "query": "*",
-                                    "analyze_wildcard": True,
-                                    "default_field": "*"
-                                }
-                            },
-                            {
-                                "range": {
-                                    "@timestamp": {
-                                        "gte": 1573344000000,
-                                        "lte": 1573430400000,
-                                        "format": "epoch_millis"
-                                    }
-                                }
-                            }
-                        ],
-                        "filter": [],
-                        "should": [],
-                        "must_not": []
-                    }
-                },
-                "highlight": {
-                    "pre_tags": ["@kibana-highlighted-field@"],
-                    "post_tags": ["@/kibana-highlighted-field@"],
-                    "fields": {"*": {}},
-                    "fragment_size": 2147483647
-                }
-            }
-        ],
-        "meta_data": {
-            "interval": "30m",
-            "index_pattern": "elasticlogs-*",
-            "query_string": "*",
-            "dashboard": "discover",
-            "window_length": "1d",
-            "ignore_throttled": True,
-            "pre_filter_shard_size": 1,
-            "debug": False
-        }
-    }
+    assert response == load("discover")
+
+
+@mock.patch("time.time")
+def test_create_content_issues_dashboard(time):
+    time.return_value = 5000
+
+    param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
+        "dashboard": "content_issues"
+    }, utcnow=lambda: datetime(year=2019, month=11, day=11))
+    response = param_source.params()
+
+    assert response == load("content_issues")
+
+
+@mock.patch("time.time")
+def test_create_traffic_dashboard(time):
+    time.return_value = 5000
+
+    param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
+        "dashboard": "traffic"
+    }, utcnow=lambda: datetime(year=2019, month=11, day=11))
+    response = param_source.params()
+
+    assert response == load("traffic")
 
 
 def test_dashboard_is_mandatory():
@@ -119,3 +81,19 @@ def test_invalid_dashboard_raises_error():
 
     assert "Unknown dashboard [unknown]. Must be one of ['traffic', 'content_issues', 'discover']." == str(ex.value)
 
+
+def test_determine_interval():
+    test_params = [
+        # window size, expected interval
+        (1,             "1s"),
+        (10,            "1s"),
+        (100,           "5s"),
+        (1000,         "30s"),
+        (10000,         "5m"),
+        (100000,       "30m"),
+        (1000000,       "3h"),
+        (10000000,      "7d"),
+        (100000000,    "30d"),
+    ]
+    for window_size, expected_interval in test_params:
+        assert ElasticlogsKibanaSource.determine_interval(window_size_seconds=window_size, target_bars=50, max_bars=100) == expected_interval
