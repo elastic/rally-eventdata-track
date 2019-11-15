@@ -96,4 +96,6 @@ def test_determine_interval():
         (100000000,    "30d"),
     ]
     for window_size, expected_interval in test_params:
-        assert ElasticlogsKibanaSource.determine_interval(window_size_seconds=window_size, target_bars=50, max_bars=100) == expected_interval
+        assert ElasticlogsKibanaSource.determine_interval(window_size_seconds=window_size,
+                                                          target_bars=50,
+                                                          max_bars=100) == expected_interval
