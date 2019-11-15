@@ -307,8 +307,8 @@ class ElasticlogsKibanaSource:
             {"unit": "7d",   "length_sec": 604800},
             # month - use 30d for fixed_interval
             {"unit": "30d",  "length_sec": 2592000},
-            # quarter - use 91d for fixed_interval
-            {"unit": "91d",  "length_sec": 7776000},
+            # quarter - use 90d for fixed_interval
+            {"unit": "90d",  "length_sec": 7776000},
             # year - use 365d for fixed_interval
             {"unit": "365d", "length_sec": 31536000}
         ]
