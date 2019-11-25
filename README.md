@@ -16,8 +16,8 @@ eventdata.url = https://github.com/elastic/rally-eventdata-track
 ```
 
 The track can be run by specifying the following runtime parameters: 
-`--track=eventdata`
-`--track-repository=eventdata`.
+`    --track=eventdata`
+`    --track-repository=eventdata`.
 
 Another option is to download the repository and point to it using the `--track-path` command line parameter.
 
@@ -36,15 +36,7 @@ params-file.json
 ``` json
 {
   "number_of_replicas": 1,
-  "shard_count": 3,
-  "p1_bulk_indexing_clients": 32,
-  "p1_bulk_size": 1000,
-  "p1_duration_secs": 28800,
-  "p2_bulk_indexing_clients": 12,
-  "p2_bulk_size": 1000,
-  "p2_ops": 30,
-  "max_rolledover_indices": 20,
-  "rollover_max_size": "30gb"
+  "shard_count": 3
 }
 ```
 
@@ -118,7 +110,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 ### elasticlogs-continuous-index-and-query
 
-This challenge is suitable for long term execution and runs in two phases. Both phases (`p1`, `p2`) index documents containing auto-generated events, however, `p1` indexes events at the max possible speed, whereas `p2` throttles indexing to a specified rate and in parallel executes four queries simulating Kibana dashboards and queries. The created index gets rolled over after the configured max size.  The maximum amount of rolled over indices are also configurable.
+This challenge is suitable for long term execution and runs in two phases. Both phases (`p1`, `p2`) index documents containing auto-generated events, however, `p1` indexes events at the max possible speed, whereas `p2` throttles indexing to a specified rate and in parallel executes four queries simulating Kibana dashboards and queries. The created index gets rolled over after the configured max size. The maximum amount of rolled over indices are also configurable.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
@@ -157,6 +149,24 @@ A value of `max_rolledover_indices=20` on a three node bare-metal cluster with t
   * JVM: Oracle JDK 1.8.0_131
 
 ends up consuming a constant of `407GiB` per node.
+
+The following is an example of parameters that could be sent to the challenge.
+
+params-file.json 
+``` json
+{
+  "number_of_replicas": 1,
+  "shard_count": 3,
+  "p1_bulk_indexing_clients": 32,
+  "p1_bulk_size": 1000,
+  "p1_duration_secs": 28800,
+  "p2_bulk_indexing_clients": 12,
+  "p2_bulk_size": 1000,
+  "p2_ops": 30,
+  "max_rolledover_indices": 20,
+  "rollover_max_size": "30gb"
+}
+```
 
 ### large-shard-sizing
 
