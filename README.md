@@ -31,7 +31,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 
 Note: It is recommended to store any track parameters in a json file and pass them to Rally using '--track-params=./params-file.json'. 
 
-Follow is an example of a valid paramter json file:
+Following is an example of a valid paramters json file:
 params-file.json
 ``` json
 {
@@ -150,7 +150,7 @@ A value of `max_rolledover_indices=20` on a three node bare-metal cluster with t
 
 ends up consuming a constant of `407GiB` per node.
 
-The following is an example of parameters that could be sent to the challenge.
+The following is an example configurable parameters for this challenge.
 
 params-file.json 
 ``` json
@@ -245,7 +245,7 @@ This challenge indexes a fixed (raw) logging volume of logs per day into daily i
 
 ### index-and-query-logs-fixed-daily-volume
 
-Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. This challenge will complete tasks as quickly as possible and won't take the amount of days specified in the number_of_days field.  The table below shows the track parameters that can be adjusted along with default values:
+Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. This challenge will complete tasks as quickly as possible and won't take the amount of days specified in the number_of_days field. The table below shows the track parameters that can be adjusted along with default values:
 
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
