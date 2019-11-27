@@ -29,7 +29,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 | --------- | ----------- | ---- | ------------- |
 | `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
 
-Note: It is recommended to store any track parameters in a json file and pass them to Rally using '--track-params=./params-file.json'. 
+Note: It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`. 
 
 Following is an example of a valid parameters json file:
 params-file.json
@@ -39,6 +39,8 @@ params-file.json
   "shard_count": 3
 }
 ```
+
+You can specify what challenge you want to run with the `--challenge=YOUR_CHALLENGE_NAME`
 
 ## Available Challenges
 
