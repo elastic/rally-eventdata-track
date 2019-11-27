@@ -31,7 +31,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 
 Note: It is recommended to store any track parameters in a json file and pass them to Rally using '--track-params=./params-file.json'. 
 
-Following is an example of a valid paramters json file:
+Following is an example of a valid parameters json file:
 params-file.json
 ``` json
 {
@@ -150,7 +150,7 @@ A value of `max_rolledover_indices=20` on a three node bare-metal cluster with t
 
 ends up consuming a constant of `407GiB` per node.
 
-The following is an example configurable parameters for this challenge.
+The following is an example of configurable parameters for this challenge.
 
 params-file.json 
 ``` json
