@@ -2,7 +2,7 @@
 
 Repository containing a Rally track for simulating event-based data use-cases. The track supports bulk indexing of auto-generated events as well as simulated Kibana queries and a range of management operations to make the track self-contained.
 
-This track can be used as-is, extended or adapted to better match your use case or simply be used as a example of how custom parameter sources and runners can be used to create more complex and realistic simulations and benchmarks.
+This track can be used as-is, extended or adapted to better match your use case or simply be used as an example of how custom parameter sources and runners can be used to create more complex and realistic simulations and benchmarks.
 
 ## Installation
 
@@ -15,7 +15,9 @@ eventdata.url = https://github.com/elastic/rally-eventdata-track
 
 ```
 
-The track can be run by specifying the following runtime parameters: `--track=eventdata` and `--track-repository=eventdata`.
+The track can be run by specifying the following runtime parameters: 
+`    --track=eventdata`
+`    --track-repository=eventdata`.
 
 Another option is to download the repository and point to it using the `--track-path` command line parameter.
 
@@ -26,6 +28,19 @@ Note: In general, track parameters are only defined for a subset of the challeng
 | Parameter | Explanation | Type | Default Value |
 | --------- | ----------- | ---- | ------------- |
 | `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
+
+Note: It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`. 
+
+Following is an example of a valid parameters json file:
+params-file.json
+``` json
+{
+  "number_of_replicas": 1,
+  "shard_count": 3
+}
+```
+
+You can specify what challenge you want to run with the `--challenge=YOUR_CHALLENGE_NAME`
 
 ## Available Challenges
 
@@ -59,7 +74,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 ### elasticlogs-1bn-load
 
-This challenge indexes 1 billion events into a number of indices of 2 primary shards each, and results in around 200GB of indices being generated on disk. This can vary depending on the environment. It can be used give an idea of how max indexing performance behaves over an extended period of time.
+This challenge indexes 1 billion events into a number of indices of 2 primary shards each, and results in around 200GB of indices being generated on disk. This can vary depending on the environment. It can be used to give an idea of how max indexing performance behaves over an extended period of time.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
@@ -80,7 +95,7 @@ This challenge runs mixed Kibana queries against the index created in the **elas
 
 This challenge assumes that the *elasticlogs-1bn-load* track has been executed as it simulates querying against these indices. It shows how indexing and querying through simulated Kibana dashboards can be combined to provide a more realistic benchmark.
 
-In this challenge rate-limited indexing at varying levels is combined with a fixed level of querying. If metrics from the run are stored in Elasticsearch, it is possible analyse these in Kibana in order to identify how indexing rate affects query latency and vice versa.
+In this challenge rate-limited indexing at varying levels is combined with a fixed level of querying. If metrics from the run are stored in Elasticsearch, it is possible to analyse these in Kibana in order to identify how indexing rate affects query latency and vice versa.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
@@ -97,7 +112,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 ### elasticlogs-continuous-index-and-query
 
-This challenge is suitable for long term execution and runs in two phases. Both phases (`p1`, `p2`) index documents containing auto-generated event, however, `p1` indexes events at the max possible speed, whereas `p2` throttles indexing to a specified rate and in parallel executes four queries simulating Kibana dashboards and queries. The created index gets rolled over after the configured max size and the maximum amount of rolled over indices are also configurable.
+This challenge is suitable for long term execution and runs in two phases. Both phases (`p1`, `p2`) index documents containing auto-generated events, however, `p1` indexes events at the max possible speed, whereas `p2` throttles indexing to a specified rate and in parallel executes four queries simulating Kibana dashboards and queries. The created index gets rolled over after the configured max size. The maximum amount of rolled over indices are also configurable.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
@@ -137,10 +152,10 @@ A value of `max_rolledover_indices=20` on a three node bare-metal cluster with t
 
 ends up consuming a constant of `407GiB` per node.
 
-It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`. Example content:
+The following is an example of configurable parameters for this challenge.
 
-``` shell
-$ cat params-file.json
+params-file.json 
+``` json
 {
   "number_of_replicas": 1,
   "shard_count": 3,
@@ -189,7 +204,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 This challenge examines the indexing throughput as a function of shard size as well as the resulting storage requirements for a set of different types of document IDs. For each document ID type, it indexes 200 million documents into a single-shard index, which should be about 40GB in size. Once all data has been indexed, index statistics are recorded before and after a forcemerge down to a single segment.
 
-This challenge can be more CPU intensive that other tracks, so make sure the Rally node is powerful enough not to become the bottleneck.
+This challenge can be more CPU intensive than other tracks, so make sure the Rally node is powerful enough not to become the bottleneck.
 
 The following document id types are benchmarked:
 
@@ -201,9 +216,9 @@ The following document id types are benchmarked:
 
 `md5` - This test uses a MD5 hash formatted as a hexadecimal string as document ID.
 
-`epoch_uuid` - This test uses an UUID string prefixed by the hexadecimal representation of an epoch timestamp. This makes identifiers largely ordered over time, which can have a positive impact on indexing throughput.
+`epoch_uuid` - This test uses a UUID string prefixed by the hexadecimal representation of an epoch timestamp. This makes identifiers largely ordered over time, which can have a positive impact on indexing throughput.
 
-`epoch_md5` - This test uses an base64 encoded MD5 hash prefixed by the hexadecimal representation of an epoch timestamp. This makes identifiers largely ordered over time, which can have a positive impact on indexing throughput.
+`epoch_md5` - This test uses a base64 encoded MD5 hash prefixed by the hexadecimal representation of an epoch timestamp. This makes identifiers largely ordered over time, which can have a positive impact on indexing throughput.
 
 `epoch_md5-10pct/60s` - This test uses the `epoch_md5` identifier described above, but simulates a portion of events arriving delayed by setting the timestamp to 60s (1 minute) in the past for 10% of events.
 
@@ -221,18 +236,18 @@ The table below shows the track parameters that can be adjusted along with defau
 
 ### index-logs-fixed-daily-volume
 
-This challenge indexes a fixed amount of logs per day into daily indices. The table below shows the track parameters that can be adjusted along with default values:
+This challenge indexes a fixed (raw) logging volume of logs per day into daily indices. This challenge will complete tasks as quickly as possible and won't take the amount of days specified in the number_of_days field.  The table below shows the track parameters that can be adjusted along with default values:
 
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`           |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`       |
-| `number_of_days`        | The number of days for which data should be generated.                                                                                 | `int` | `24`          |
+| `number_of_days`        | The number of simulated days for which data should be generated.                                                                                 | `int` | `24`          |
 | `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`           |
 
 ### index-and-query-logs-fixed-daily-volume
 
-Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. The table below shows the track parameters that can be adjusted along with default values:
+Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. This challenge will complete tasks as quickly as possible and won't take the amount of days specified in the number_of_days field. The table below shows the track parameters that can be adjusted along with default values:
 
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
@@ -240,7 +255,7 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
-| `number_of_days`        | The number of days for which data should be generated.                                                                                 | `int` | `24`                  |
+| `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `24`                  |
 | `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`                   |
 
 
@@ -248,11 +263,11 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 
 ### elasticlogs\_bulk\_source
 
-This parameter source generated bulk indexing requests filled with auto-generated data. This data is generated based on statistics from a subset of real traffic to the elastic.co website. Data has been anonymised and post-processed and is modelled on the format used by the Filebeat Nginx Module.
+This parameter source generates bulk indexing requests filled with auto-generated data. This data is generated based on statistics from a subset of real traffic to the elastic.co website. Data has been anonymised and post-processed and is modelled on the format used by the Filebeat Nginx Module.
 
 The generator allows data to be generated in real-time or against a set date/tine interval. A sample event will contain the following fields:
 
-```
+``` json
 {
   "@timestamp": "2017-06-01T00:01:08.866644Z",
   "offset": 7631775,
@@ -314,11 +329,11 @@ The generator allows data to be generated in real-time or against a set date/tin
 
 This parameter source supports simulating three different types of dashboards. One of the following needs to be selected by specifying the mandatory parameter `dashboard`:
 
-**traffic** - This dashboard contains 7 visualisations and presents different types of traffic statistics. In structure it is similar to the `Nginx Overview` dashboard that comes with the Filebeat Nginx Module. It does aggregate across all records in the index and is therefore a quite 'heavy' dashboard.
+**traffic** - This dashboard contains 7 visualisations and presents different types of traffic statistics. In structure it is similar to the `Nginx Overview` dashboard that comes with the Filebeat Nginx Module. It does aggregate across all records in the index and is therefore a 'heavy' dashboard.
 
 ![Eventdata traffic dashboard](eventdata/dashboards/images/eventdata_traffic_dashboard.png)
 
-**content\_issues** - This dashboard contains 5 visualisations and is designed to be used for analysis of records with a 404 response code, e.g. to find links that are no longer leading anywhere. This only aggregates across a small subset of the records in an index and is therefore considerably 'lighter' than the **traffic** dashboard.
+**content\_issues** - This dashboard contains 5 visualisations and is designed to be used for analysis of records with a 404 response code, e.g. to find links that are no longer leading anywhere. This only aggregates across a small subset of the records in an index and is therefore a 'light' dashboard.
 
 ![Eventdata content issues dashboard](eventdata/dashboards/images/eventdata_content_issues_dashboard.png)
 
@@ -350,7 +365,7 @@ As you can see, branches can match exact release numbers but Rally is also lenie
 
 Apart from that, the master branch is always considered to be compatible with the Elasticsearch master branch.
 
-To specify the version to check against, add `--distribution-version` when running Rally. It it is not specified, Rally assumes that you want to benchmark against the Elasticsearch master version.
+To specify the version to check against, add `--distribution-version` when running Rally. If the version is not specified, Rally assumes that you want to benchmark against the Elasticsearch master version.
 
 Example: If you want to benchmark Elasticsearch 6.2.4, run the following command:
 
