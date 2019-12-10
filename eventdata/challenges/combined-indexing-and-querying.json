@@ -8,7 +8,7 @@
 
 {
   "name": "combined-indexing-and-querying",
-  "description": "This challenge simulates a set of Kibana queries against historical data (elasticlogs_q-* indices) as well as against the most recent data currently being indexed. It combined this with rate-limited indexing at varying levels. It assumes one of the challenges creating elasticlogs_q-* indices has been run.",
+  "description": "This challenge simulates a set of Kibana queries against historical data ({{p_query_index_pattern}} indices) as well as against the most recent data currently being indexed. It combined this with rate-limited indexing at varying levels. It assumes one of the challenges creating {{p_query_index_pattern}} indices has been run.",
   "meta": {
     "benchmark_type": "indexing/querying",
     "target_kibana_queries_per_minute": 7
