@@ -37,7 +37,8 @@ def test_create_discover(time):
     time.return_value = 5000
 
     param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
-        "dashboard": "discover"
+        "dashboard": "discover",
+        "index_pattern": "elasticlogs-*"
     }, utcnow=lambda: datetime(year=2019, month=11, day=11))
     response = param_source.params()
 
@@ -49,7 +50,8 @@ def test_create_content_issues_dashboard(time):
     time.return_value = 5000
 
     param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
-        "dashboard": "content_issues"
+        "dashboard": "content_issues",
+        "index_pattern": "elasticlogs-*"
     }, utcnow=lambda: datetime(year=2019, month=11, day=11))
     response = param_source.params()
 
@@ -61,7 +63,8 @@ def test_create_traffic_dashboard(time):
     time.return_value = 5000
 
     param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
-        "dashboard": "traffic"
+        "dashboard": "traffic",
+        "index_pattern": "elasticlogs-*"
     }, utcnow=lambda: datetime(year=2019, month=11, day=11))
     response = param_source.params()
 
@@ -70,14 +73,21 @@ def test_create_traffic_dashboard(time):
 
 def test_dashboard_is_mandatory():
     with pytest.raises(KeyError) as ex:
-        ElasticlogsKibanaSource(track=StaticTrack(), params={})
+        ElasticlogsKibanaSource(track=StaticTrack(), params={"index_pattern": "elasticlogs*"})
 
     assert "'dashboard'" == str(ex.value)
 
 
+def test_index_pattern_is_mandatory():
+    with pytest.raises(KeyError) as ex:
+        ElasticlogsKibanaSource(track=StaticTrack(), params={"dashboard": "traffic"})
+
+    assert "'index_pattern'" == str(ex.value)
+
+
 def test_invalid_dashboard_raises_error():
     with pytest.raises(ConfigurationError) as ex:
-        ElasticlogsKibanaSource(track=StaticTrack(), params={"dashboard": "unknown"})
+        ElasticlogsKibanaSource(track=StaticTrack(), params={"dashboard": "unknown", "index_pattern": "elasticlogs*"})
 
     assert "Unknown dashboard [unknown]. Must be one of ['traffic', 'content_issues', 'discover']." == str(ex.value)
 
