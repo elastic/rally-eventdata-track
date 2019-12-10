@@ -1,7 +1,7 @@
 {
   "name": "fieldstats_elasticlogs_q-*",
   "operation-type": "fieldstats",
-  "index_pattern": "elasticlogs_q-*"
+  "index_pattern": "{{p_query_index_pattern}}"
 },
 {
   "name": "indicesstats_elasticlogs",
@@ -11,7 +11,7 @@
 {
   "name": "indicesstats_elasticlogs_q-*",
   "operation-type": "indicesstats",
-  "index_pattern": "elasticlogs_q-*"
+  "index_pattern": "{{p_query_index_pattern}}"
 },
 {
   "name": "indicesstats_elasticlogs_i-*",
@@ -21,7 +21,7 @@
 {
   "name": "indicesstats_elasticlogs_q_write",
   "operation-type": "indicesstats",
-  "index_pattern": "elasticlogs_q_write"
+  "index_pattern": "{{p_query_index_write_alias}}"
 },
 {
   "name": "indicesstats_elasticlogs_i_write",

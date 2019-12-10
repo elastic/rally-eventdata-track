@@ -1,8 +1,6 @@
 {# The following track-params are supported:
-index_alias: used by the `rollover_custom_alias` operation. Defaults to `elasticlogs_q_write`.
 rollover_max_age: used by the `rollover_custom_alias` operation. Defaults to `1d`.
 rollover_max_size: used by the `rollover_custom_alias` operation. Defaults to `30gb`.
-indices_delete_pattern: used by the `delete_rolledover_index_pattern` operation. Defaults to `elasticlogs_q-*`.
 max_rolledover_indices: used by the `delete_rolledover_index_pattern` operation. Defaults to `20`.
 rolledover_indices_suffix_separator: used by the `delete_rolledover_index_pattern` operation. Defaults to `-`.
 #}
@@ -33,7 +31,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
   "name": "index-append-1000-elasticlogs_q_write",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
-  "index": "elasticlogs_q_write",
+  "index": "{{p_query_index_write_alias}}",
   "bulk-size": 1000,
   "record_raw_event_size": {{p_record_raw_event_size}}
 },
@@ -48,7 +46,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "rollover_elasticlogs_q_write_100M",
   "operation-type": "rollover",
-  "alias": "elasticlogs_q_write",
+  "alias": "{{p_query_index_write_alias}}",
   "body": {
     "conditions": {
       "max_age":   "1d",
@@ -70,7 +68,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "rollover_elasticlogs_q_write_50M",
   "operation-type": "rollover",
-  "alias": "elasticlogs_q_write",
+  "alias": "{{p_query_index_write_alias}}",
   "body": {
     "conditions": {
       "max_age":   "1d",
@@ -92,7 +90,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "rollover_elasticlogs_q_write_10M",
   "operation-type": "rollover",
-  "alias": "elasticlogs_q_write",
+  "alias": "{{p_query_index_write_alias}}",
   "body": {
     "conditions": {
       "max_age":   "1d",
@@ -114,7 +112,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "rollover_elasticlogs_q_write_50gb",
   "operation-type": "rollover",
-  "alias": "elasticlogs_q_write",
+  "alias": "{{p_query_index_write_alias}}",
   "body": {
     "conditions": {
       "max_age": "1d",
@@ -125,7 +123,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "rollover_custom_alias",
   "operation-type": "rollover",
-  "alias": {{ index_alias | default("elasticlogs_q_write") | tojson }},
+  "alias": "{{p_query_index_write_alias}}",
   "body": {
     "conditions": {
       "max_age": {{ rollover_max_age | default("1d") | tojson }},
@@ -141,7 +139,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "deleteindex_elasticlogs_q-*",
   "operation-type": "delete-index",
-  "index": "elasticlogs_q-*"
+  "index": "{{p_query_index_pattern}}"
 },
 {
   "name": "deleteindex_elasticlogs",
@@ -151,7 +149,7 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 {
   "name": "delete_rolledover_index_pattern",
   "operation-type": "delete_indices",
-  "index_pattern": {{ indices_delete_pattern | default("elasticlogs_q-*") | tojson }},
+  "index_pattern": "{{ p_query_index_pattern }}",
   "max_indices": {{ max_rolledover_indices | default(20) | int | tojson }},
   "suffix_separator": {{ rolledover_indices_suffix_separator | default("-") | tojson }}
 }
