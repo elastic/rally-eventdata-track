@@ -58,7 +58,7 @@ class ElasticlogsKibanaSource:
         "dashboard"             -   String indicating which dashboard to simulate. Options are 'traffic', 'content_issues' and 'discover'.
         "query_string"          -   String indicating file to load or list of strings indicating actual query parameters to randomize during benchmarking. Defaults 
                                     to ["*"], If a list has been specified, a random value will be selected.
-        "index_pattern"         -   String or list of strings representing the index pattern to query. Defaults to 'elasticlogs-*'. If a list has 
+        "index_pattern"         -   String or list of strings representing the index pattern to query. If a list has
                                     been specified, a random value will be selected.
         "window_end"            -   Specification of aggregation window end or period within which it should end. If one single value is specified, 
                                     that will be used to anchor the window. If two values are given in a comma separated list, the end of the window
@@ -83,7 +83,7 @@ class ElasticlogsKibanaSource:
     def __init__(self, track, params, **kwargs):
         self._params = params
         self._indices = track.indices
-        self._index_pattern = params.get("index_pattern", "elasticlogs-*")
+        self._index_pattern = params["index_pattern"]
         self._query_string_list = ["*"]
         self._dashboard = params["dashboard"]
         self._discover_size = params.get("discover_size", 500)
