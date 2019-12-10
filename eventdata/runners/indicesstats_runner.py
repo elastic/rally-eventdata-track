@@ -28,13 +28,9 @@ def indicesstats(es, params):
     Retrieves index stats for an index or index pattern.
 
     It expects the parameter hash to contain the following keys:
-        "index_pattern" - Index pattern that storage statistics are retrieved for. Defaults to "elasticlogs-*".
+        "index_pattern" - Index pattern that storage statistics are retrieved for.
     """
-    if 'index_pattern' not in params:
-        index_pattern = 'elasticlogs-*'
-    else:
-        index_pattern = params['index_pattern']
-
+    index_pattern = params['index_pattern']
     response = {
         "weight": 1,
         "unit": "ops",

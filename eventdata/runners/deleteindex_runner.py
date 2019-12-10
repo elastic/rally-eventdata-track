@@ -29,7 +29,7 @@ def deleteindex(es, params):
     :type params: dict
 
         "index_pattern"        - Mandatory.
-                                 Specifies the index pattern to delete. Defaults to 'elasticlogs-*'
+                                 Specifies the index pattern to delete.
         "max_indices"          - Optional.
                                  int specifying how many rolled over indices to retain at max.
                                  The elibigle indices need to satisfy `index-pattern`.
@@ -60,7 +60,7 @@ def deleteindex(es, params):
                     return None
         return None
 
-    index_pattern = params.get('index_pattern', 'elasticlogs-*')
+    index_pattern = params['index_pattern']
     max_indices = params.get('max_indices', None)
     suffix_separator = params.get('suffix_separator', '-')
 
