@@ -136,7 +136,7 @@ The table below shows the track parameters that can be adjusted along with defau
 | `max_rolledover_indices` | Max amount of recently rolled over indices to retain | `int` | `20` |
 | `rolledover_indices_suffix_separator` | Separator for extracting suffix to help determining which rolled-over indices to delete  | `str` | `-` |
 
-The indices use the alias `elasticlogs_q_write` (assuming the default value for `p_query_index_prefix`) and start with `elasticlogs_q-000001`. As an example, for a cluster with rolled over indices:  `elasticlogs-000001`, `elasticlogs-000002`, ... `000010` a value of `max_rolledover_indices=8` results to the removal of `elasticlogs-000001` and `elasticlogs-000002`.
+The indices use the alias `elasticlogs_q_write` (assuming the default value for `query_index_prefix`) and start with `elasticlogs_q-000001`. As an example, for a cluster with rolled over indices:  `elasticlogs-000001`, `elasticlogs-000002`, ... `000010` a value of `max_rolledover_indices=8` results to the removal of `elasticlogs-000001` and `elasticlogs-000002`.
 
 A value of `max_rolledover_indices=20` on a three node bare-metal cluster with the following specifications:
 
