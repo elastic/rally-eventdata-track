@@ -4,7 +4,7 @@
 {% set p_record_raw_event_size = record_raw_event_size | default(False) | tojson %}
 {% set p_index_prefix = index_prefix | default("elasticlogs") %}
 {% set p_query_index_prefix = query_index_prefix | default(p_index_prefix ~ "_q") %}
-{% set p_query_index_pattern = p_query_index_prefix ~ "-*" %}
+{% set p_query_index_pattern = query_index_pattern | default(p_query_index_prefix ~ "-*") %}
 {% set p_query_index_write_alias = p_query_index_prefix ~ "_write" %}
 {% set p_verbose = verbose | default(False) | tojson %}
 
