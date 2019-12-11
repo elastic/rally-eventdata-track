@@ -29,6 +29,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 | --------- | ----------- | ---- | ------------- |
 | `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
 | `query_index_prefix` | Start of the index name(s) used in queries for this track. | `str` | `elasticlogs_q` |
+| `query_index_pattern` | Index pattern used in queries for this track. | `str` | `$query_index_prefix + "-*"` |
 | `verbose` | Emits additional debug logs. Enable this only when testing changes but not when running regular benchmarks as this influences performance negatively. | `bool` | `False` |
 
 Note: It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`. 
