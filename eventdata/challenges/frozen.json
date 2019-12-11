@@ -85,6 +85,7 @@
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
+        "debug": {{p_verbose}},
         "dashboard": "discover",
         "index_pattern": "elasticlogs*",
         "query_string": "query_string_lists/uncommon_ip_query_strings.json",
@@ -101,6 +102,7 @@
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
+        "debug": {{p_verbose}},
         "dashboard": "content_issues",
         "index_pattern": "elasticlogs*",
         "query_string": "query_string_lists/uncommon_ip_query_strings.json",
