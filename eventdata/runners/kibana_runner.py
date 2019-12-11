@@ -31,30 +31,34 @@ def kibana(es, params):
         "body"      - msearch request body representing the Kibana dashboard in the  form of an array of dicts.
         "meta_data" - Dictionary containing meta data information to be carried through into metrics.
     """
-    request = params['body']
+    request = params["body"]
+    meta_data = params["meta_data"]
 
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("[kibana_runner] Received request: {}".format(json.dumps(request)))
+    if meta_data["debug"]:
+        logger.info("Received request:\n=====\n{}\n=====".format(json.dumps(request)))
 
     visualisations = int(len(request) / 2)
 
     response = {}
 
-    if 'meta_data' in params:
-        meta_data = params['meta_data']
-        for key in meta_data.keys():
-            response[key] = meta_data[key]
+    for key in meta_data.keys():
+        response[key] = meta_data[key]
 
-    response['weight'] = 1
-    response['unit'] = "ops"
-    response['visualisation_count'] = visualisations
+    response["weight"] = 1
+    response["unit"] = "ops"
+    response["visualisation_count"] = visualisations
 
     if "pre_filter_shard_size" in meta_data:
-        result = es.msearch(body = request, params = {'pre_filter_shard_size': meta_data['pre_filter_shard_size']})
+        result = es.msearch(body=request, params={"pre_filter_shard_size": meta_data["pre_filter_shard_size"]})
     else:
-        result = es.msearch(body = request)
+        result = es.msearch(body=request)
 
-    if 'debug' in params['meta_data'] and params['meta_data']['debug']:
-        logger.info("\n====================\n[kibana_runner] request: {}\n[kibana_runner] result: {}\n====================\n".format(request, result))
+    if meta_data["debug"]:
+        for r in result["responses"]:
+            # clear hits otherwise we'll spam the log
+            r["hits"]["hits"] = []
+            r["aggregations"] = {}
+        logger.info("Received response (excluding specific hits):\n=====\n{}\n=====".format(json.dumps(result)))
+
 
     return response

@@ -93,6 +93,7 @@
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
+        "debug": {{p_verbose}},
         "dashboard": "content_issues",
         "index_pattern": "elasticlogs-auto",
         "query_string": ["*"],
@@ -110,6 +111,7 @@
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
+        "debug": {{p_verbose}},
         "dashboard": "traffic",
         "index_pattern": "elasticlogs-auto",
         "query_string": ["*"],
@@ -127,6 +129,7 @@
       "operation": {
         "operation-type": "kibana",
         "param-source": "elasticlogs_kibana",
+        "debug": {{p_verbose}},
         "dashboard": "discover",
         "index_pattern": "elasticlogs-auto",
         "query_string": ["*"],
