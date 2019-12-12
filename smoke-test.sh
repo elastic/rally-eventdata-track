@@ -24,21 +24,56 @@ set -u
 # fail on pipeline errors, e.g. when grepping
 set -o pipefail
 
+readonly RACE_ID=$(uuidgen)
 readonly ES_VERSION=${ES_VERSION:-7.3.0}
-# intentionally not tested (at the moment) because these challenges require running a different challenge first against the same cluster:
+# the order matters here as later challenges might expect that some indices already exist that have been created by challenges running earlier. In particular, these challenges are affected:
 #
 # * frozen-querying (depends on frozen-data-generation)
 # * combined-indexing-and-querying (depends on any challenge that has already created elasticlogs-q* indices)
 # * elasticlogs-querying (depends on any challenge that has already created elasticlogs-q* indices)
+readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing index-logs-fixed-daily-volume refresh-interval max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk bulk-size-evaluation bulk-size-evaluation-mini bulk-size-concurrency-evaluation generate-historic-data large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
 
-readonly CHALLENGES=(elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing frozen-data-generation index-logs-fixed-daily-volume refresh-interval max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk bulk-size-evaluation bulk-size-evaluation-mini bulk-size-concurrency-evaluation generate-historic-data large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load)
+INSTALL_ID=-1
 
-esrally list tracks --track-repository=eventdata
+function log {
+    local ts=$(date -u "+%Y-%m-%dT%H:%M:%SZ")
+    echo "[${ts}] [${1}] ${2}"
+}
 
-for challenge in "${CHALLENGES[@]}"
-do
-    esrally --test-mode --distribution-version=$ES_VERSION --track-repository=eventdata --track=eventdata --track-params="bulk_indexing_clients:1,number_of_replicas:0,daily_logging_volume:1MB" --challenge="${challenge}" --on-error=abort
-done
+function info {
+    log "INFO" "${1}"
+}
 
+function set_up {
+  info "preparing cluster"
+  INSTALL_ID=$(esrally install --quiet --distribution-version="${ES_VERSION}" --node-name="rally-node-0" --network-host="127.0.0.1" --http-port=39200 --master-nodes="rally-node-0" --seed-hosts="127.0.0.1:39300" | jq --raw-output '.["installation-id"]')
+  esrally start --installation-id="${INSTALL_ID}" --race-id="${RACE_ID}"
+}
 
+function run_test {
+  echo "**************************************** TESTING LIST TRACKS *******************************************"
+  esrally list tracks --track-repository=eventdata
+  echo "**************************************** TESTING CHALLENGES *******************************************"
 
+  for challenge in "${CHALLENGES[@]}"
+  do
+      info "Testing ${challenge}"
+      esrally --race-id="${RACE_ID}" --test-mode --pipeline=benchmark-only --target-host=127.0.0.1:39200 --track-repository=eventdata --track=eventdata --track-params="bulk_indexing_clients:1,number_of_replicas:0,daily_logging_volume:1MB,rate_limit_max:2,rate_limit_duration_secs:5,p1_bulk_indexing_clients:1,p2_bulk_indexing_clients:1,p1_duration_secs:5,p2_duration_secs:5,ops_per_25_gb:20" --challenge="${challenge}" --on-error=abort
+  done
+}
+
+function tear_down {
+    info "tearing down"
+    set +e
+    esrally stop --installation-id="${INSTALL_ID}"
+    set -e
+}
+
+function main {
+    set_up
+    run_test
+}
+
+trap "tear_down" EXIT
+
+main
