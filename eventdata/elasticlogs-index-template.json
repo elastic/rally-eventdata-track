@@ -1,9 +1,10 @@
 {% set p_disk_type = disk_type | default('ssd') | lower %}
 {% set p_translog_sync = translog_sync | default('request') | lower %}
+{% set p_refresh_interval = refresh_interval | default("5s") %}
 {
   "index_patterns": ["{{p_index_prefix}}*"],
   "settings": {
-      "index.refresh_interval": "5s",
+      "index.refresh_interval": "{{p_refresh_interval}}",
       "index.codec": "best_compression",
       {% if (p_translog_sync != 'request') %}
       "index.translog.durability": "async",
