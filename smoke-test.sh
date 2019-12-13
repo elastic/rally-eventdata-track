@@ -31,7 +31,7 @@ readonly ES_VERSION=${ES_VERSION:-7.3.0}
 # * combined-indexing-and-querying (depends on any challenge that has already created elasticlogs-q* indices)
 # * elasticlogs-querying (depends on any challenge that has already created elasticlogs-q* indices)
 
-readonly CHALLENGES=(elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing frozen-data-generation index-logs-fixed-daily-volume refresh-interval max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk bulk-size-evaluation bulk-size-evaluation-mini bulk-size-concurrency-evaluation generate-historic-data large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load)
+readonly CHALLENGES=(elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing frozen-data-generation index-logs-fixed-daily-volume refresh-interval max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk generate-historic-data large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load)
 
 esrally list tracks --track-repository=eventdata
 
