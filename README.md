@@ -384,6 +384,8 @@ make install
 make test
 ```
 
+It also contains an integration test suite that can be run with `make it`.
+
 License
 -------
 
