@@ -30,6 +30,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 | `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
 | `query_index_prefix` | Start of the index name(s) used in queries for this track. | `str` | `elasticlogs_q` |
 | `query_index_pattern` | Index pattern used in queries for this track. | `str` | `$query_index_prefix + "-*"` |
+| `refresh_interval` | [Index refresh interval](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings) | `str` | `5s` |
 | `verbose` | Emits additional debug logs. Enable this only when testing changes but not when running regular benchmarks as this influences performance negatively. | `bool` | `False` |
 
 Note: It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`. 
@@ -46,18 +47,6 @@ params-file.json
 You can specify what challenge you want to run with the `--challenge=YOUR_CHALLENGE_NAME`
 
 ## Available Challenges
-
-### bulk-size-evaluation
-
-This challenge performs bulk-indexing against a single index with varying bulk request sizes, ranging from 125 events/request to 50000 events/request.
-
-The table below shows the track parameters that can be adjusted along with default values:
-
-| Parameter | Explanation | Type | Default Value |
-| --------- | ----------- | ---- | ------------- |
-| `number_of_replicas` | Number of index replicas | `int` | `0` |
-| `shard_count` | Number of primary shards | `int` | `2` |
-| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `16` |
 
 ### shard-sizing
 
@@ -242,6 +231,7 @@ This challenge indexes a fixed (raw) logging volume of logs per day into daily i
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`           |
+| `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`       |
 | `number_of_days`        | The number of simulated days for which data should be generated.                                                                                 | `int` | `24`          |
 | `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`           |
