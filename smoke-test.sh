@@ -26,12 +26,13 @@ set -o pipefail
 
 readonly RACE_ID=$(uuidgen)
 readonly ES_VERSION=${ES_VERSION:-7.3.0}
+
 # the order matters here as later challenges might expect that some indices already exist that have been created by challenges running earlier. In particular, these challenges are affected:
 #
 # * frozen-querying (depends on frozen-data-generation)
 # * combined-indexing-and-querying (depends on any challenge that has already created elasticlogs-q* indices)
 # * elasticlogs-querying (depends on any challenge that has already created elasticlogs-q* indices)
-readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing index-logs-fixed-daily-volume refresh-interval max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk bulk-size-evaluation bulk-size-evaluation-mini bulk-size-concurrency-evaluation generate-historic-data large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
+readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing index-logs-fixed-daily-volume max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
 
 INSTALL_ID=-1
 
