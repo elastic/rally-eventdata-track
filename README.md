@@ -47,18 +47,6 @@ You can specify what challenge you want to run with the `--challenge=YOUR_CHALLE
 
 ## Available Challenges
 
-### bulk-size-evaluation
-
-This challenge performs bulk-indexing against a single index with varying bulk request sizes, ranging from 125 events/request to 50000 events/request.
-
-The table below shows the track parameters that can be adjusted along with default values:
-
-| Parameter | Explanation | Type | Default Value |
-| --------- | ----------- | ---- | ------------- |
-| `number_of_replicas` | Number of index replicas | `int` | `0` |
-| `shard_count` | Number of primary shards | `int` | `2` |
-| `bulk_indexing_clients` | Number of bulk indexing clients/connections | `int` | `16` |
-
 ### shard-sizing
 
 This challenge indexes 2 million events into an index consisting of a single shard 25 times. After each group of 2 million events has been inserted, 4 different Kibana dashboard configurations are benchmarked against the index. At this time no indexing takes place. There are two different dashboards being simulated, aggregating across 50% and 90% of the data in the shard.
@@ -242,6 +230,7 @@ This challenge indexes a fixed (raw) logging volume of logs per day into daily i
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`           |
+| `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`       |
 | `number_of_days`        | The number of simulated days for which data should be generated.                                                                                 | `int` | `24`          |
 | `shard_count`           | Number of primary shards                                                                                                               | `int` | `3`           |
