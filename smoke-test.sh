@@ -53,13 +53,13 @@ function set_up {
 
 function run_test {
   echo "**************************************** TESTING LIST TRACKS *******************************************"
-  esrally list tracks --track-repository=eventdata
+  esrally list tracks --track-path="${PWD}/eventdata"
   echo "**************************************** TESTING CHALLENGES *******************************************"
 
   for challenge in "${CHALLENGES[@]}"
   do
       info "Testing ${challenge}"
-      esrally --race-id="${RACE_ID}" --test-mode --pipeline=benchmark-only --target-host=127.0.0.1:39200 --track-repository=eventdata --track=eventdata --track-params="bulk_indexing_clients:1,number_of_replicas:0,daily_logging_volume:1MB,rate_limit_max:2,rate_limit_duration_secs:5,p1_bulk_indexing_clients:1,p2_bulk_indexing_clients:1,p1_duration_secs:5,p2_duration_secs:5,ops_per_25_gb:20" --challenge="${challenge}" --on-error=abort
+      esrally --race-id="${RACE_ID}" --test-mode --pipeline=benchmark-only --target-host=127.0.0.1:39200 --track-path="${PWD}/eventdata" --track-params="bulk_indexing_clients:1,number_of_replicas:0,daily_logging_volume:1MB,rate_limit_max:2,rate_limit_duration_secs:5,p1_bulk_indexing_clients:1,p2_bulk_indexing_clients:1,p1_duration_secs:5,p2_duration_secs:5,ops_per_25_gb:20" --challenge="${challenge}" --on-error=abort
   done
 }
 
