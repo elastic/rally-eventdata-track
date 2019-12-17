@@ -60,6 +60,8 @@ install: venv-create
 	. $(VENV_ACTIVATE_FILE); pip install --upgrade pip
 	# install pytest for tests
 	. $(VENV_ACTIVATE_FILE); pip3 install pytest==5.1.1
+	# install (latest) Rally for smoke tests
+	. $(VENV_ACTIVATE_FILE); pip3 install git+ssh://git@github.com/elastic/rally.git
 
 clean:
 	rm -rf .pytest_cache
@@ -68,4 +70,7 @@ test: check-venv
 # PYTHONDONTWRITEBYTECODE=1 ensures that we always see warnings (not just the first time)
 	. $(VENV_ACTIVATE_FILE); PYTHONDONTWRITEBYTECODE=1; pytest
 
-.PHONY: clean test prereq venv-create check-env
+it: check-venv
+	. $(VENV_ACTIVATE_FILE); ./smoke-test.sh
+
+.PHONY: clean test it prereq venv-create check-env
