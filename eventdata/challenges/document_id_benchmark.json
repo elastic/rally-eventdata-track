@@ -31,13 +31,6 @@
       }
     },
     {
-      "name": "create-index-elasticlogs-warmup",
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs-warmup"
-      }
-    },
-    {
       "name": "index-append-1000-elasticlogs-warmup",
       "operation": {
         "operation-type": "bulk",
@@ -68,13 +61,6 @@
       "name": "delete-index-elasticlogs-{{ id['desc'] }}",
       "operation": {
         "operation-type": "delete-index",
-        "index": "elasticlogs-{{ id['desc'] }}"
-      }
-    },
-    {
-      "name": "create-index-elasticlogs-{{ id['desc'] }}",
-      "operation": {
-        "operation-type": "create-index",
         "index": "elasticlogs-{{ id['desc'] }}"
       }
     },
@@ -133,13 +119,6 @@
       "name": "delete-index-elasticlogs-{{ id['desc'] }}",
       "operation": {
         "operation-type": "delete-index",
-        "index": "elasticlogs-{{ id['desc'] }}"
-      }
-    },
-    {
-      "name": "create-index-elasticlogs-{{ id['desc'] }}",
-      "operation": {
-        "operation-type": "create-index",
         "index": "elasticlogs-{{ id['desc'] }}"
       }
     },
