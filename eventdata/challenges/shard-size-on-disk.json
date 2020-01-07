@@ -18,12 +18,6 @@
     {
       "operation": "create-index-template"
     },
-    {
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs"
-      }
-    },
     {% set comma = joiner() %}
     {% for n in range(1,51) %}
     {{comma()}}

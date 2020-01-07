@@ -30,12 +30,6 @@
         }
       }
     },
-    {
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs-auto"
-      }
-    },
     {% for p_multiple in range(1, 13) %}
     {% set p_size = p_multiple * 25 %}
     {
@@ -177,13 +171,6 @@
         "settings": {
           "index.number_of_shards": {{ shard_count | default(1) }}
         }
-      }
-    },
-    {
-      "name": "create-index-elasticlogs-{{ id_type }}",
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs-{{ id_type }}"
       }
     },
     {

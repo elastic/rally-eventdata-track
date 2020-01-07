@@ -1,8 +1,6 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(20)) %}
 {% set p_iterations = bulk_indexing_iterations | default(1000000) %}
 {% set p_iterations_per_client = (p_iterations / p_bulk_indexing_clients) | int %}
-{% set number_of_replicas = (number_of_replicas | default(1)) %}
-{% set number_of_shards = (number_of_shards | default(2)) %}
 {
   "name": "bulk-update",
   "default": false,
@@ -20,32 +18,6 @@
     },
     {
       "operation": "create-index-template"
-    },
-    {
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs",
-        "body": {
-          "settings": {
-              {% if index_refresh_interval is defined %}
-              "index.refresh_interval": {{ index_refresh_interval | int }},
-              {% endif %}
-              "index.number_of_replicas": {{ number_of_replicas }},
-              "index.number_of_shards": {{ number_of_shards }}
-          }
-        }
-      }
-    },
-    {
-      "name": "check-cluster-health",
-      "operation": {
-        "operation-type": "cluster-health",
-        "index": "elasticlogs",
-        "request-params": {
-          "wait_for_status": "{{cluster_health | default('green')}}",
-          "wait_for_no_relocating_shards": "true"
-        }
-      }
     },
     {
       "warmup-iterations": 20,
