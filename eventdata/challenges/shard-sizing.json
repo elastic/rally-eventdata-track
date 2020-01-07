@@ -20,12 +20,6 @@
     {
       "operation": "create-index-template"
     },
-    {
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs"
-      }
-    },
     {% for n in range(1, p_shard_sizing_iterations) %}
     {
       "name": "index-append-1000-shard-sizing-iteration-{{n}}",

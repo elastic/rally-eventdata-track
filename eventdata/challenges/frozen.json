@@ -21,12 +21,6 @@
       }
     },
     {
-      "operation": {
-        "operation-type": "create-index",
-        "index": "elasticlogs"
-      }
-    },
-    {
       "name": "index-append-1000-datagen",
       "operation": {
         "name": "index-append-1000-datagen-20180102",
