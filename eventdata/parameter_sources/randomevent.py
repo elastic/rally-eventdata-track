@@ -297,6 +297,8 @@ class RandomEvent:
         self.record_raw_event_size = params.get("record_raw_event_size", False)
         self._offset = 0
         self._web_host_index = 0
+        self._timestruct = None
+        self._index_name = None
 
     @property
     def percent_completed(self):
@@ -308,14 +310,16 @@ class RandomEvent:
             total = self.total_days * self.daily_logging_volume
             return already_generated / total
 
+    def start_bulk(self, bulk_size):
+        self._timestruct = self._timestamp_generator.next_timestamp()
+        self._index_name = self.__generate_index_pattern(self._timestruct)
+
     def generate_event(self):
         if self.remaining_days == 0:
             raise StopIteration()
-        timestruct = self._timestamp_generator.next_timestamp()
-        index_name = self.__generate_index_pattern(timestruct)
 
         event = self._event
-        event["@timestamp"] = timestruct["iso"]
+        event["@timestamp"] = self._timestruct["iso"]
 
         # assume a typical event size of 263 bytes but limit the file size to 4GB
         event["offset"] = (self._offset + 263) % (4 * 1024 * 1024 * 1024)
@@ -390,7 +394,7 @@ class RandomEvent:
                     event["referrer"],
                     event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
 
-        return line, index_name, self._type
+        return line, self._index_name, self._type
 
     def __generate_index_pattern(self, timestruct):
         if self._index_pattern:
