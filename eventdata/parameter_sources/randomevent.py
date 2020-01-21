@@ -295,6 +295,8 @@ class RandomEvent:
         self.total_days = params.get("number_of_days")
         self.remaining_days = self.total_days
         self.record_raw_event_size = params.get("record_raw_event_size", False)
+        self._offset = 0
+        self._web_host_index = 0
 
     @property
     def percent_completed(self):
@@ -315,8 +317,8 @@ class RandomEvent:
         event = self._event
         event["@timestamp"] = timestruct["iso"]
 
-        # set random offset
-        event["offset"] = random.randrange(0, 10000000)
+        # assume a typical event size of 263 bytes but limit the file size to 4GB
+        event["offset"] = (self._offset + 263) % (4 * 1024 * 1024 * 1024)
 
         self._agent.add_fields(event)
         self._clientip.add_fields(event)
@@ -324,7 +326,8 @@ class RandomEvent:
         self._request.add_fields(event)
 
         # set host name
-        event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"], random.randrange(1, 3))
+        self._web_host_index = (self._web_host_index + 1) % 3
+        event["hostname"] = "web-%s-%s.elastic.co" % (event["geoip_continent_code"], self._web_host_index)
 
         if self.record_raw_event_size or self.daily_logging_volume:
             # determine the raw event size (as if this were contained in nginx log file). We do not bother to
