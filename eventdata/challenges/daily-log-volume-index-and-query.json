@@ -40,6 +40,15 @@
         "index": "elasticlogs-2999-01-01-throughput-test"
       }
     },
+    {
+      "operation": {
+        "operation-type": "fieldstats",
+        "index_pattern": "elasticlogs-*"
+      },
+      "iterations": 1,
+      {# this needs to be available for all clients, and we issue three concurrent queries #}
+      "clients": {{ p_bulk_indexing_clients + 3}}
+    },
 {% set comma = joiner() %}
 {% for day in range(p_number_of_days) %}
 {% set utilization = (day + 1) / p_number_of_days %}
@@ -73,50 +82,65 @@
             }
           },
           {
-            "name": "current-kibana-traffic-country-dashboard_60m-querying-{{utilization_task_suffix}}",
-            "operation": "current-kibana-traffic-country-dashboard_60m",
+            "name": "traffic-dashboard-50%-{{utilization_task_suffix}}",
+            "operation": {
+              "operation-type": "kibana",
+              "param-source": "elasticlogs_kibana",
+              "debug": {{p_verbose}},
+              "dashboard": "traffic",
+              "index_pattern": "elasticlogs-*",
+              "query_string": "query_string_lists/country_code_query_strings.json",
+              "window_end": "END",
+              "window_length": "50%"
+            },
             "clients": 1,
             "target-interval": {{ query1_target_interval | default(30) | int }},
             "meta": {
               "querying": "yes",
-              "query_type": "current",
+              "query_type": "relative",
               "utilization": {{ utilization }}
             },
             "schedule": "poisson"
           },
           {
-            "name": "current-kibana-discover_30m-querying-{{utilization_task_suffix}}",
-            "operation": "current-kibana-discover_30m",
+            "name": "discover-30m-{{utilization_task_suffix}}",
+            "operation": {
+              "operation-type": "kibana",
+              "param-source": "elasticlogs_kibana",
+              "debug": {{p_verbose}},
+              "dashboard": "discover",
+              "index_pattern": "elasticlogs-*",
+              "query_string": ["*"],
+              "window_end": "END",
+              "window_length": "30m"
+            },
             "clients": 1,
             "target-interval": {{ query2_target_interval | default(30) | int }},
             "meta": {
               "querying": "yes",
-              "query_type": "current",
+              "query_type": "relative",
               "utilization": {{ utilization }}
             },
             "schedule": "poisson"
           },
           {
-            "name": "current-kibana-traffic-dashboard_30m-querying-{{utilization_task_suffix}}",
-            "operation": "current-kibana-traffic-dashboard_30m",
+            "name": "content_issues-dashboard-50%-{{utilization_task_suffix}}",
+            "#COMMENT": "Looks only for 404s about 1-1.5% of data",
+            "operation": {
+              "operation-type": "kibana",
+              "param-source": "elasticlogs_kibana",
+              "debug": {{p_verbose}},
+              "dashboard": "content_issues",
+              "index_pattern": "elasticlogs-*",
+              "query_string": ["*"],
+              "window_end": "END",
+              "window_length": "50%"
+            },
             "clients": 1,
             "target-interval": {{ query3_target_interval | default(30) | int }},
             "meta": {
               "querying": "yes",
-              "query_type": "current",
-              "utilization": {{ utilization }}
-            },
-            "schedule": "poisson"
-          },
-          {
-            "name": "current-kibana-content_issues-dashboard_30m-querying-{{utilization_task_suffix}}",
-            "#COMMENT": "Looks only for 404s about 1-1.5% of data",
-            "operation": "current-kibana-content_issues-dashboard_30m",
-            "clients": 1,
-            "target-interval": {{ query4_target_interval | default(30) | int }},
-            "meta": {
-              "querying": "yes",
-              "query_type": "current",
+              "query_type": "relative",
               "utilization": {{ utilization }}
             },
             "schedule": "poisson"
