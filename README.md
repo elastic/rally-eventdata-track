@@ -87,7 +87,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 | Parameter | Explanation | Type | Default Value |
 | --------- | ----------- | ---- | ------------- |
-| `time_period` | The period to run the parallel query tasks specified in seconds | `int` | `1800` |
+| `query_time_period` | The period to run the parallel query tasks specified in seconds | `int` | `1800` |
 
 ### combined-indexing-and-querying
 
