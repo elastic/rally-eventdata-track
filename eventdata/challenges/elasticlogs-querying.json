@@ -1,8 +1,8 @@
-{% set p_time_period = (time_period | default(1800)) %}
+{% set p_query_time_period = (query_time_period | default(1800)) %}
 
 {
   "name": "elasticlogs-querying",
-  "description": "This challenge simulates a set of Kibana queries against historical data ({{p_query_index_pattern}} indices) without any indexing taking place for a period of 30 minutes. It assumes one of the challenges creating {{p_query_index_pattern}} indices has been run.",
+  "description": "This challenge simulates a set of Kibana queries against historical data ({{p_query_index_pattern}} indices) without any indexing taking place for a period of {{ query_time_period / 60 }} minutes. It assumes one of the challenges creating {{p_query_index_pattern}} indices has been run.",
   "meta": {
     "benchmark_type": "querying",
     "target_kibana_queries_per_minute": 5
@@ -16,7 +16,7 @@
     {
       "parallel": {
         "warmup-time-period": 0,
-        "time-period": {{ p_time_period }},
+        "time-period": {{ p_query_time_period }},
         "clients": 4,
         "tasks": [
           {
