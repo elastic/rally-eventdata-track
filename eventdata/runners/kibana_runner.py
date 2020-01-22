@@ -35,7 +35,7 @@ def kibana(es, params):
     meta_data = params["meta_data"]
 
     if meta_data["debug"]:
-        logger.info("Received request:\n=====\n{}\n=====".format(json.dumps(request)))
+        logger.info("Request:\n=====\n{}\n=====".format(json.dumps(request)))
 
     visualisations = int(len(request) / 2)
 
@@ -53,12 +53,24 @@ def kibana(es, params):
     else:
         result = es.msearch(body=request)
 
+    sum_hits = 0
+    max_took = 0
+    for r in result["responses"]:
+        hits = r["hits"]["total"]
+        if isinstance(hits, dict):
+            sum_hits += hits["value"]
+        else:
+            sum_hits += hits
+        max_took = max(max_took, r["took"])
+
+    response["took"] = max_took
+    response["hits"] = sum_hits
+
     if meta_data["debug"]:
         for r in result["responses"]:
             # clear hits otherwise we'll spam the log
             r["hits"]["hits"] = []
             r["aggregations"] = {}
-        logger.info("Received response (excluding specific hits):\n=====\n{}\n=====".format(json.dumps(result)))
-
+        logger.info("Response (excluding specific hits):\n=====\n{}\n=====".format(json.dumps(result)))
 
     return response
