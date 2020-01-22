@@ -42,10 +42,26 @@ class TimestampStructGenerator:
         self._acceleration_factor = acceleration_factor
         # reuse to reduce object churn
         self._ts = {}
+        self._simulated_micros = 0.0
 
     def next_timestamp(self):
+        self._simulated_micros = 0.0
         delta = (self._utcnow() - self._start) * self._acceleration_factor
-        return self.__to_struct(self._starting_point + delta)
+        self.__to_struct(self._starting_point + delta)
+        return self.simulate_tick(0)
+
+    def simulate_tick(self, micros):
+        """
+
+        Advances the current timestamp by a given number of microseconds but keep all other time components. This can be
+        used to avoid retrieving the current timestamp to often but still simulate changes in time.
+
+        :param micros: A positive number of microseconds to add.
+        :return: The current (formatted) timestamp structure as a dict.
+        """
+        self._simulated_micros += micros
+        self._ts["iso"] = "%s.%03dZ" % (self._ts["iso_prefix"], self._simulated_micros)
+        return self._ts
 
     def skip(self, delta):
         # advance the generated timestamp by delta
@@ -55,14 +71,13 @@ class TimestampStructGenerator:
 
     def __to_struct(self, dt):
         # string formatting is about 4 times faster than strftime.
-        iso = "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ" % (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
-        self._ts["iso"] = iso
-        self._ts["yyyy"] = iso[:4]
-        self._ts["yy"] = iso[2:4]
-        self._ts["mm"] = iso[5:7]
-        self._ts["dd"] = iso[8:10]
-        self._ts["hh"] = iso[11:13]
-        return self._ts
+        iso_prefix = "%04d-%02d-%02dT%02d:%02d:%02d" % (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        self._ts["iso_prefix"] = iso_prefix
+        self._ts["yyyy"] = iso_prefix[:4]
+        self._ts["yy"] = iso_prefix[2:4]
+        self._ts["mm"] = iso_prefix[5:7]
+        self._ts["dd"] = iso_prefix[8:10]
+        self._ts["hh"] = iso_prefix[11:13]
 
     def __parse_starting_point(self, point):
         if point == "now":

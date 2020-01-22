@@ -299,6 +299,7 @@ class RandomEvent:
         self._web_host_index = 0
         self._timestruct = None
         self._index_name = None
+        self._time_interval_current_bulk = 0
 
     @property
     def percent_completed(self):
@@ -311,6 +312,7 @@ class RandomEvent:
             return already_generated / total
 
     def start_bulk(self, bulk_size):
+        self._time_interval_current_bulk = 1 / bulk_size
         self._timestruct = self._timestamp_generator.next_timestamp()
         self._index_name = self.__generate_index_pattern(self._timestruct)
 
@@ -318,6 +320,10 @@ class RandomEvent:
         if self.remaining_days == 0:
             raise StopIteration()
 
+        # advance time by a few micros
+        self._timestruct = self._timestamp_generator.simulate_tick(self._time_interval_current_bulk)
+        # index for the current line - we may cross a date boundary later if we're above the daily logging volume
+        index = self._index_name
         event = self._event
         event["@timestamp"] = self._timestruct["iso"]
 
@@ -347,6 +353,10 @@ class RandomEvent:
                     if self.remaining_days is not None:
                         self.remaining_days -= 1
                     self._timestamp_generator.skip(datetime.timedelta(days=1))
+                    # advance time now for real (we usually use #simulate_tick() which will keep everything except for
+                    # microseconds constant.
+                    self._timestruct = self._timestamp_generator.next_timestamp()
+                    self._index_name = self.__generate_index_pattern(self._timestruct)
                     self.current_logging_volume = 0
 
         if self.record_raw_event_size:
@@ -394,7 +404,7 @@ class RandomEvent:
                     event["referrer"],
                     event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
 
-        return line, self._index_name, self._type
+        return line, index, self._type
 
     def __generate_index_pattern(self, timestruct):
         if self._index_pattern:

@@ -72,6 +72,7 @@ def test_random_event_no_event_size_by_default():
         referrer=StaticReferrer,
         request=StaticRequest)
 
+    e.start_bulk(1)
     raw_doc, index, doc_type = e.generate_event()
 
     doc = json.loads(raw_doc)
@@ -93,6 +94,7 @@ def test_random_event_with_event_size():
         referrer=StaticReferrer,
         request=StaticRequest)
 
+    e.start_bulk(1)
     raw_doc, index, doc_type = e.generate_event()
 
     doc = json.loads(raw_doc)
@@ -118,6 +120,7 @@ def test_random_events_with_daily_logging_volume():
 
     assert e.percent_completed is None
 
+    e.start_bulk(15)
     # 5 events fit into one kilobyte
     for i in range(5):
         doc, index, _ = e.generate_event()
@@ -150,6 +153,7 @@ def test_random_events_with_daily_logging_volume_and_maximum_days():
 
     assert e.percent_completed == 0.0
 
+    e.start_bulk(5)
     # 5 events fit into one kilobyte
     for i in range(5):
         doc, index, _ = e.generate_event()
@@ -157,6 +161,7 @@ def test_random_events_with_daily_logging_volume_and_maximum_days():
 
     assert e.percent_completed == 0.5
 
+    e.start_bulk(6)
     for i in range(5):
         doc, index, _ = e.generate_event()
         assert index == "logs-20190106"
