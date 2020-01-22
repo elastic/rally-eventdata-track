@@ -25,7 +25,7 @@
       "operation": {
         "operation-type": "create-index-template",
         "settings": {
-          "index.number_of_shards": {{ shard_count | default(3) }}
+          "index.number_of_shards": {{ number_of_shards | default(3) }}
         }
       }
     },
