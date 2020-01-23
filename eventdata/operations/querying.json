@@ -179,7 +179,7 @@
   "operation-type": "kibana",
   "param-source": "elasticlogs_kibana",
   "debug": {{p_verbose}},
-  "dashboard": "traffic",
+  "dashboard": "discover",
   "index_pattern": "{{p_query_index_pattern}}",
   "query_string": ["*"],
   "window_end": "now",
