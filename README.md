@@ -83,6 +83,12 @@ The table below shows the track parameters that can be adjusted along with defau
 
 This challenge runs mixed Kibana queries against the index created in the **elasticlogs-1bn-load** track. No concurrent indexing is performed.
 
+The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter | Explanation | Type | Default Value |
+| --------- | ----------- | ---- | ------------- |
+| `query_time_period` | The period to run the parallel query tasks specified in seconds | `int` | `1800` |
+
 ### combined-indexing-and-querying
 
 This challenge assumes that the *elasticlogs-1bn-load* track has been executed as it simulates querying against these indices. It shows how indexing and querying through simulated Kibana dashboards can be combined to provide a more realistic benchmark.
