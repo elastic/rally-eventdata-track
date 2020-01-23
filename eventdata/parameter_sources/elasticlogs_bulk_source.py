@@ -144,6 +144,7 @@ class ElasticlogsBulkSource:
     def params(self):
         # Build bulk array
         bulk_array = []
+        self._randomevent.start_bulk(self._bulk_size)
         for x in range(0, self._bulk_size):
             try:
                 evt, idx, typ = self._randomevent.generate_event()

@@ -41,6 +41,7 @@ def test_generate_interval_from_now():
     # first generated timestamp will be one (clock) invocation after the original start
     assert g.next_timestamp() == {
         "iso": "2019-01-05T15:00:05.000Z",
+        "iso_prefix": "2019-01-05T15:00:05",
         "yyyy": "2019",
         "yy": "19",
         "mm": "01",
@@ -50,6 +51,7 @@ def test_generate_interval_from_now():
 
     assert g.next_timestamp() == {
         "iso": "2019-01-05T15:00:10.000Z",
+        "iso_prefix": "2019-01-05T15:00:10",
         "yyyy": "2019",
         "yy": "19",
         "mm": "01",
@@ -59,6 +61,7 @@ def test_generate_interval_from_now():
 
     assert g.next_timestamp() == {
         "iso": "2019-01-05T15:00:15.000Z",
+        "iso_prefix": "2019-01-05T15:00:15",
         "yyyy": "2019",
         "yy": "19",
         "mm": "01",
@@ -77,6 +80,7 @@ def test_generate_interval_from_fixed_starting_point():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-01T00:59:59.000Z",
+        "iso_prefix": "2018-05-01T00:59:59",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -86,6 +90,7 @@ def test_generate_interval_from_fixed_starting_point():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-01T01:00:02.000Z",
+        "iso_prefix": "2018-05-01T01:00:02",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -94,6 +99,7 @@ def test_generate_interval_from_fixed_starting_point():
     }
     assert g.next_timestamp() == {
         "iso": "2018-05-01T01:00:05.000Z",
+        "iso_prefix": "2018-05-01T01:00:05",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -113,6 +119,7 @@ def test_generate_interval_from_fixed_starting_point_with_offset():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-11T00:59:59.000Z",
+        "iso_prefix": "2018-05-11T00:59:59",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -122,6 +129,7 @@ def test_generate_interval_from_fixed_starting_point_with_offset():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-11T01:00:02.000Z",
+        "iso_prefix": "2018-05-11T01:00:02",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -130,6 +138,7 @@ def test_generate_interval_from_fixed_starting_point_with_offset():
     }
     assert g.next_timestamp() == {
         "iso": "2018-05-11T01:00:05.000Z",
+        "iso_prefix": "2018-05-11T01:00:05",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -148,6 +157,7 @@ def test_generate_interval_and_skip():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-01T00:59:59.000Z",
+        "iso_prefix": "2018-05-01T00:59:59",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -157,6 +167,7 @@ def test_generate_interval_and_skip():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-01T01:00:02.000Z",
+        "iso_prefix": "2018-05-01T01:00:02",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -168,6 +179,7 @@ def test_generate_interval_and_skip():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-02T00:59:59.000Z",
+        "iso_prefix": "2018-05-02T00:59:59",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
@@ -177,11 +189,61 @@ def test_generate_interval_and_skip():
 
     assert g.next_timestamp() == {
         "iso": "2018-05-02T01:00:02.000Z",
+        "iso_prefix": "2018-05-02T01:00:02",
         "yyyy": "2018",
         "yy": "18",
         "mm": "05",
         "dd": "02",
         "hh": "01"
+    }
+
+
+def test_simulate_ticks():
+    clock = ReproducibleClock(start=datetime.datetime(year=2019, month=1, day=5, hour=15),
+                              delta=datetime.timedelta(seconds=1))
+
+    g = TimestampStructGenerator(starting_point="2018-05-01:00:59:56",
+                                 acceleration_factor=3.0,
+                                 utcnow=clock)
+
+    assert g.next_timestamp() == {
+        "iso": "2018-05-01T00:59:59.000Z",
+        "iso_prefix": "2018-05-01T00:59:59",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "01",
+        "hh": "00"
+    }
+
+    assert g.simulate_tick(micros=1.0) == {
+        "iso": "2018-05-01T00:59:59.001Z",
+        "iso_prefix": "2018-05-01T00:59:59",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "01",
+        "hh": "00"
+    }
+
+    assert g.simulate_tick(micros=0.1) == {
+        "iso": "2018-05-01T00:59:59.001Z",
+        "iso_prefix": "2018-05-01T00:59:59",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "01",
+        "hh": "00"
+    }
+
+    assert g.simulate_tick(micros=10.0) == {
+        "iso": "2018-05-01T00:59:59.011Z",
+        "iso_prefix": "2018-05-01T00:59:59",
+        "yyyy": "2018",
+        "yy": "18",
+        "mm": "05",
+        "dd": "01",
+        "hh": "00"
     }
 
 
