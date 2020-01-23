@@ -18,6 +18,7 @@
 
 import datetime
 import gzip
+import itertools
 import json
 import os
 import random
@@ -295,6 +296,11 @@ class RandomEvent:
         self.total_days = params.get("number_of_days")
         self.remaining_days = self.total_days
         self.record_raw_event_size = params.get("record_raw_event_size", False)
+        self._offset = 0
+        self._web_host = itertools.cycle([1, 2, 3])
+        self._timestruct = None
+        self._index_name = None
+        self._time_interval_current_bulk = 0
 
     @property
     def percent_completed(self):
@@ -306,25 +312,31 @@ class RandomEvent:
             total = self.total_days * self.daily_logging_volume
             return already_generated / total
 
+    def start_bulk(self, bulk_size):
+        self._time_interval_current_bulk = 1 / bulk_size
+        self._timestruct = self._timestamp_generator.next_timestamp()
+        self._index_name = self.__generate_index_pattern(self._timestruct)
+
     def generate_event(self):
         if self.remaining_days == 0:
             raise StopIteration()
-        timestruct = self._timestamp_generator.next_timestamp()
-        index_name = self.__generate_index_pattern(timestruct)
 
+        # advance time by a few micros
+        self._timestruct = self._timestamp_generator.simulate_tick(self._time_interval_current_bulk)
+        # index for the current line - we may cross a date boundary later if we're above the daily logging volume
+        index = self._index_name
         event = self._event
-        event["@timestamp"] = timestruct["iso"]
+        event["@timestamp"] = self._timestruct["iso"]
 
-        # set random offset
-        event["offset"] = random.randrange(0, 10000000)
+        # assume a typical event size of 263 bytes but limit the file size to 4GB
+        event["offset"] = (self._offset + 263) % (4 * 1024 * 1024 * 1024)
 
         self._agent.add_fields(event)
         self._clientip.add_fields(event)
         self._referrer.add_fields(event)
         self._request.add_fields(event)
 
-        # set host name
-        event["hostname"] = "web-{}-{}.elastic.co".format(event["geoip_continent_code"], random.randrange(1, 3))
+        event["hostname"] = "web-%s-%s.elastic.co" % (event["geoip_continent_code"], next(self._web_host))
 
         if self.record_raw_event_size or self.daily_logging_volume:
             # determine the raw event size (as if this were contained in nginx log file). We do not bother to
@@ -340,6 +352,10 @@ class RandomEvent:
                     if self.remaining_days is not None:
                         self.remaining_days -= 1
                     self._timestamp_generator.skip(datetime.timedelta(days=1))
+                    # advance time now for real (we usually use #simulate_tick() which will keep everything except for
+                    # microseconds constant.
+                    self._timestruct = self._timestamp_generator.next_timestamp()
+                    self._index_name = self.__generate_index_pattern(self._timestruct)
                     self.current_logging_volume = 0
 
         if self.record_raw_event_size:
@@ -387,7 +403,7 @@ class RandomEvent:
                     event["referrer"],
                     event["request"], event["bytes"], event["verb"], event["response"], event["httpversion"])
 
-        return line, index_name, self._type
+        return line, index, self._type
 
     def __generate_index_pattern(self, timestruct):
         if self._index_pattern:

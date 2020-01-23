@@ -26,6 +26,9 @@ class StaticEventGenerator:
         self.doc = doc
         self.at_most = at_most
 
+    def start_bulk(self, bulk_size):
+        pass
+
     def generate_event(self):
         if self.at_most == 0:
             raise StopIteration()
