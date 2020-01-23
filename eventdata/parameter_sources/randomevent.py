@@ -18,6 +18,7 @@
 
 import datetime
 import gzip
+import itertools
 import json
 import os
 import random
@@ -296,7 +297,7 @@ class RandomEvent:
         self.remaining_days = self.total_days
         self.record_raw_event_size = params.get("record_raw_event_size", False)
         self._offset = 0
-        self._web_host_index = 0
+        self._web_host = itertools.cycle([1, 2, 3])
         self._timestruct = None
         self._index_name = None
         self._time_interval_current_bulk = 0
@@ -335,9 +336,7 @@ class RandomEvent:
         self._referrer.add_fields(event)
         self._request.add_fields(event)
 
-        # set host name
-        self._web_host_index = (self._web_host_index + 1) % 3
-        event["hostname"] = "web-%s-%s.elastic.co" % (event["geoip_continent_code"], self._web_host_index)
+        event["hostname"] = "web-%s-%s.elastic.co" % (event["geoip_continent_code"], next(self._web_host))
 
         if self.record_raw_event_size or self.daily_logging_volume:
             # determine the raw event size (as if this were contained in nginx log file). We do not bother to
