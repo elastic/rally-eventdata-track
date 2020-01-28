@@ -56,7 +56,7 @@ def kibana(es, params):
     sum_hits = 0
     max_took = 0
     for r in result["responses"]:
-        hits = r["hits"]["total"]
+        hits = r.get("hits", {}).get("total", 0)
         if isinstance(hits, dict):
             sum_hits += hits["value"]
         else:
