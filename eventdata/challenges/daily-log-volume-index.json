@@ -1,5 +1,6 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
 {% set p_bulk_size = (bulk_size | default(1000)) %}
+{% set p_starting_point = (starting_point | default("2018-05-01:00:00:00")) %}
 {% set p_number_of_days = (number_of_days | default(24)) %}
 {% set p_daily_logging_volume = (daily_logging_volume | default("100GB")) %}
 
@@ -35,7 +36,7 @@
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
         "index": "elasticlogs-<yyyy>-<mm>-<dd>",
-        "starting_point": "2018-05-01:00:00:00",
+        "starting_point": "{{p_starting_point}}",
         "bulk-size": {{p_bulk_size}},
         "daily_logging_volume": "{{p_daily_logging_volume}}",
         "number_of_days": {{p_number_of_days}},
