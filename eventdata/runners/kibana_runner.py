@@ -63,7 +63,8 @@ def kibana(es, params):
             sum_hits += hits
         max_took = max(max_took, r["took"])
 
-    response["took"] = max_took
+    # use the request's took if possible but approximate it using the maximum of all responses
+    response["took"] = result.get("took", max_took)
     response["hits"] = sum_hits
 
     if meta_data["debug"]:
