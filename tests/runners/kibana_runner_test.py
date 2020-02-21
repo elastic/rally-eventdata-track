@@ -17,11 +17,14 @@
 
 from unittest import mock
 
-from eventdata.runners.kibana_runner import kibana
+from eventdata.runners.kibana_runner import kibana_async
+
+from tests import run_async, as_future
 
 
 @mock.patch("elasticsearch.Elasticsearch")
-def test_msearch_without_hits(es):
+@run_async
+async def test_msearch_without_hits(es):
     params = {
         "body": [
             {"index": "elasticlogs-*"},
@@ -33,7 +36,7 @@ def test_msearch_without_hits(es):
             "debug": True
         }
     }
-    es.msearch.return_value = {
+    es.msearch.return_value = as_future({
         "responses": [
             {
                 "took": 0,
@@ -54,9 +57,9 @@ def test_msearch_without_hits(es):
                 "status": 200
             }
         ]
-    }
+    })
 
-    response = kibana(es, params=params)
+    response = await kibana_async(es, params=params)
 
     assert response == {
         "debug": True,
@@ -69,7 +72,8 @@ def test_msearch_without_hits(es):
 
 
 @mock.patch("elasticsearch.Elasticsearch")
-def test_msearch_with_hits_as_number(es):
+@run_async
+async def test_msearch_with_hits_as_number(es):
     params = {
         "body": [
             {"index": "elasticlogs-*"},
@@ -81,7 +85,7 @@ def test_msearch_with_hits_as_number(es):
             "debug": True
         }
     }
-    es.msearch.return_value = {
+    es.msearch.return_value = as_future({
         "responses": [
             {
                 "took": 5,
@@ -133,9 +137,9 @@ def test_msearch_with_hits_as_number(es):
             }
 
         ]
-    }
+    })
 
-    response = kibana(es, params=params)
+    response = await kibana_async(es, params=params)
 
     assert response == {
         "debug": True,
@@ -148,7 +152,8 @@ def test_msearch_with_hits_as_number(es):
 
 
 @mock.patch("elasticsearch.Elasticsearch")
-def test_msearch_with_hits_as_dict(es):
+@run_async
+async def test_msearch_with_hits_as_dict(es):
     params = {
         "body": [
             {"index": "elasticlogs-*"},
@@ -160,7 +165,7 @@ def test_msearch_with_hits_as_dict(es):
             "debug": True
         }
     }
-    es.msearch.return_value = {
+    es.msearch.return_value = as_future({
         "took": 9,
         "responses": [
             {
@@ -219,9 +224,9 @@ def test_msearch_with_hits_as_dict(es):
             }
 
         ]
-    }
+    })
 
-    response = kibana(es, params=params)
+    response = await kibana_async(es, params=params)
 
     assert response == {
         "debug": True,
