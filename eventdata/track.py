@@ -18,12 +18,12 @@
 
 from eventdata.parameter_sources.elasticlogs_bulk_source import ElasticlogsBulkSource
 from eventdata.parameter_sources.elasticlogs_kibana_source import ElasticlogsKibanaSource
-from eventdata.runners import deleteindex_runner, deleteindex_runner_async
-from eventdata.runners import fieldstats_runner, fieldstats_runner_async
-from eventdata.runners import indicesstats_runner, indicesstats_runner_async
-from eventdata.runners import kibana_runner, kibana_runner_async
-from eventdata.runners import nodestorage_runner, nodestorage_runner_async
-from eventdata.runners import rollover_runner, rollover_runner_async
+from eventdata.runners import deleteindex_runner
+from eventdata.runners import fieldstats_runner
+from eventdata.runners import indicesstats_runner
+from eventdata.runners import kibana_runner
+from eventdata.runners import nodestorage_runner
+from eventdata.runners import rollover_runner
 from eventdata.schedulers import utilization_scheduler
 
 
