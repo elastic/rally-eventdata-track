@@ -6,15 +6,6 @@ rolledover_indices_suffix_separator: used by the `delete_rolledover_index_patter
 #}
 
 {
-  "name": "index-append-1000-shard-sizing",
-  "operation-type": "bulk",
-  "param-source": "elasticlogs_bulk",
-  "index": "elasticlogs",
-  "starting_point": "2017-01-01:02:00:00",
-  "bulk-size": 1000,
-  "record_raw_event_size": {{p_record_raw_event_size}}
-},
-{
   "name": "index-append-1000-elasticlogs_q_write",
   "operation-type": "bulk",
   "param-source": "elasticlogs_bulk",
