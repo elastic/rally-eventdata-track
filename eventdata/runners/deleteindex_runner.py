@@ -61,12 +61,12 @@ async def deleteindex_async(es, params):
                     return None
         return None
 
-    index_pattern = params['index_pattern']
-    max_indices = params.get('max_indices', None)
-    suffix_separator = params.get('suffix_separator', '-')
+    index_pattern = params["index_pattern"]
+    max_indices = params.get("max_indices", None)
+    suffix_separator = params.get("suffix_separator", "-")
 
     if max_indices:
-        response = await es.cat.indices(h='index')
+        response = await es.cat.indices(h="index")
         indices = response.decode("utf-8").split("\n")
         indices_by_suffix = {get_suffix(idx, suffix_separator): idx
             for idx in indices
