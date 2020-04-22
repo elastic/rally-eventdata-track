@@ -1,48 +1,4 @@
 {
-  "name": "kibana-traffic-shard-sizing-50%",
-  "operation-type": "kibana",
-  "param-source": "elasticlogs_kibana",
-  "debug": {{p_verbose}},
-  "dashboard":"traffic",
-  "index_pattern": "elasticlogs",
-  "query_string": ["*"],
-  "window_end": "2017-01-01:07:00:00,2017-01-01:12:00:00",
-  "window_length": "5h"
-},
-{
-  "name": "kibana-traffic-shard-sizing-90%",
-  "operation-type": "kibana",
-  "param-source": "elasticlogs_kibana",
-  "debug": {{p_verbose}},
-  "dashboard":"traffic",
-  "index_pattern": "elasticlogs",
-  "query_string": ["*"],
-  "window_end": "2017-01-01:11:00:00,2017-01-01:12:00:00",
-  "window_length": "5h"
-},
-{
-  "name": "kibana-content_issues-shard-sizing-50%",
-  "operation-type": "kibana",
-  "param-source": "elasticlogs_kibana",
-  "debug": {{p_verbose}},
-  "dashboard": "content_issues",
-  "index_pattern": "elasticlogs",
-  "query_string": ["*"],
-  "window_end": "2017-01-01:07:00:00,2017-01-01:12:00:00",
-  "window_length": "5h"
-},
-{
-  "name": "kibana-content_issues-shard-sizing-90%",
-  "operation-type": "kibana",
-  "param-source": "elasticlogs_kibana",
-  "debug": {{p_verbose}},
-  "dashboard": "content_issues",
-  "index_pattern": "elasticlogs",
-  "query_string": ["*"],
-  "window_end": "2017-01-01:11:00:00,2017-01-01:12:00:00",
-  "window_length": "9h"
-},
-{
   "name": "current-kibana-traffic-country-dashboard_60m",
   "operation-type": "kibana",
   "param-source": "elasticlogs_kibana",
@@ -195,43 +151,4 @@
   "query_string": "query_string_lists/country_code_query_strings.json",
   "window_end": "START+50%,END",
   "window_length": "50%"
-},
-{
-  "name": "relative-kibana-discover-ip_filter_50%",
-  "operation-type": "kibana",
-  "param-source": "elasticlogs_kibana",
-  "debug": {{p_verbose}},
-  "dashboard": "discover",
-  "index_pattern": "{{p_query_index_pattern}}",
-  "query_string": "query_string_lists/uncommon_ip_query_strings.json",
-  "window_end": "START+50%,END",
-  "window_length": "50%"
-},
-{
-  "name": "relative-kibana-discover-country_filter_50%",
-  "operation-type": "kibana",
-  "param-source": "elasticlogs_kibana",
-  "debug": {{p_verbose}},
-  "dashboard": "discover",
-  "index_pattern": "{{p_query_index_pattern}}",
-  "query_string": "query_string_lists/country_code_query_strings.json",
-  "window_end": "START+50%,END",
-  "window_length": "50%"
-},
-{
-  "name": "scanquery_elasticlogs_i_1m",
-  "operation-type": "search",
-  "index": "elasticlogs_i-*",
-  "pages": 10000,
-  "results-per-page": 10000,
-  "body": {
-    "query": {
-      "range" : {
-        "@timestamp" : {
-          "gte" : "now-1m",
-          "lt" :  "now"
-        }
-      }
-    }
-  }
 }
