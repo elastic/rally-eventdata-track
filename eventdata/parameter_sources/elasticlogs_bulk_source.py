@@ -129,10 +129,6 @@ class ElasticlogsBulkSource:
         new_params["client_count"] = total_partitions
         return ElasticlogsBulkSource(self.orig_args[0], new_params, **self.orig_args[2])
 
-    # Deprecated - only there for BWC reasons with Rally < 1.4.0
-    def size(self):
-        return None
-
     @property
     def percent_completed(self):
         # progress is determined either by:

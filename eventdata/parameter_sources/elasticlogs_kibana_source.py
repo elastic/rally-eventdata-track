@@ -154,10 +154,6 @@ class ElasticlogsKibanaSource:
         random.seed(seed)
         return self
 
-    # Deprecated - only there for BWC reasons with Rally < 1.4.0
-    def size(self):
-        return None
-
     def params(self):
         # Determine window_end boundaries
         if len(self._window_end) == 1:
