@@ -32,7 +32,7 @@ readonly ES_VERSION=${ES_VERSION:-6.8.0}
 # * frozen-querying (depends on frozen-data-generation)
 # * combined-indexing-and-querying (depends on any challenge that has already created elasticlogs-q* indices)
 # * elasticlogs-querying (depends on any challenge that has already created elasticlogs-q* indices)
-readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query document_id_evaluation bulk-update shard-sizing index-logs-fixed-daily-volume max-indexing-querying index-and-query-logs-fixed-daily-volume shard-size-on-disk large-shard-sizing large-shard-id-type-evaluation elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
+readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query bulk-update index-logs-fixed-daily-volume index-and-query-logs-fixed-daily-volume elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
 
 INSTALL_ID=-1
 
@@ -59,7 +59,7 @@ function run_test {
   for challenge in "${CHALLENGES[@]}"
   do
       info "Testing ${challenge}"
-      esrally --race-id="${RACE_ID}" --test-mode --pipeline=benchmark-only --target-host=127.0.0.1:39200 --track-path="${PWD}/eventdata" --track-params="bulk_indexing_clients:1,number_of_replicas:0,daily_logging_volume:1MB,rate_limit_max:2,rate_limit_duration_secs:5,p1_bulk_indexing_clients:1,p2_bulk_indexing_clients:1,p1_duration_secs:5,p2_duration_secs:5,ops_per_25_gb:20,verbose:true" --challenge="${challenge}" --on-error=abort
+      esrally --race-id="${RACE_ID}" --test-mode --pipeline=benchmark-only --target-host=127.0.0.1:39200 --track-path="${PWD}/eventdata" --track-params="bulk_indexing_clients:1,number_of_replicas:0,daily_logging_volume:1MB,rate_limit_max:2,rate_limit_duration_secs:5,p1_bulk_indexing_clients:1,p2_bulk_indexing_clients:1,p1_duration_secs:5,p2_duration_secs:5,verbose:false" --challenge="${challenge}" --on-error=abort
   done
 }
 

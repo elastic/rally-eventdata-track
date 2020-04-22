@@ -18,11 +18,7 @@
 
 import copy
 import logging
-import uuid
 import random
-import time
-import hashlib
-import base64
 from eventdata.parameter_sources.randomevent import RandomEvent
 
 logger = logging.getLogger("track.eventdata")
@@ -57,24 +53,10 @@ class ElasticlogsBulkSource:
         "id_type"                  -    Type of document id to use for generated documents. Defaults to `auto`.
                                             auto         - Do not explicitly set id and let Elasticsearch assign automatically.
                                             seq          - Assign sequentialy incrementing integer ids to each document.
-                                            uuid         - Assign a UUID4 id to each document.
-                                            epoch_uuid   - Assign a UUIO4 identifier prefixed with the hex representation of the current
-                                                           timestamp.
-                                            epoch_md5    - Assign a base64 encoded MD5 hash of a UUID prefixed with the hex representation
-                                                           of the current timestamp. (Note: Generating this type of id can be CPU intensive)
-                                            md5          - MD5 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
-                                            sha1         - SHA1 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
-                                            sha256       - SHA256 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
-                                            sha384       - SHA384 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
-                                            sha512       - SHA512 hash of UUID in hex representation. (Note: Generating this type of id can be CPU intensive)
         "id_seq_probability"       -    If set, the probability an existing id will be used to simulate an update.
                                             Applied only when `id_type` is seq.
                                             Defaults to 0.0 which brings no updates. Must be in range [0.0, 1.0].
         "id_seq_low_id_bias"       -    If set, favor low ids with a very high bias. Must be True/False. Default is False.
-        "id_delay_probability"     -    If id_type is set to `epoch_uuid` this parameter determnines the probability will be set in the
-                                        past. This can be used to simulate a portion of the events arriving delayed. Must be in range [0.0, 1.0].
-                                        Defaults to 0.0.
-        "id_delay_secs"            -    If an event is delayed, this number of seconds will be deducted from the current timestamp.
     """
     def __init__(self, track, params, **kwargs):
         self.infinite = False
@@ -92,12 +74,8 @@ class ElasticlogsBulkSource:
         self.seq_id = 0
 
         self._id_type = params.get("id_type", "auto")
-        if self._id_type not in ["auto", "seq", "uuid", "epoch_uuid", "epoch_md5", "md5", "sha1", "sha256", "sha384", "sha512"]:
+        if self._id_type not in ["auto", "seq"]:
             raise AssertionError("The value [{}] is invalid for the parameter [id_type]".format(self._id_type))
-
-        if self._id_type in ["epoch_uuid", "epoch_md5"]:
-            self._id_delay_probability = float(params.get("id_delay_probability", 0.0))
-            self._id_delay_secs = int(params.get("id_delay_secs", 0))
 
         if self._id_type == "seq":
             self._id_seq_probability = float(params.get("id_seq_probability", 0.0))
@@ -159,25 +137,7 @@ class ElasticlogsBulkSource:
             if self._id_type == "auto":
                 bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}"' % idx)
             else:
-                if self._id_type == "uuid":
-                    docid = self.__get_uuid()
-                elif self._id_type == "seq":
-                    docid = "%s-%d" % (self.__get_seq_id(), self._params["client_id"])
-                elif self._id_type == "sha1":
-                    docid = hashlib.sha1(self.__get_uuid().encode("utf8")).hexdigest()
-                elif self._id_type == "sha256":
-                    docid = hashlib.sha256(self.__get_uuid().encode("utf8")).hexdigest()
-                elif self._id_type == "sha384":
-                    docid = hashlib.sha384(self.__get_uuid().encode("utf8")).hexdigest()
-                elif self._id_type == "sha512":
-                    docid = hashlib.sha512(self.__get_uuid().encode("utf8")).hexdigest()
-                elif self._id_type == "md5":
-                    docid = hashlib.md5(self.__get_uuid().encode("utf8")).hexdigest()
-                elif self._id_type == "epoch_md5":
-                    docid = self.__get_epoch_md5()
-                else:
-                    docid = self.__get_epoch_uuid()
-
+                docid = "%s-%d" % (self.__get_seq_id(), self._params["client_id"])
                 bulk_array.append('{"index": {"_index": "%s", "_type": "doc", "_id": "%s"}}"' % (idx, docid))
 
             bulk_array.append(evt)
@@ -193,28 +153,6 @@ class ElasticlogsBulkSource:
             response["pipeline"] = self._params["pipeline"]
 
         return response
-
-    def __get_uuid(self):
-        return str(uuid.uuid4()).replace("-", "")
-
-    def __get_epoch_uuid(self):
-        u = self.__get_uuid()
-        ts = int(time.time())
-
-        if 0 < self._id_delay_probability < random.random():
-            ts = ts - self._id_delay_secs
-
-        return "{:x}{}".format(ts, u)
-
-    def __get_epoch_md5(self):
-        u = self.__get_uuid()
-        md5_str = str(base64.urlsafe_b64encode(hashlib.md5(u.encode("utf8")).digest()))[2:24]
-        ts = int(time.time())
-
-        if 0 < self._id_delay_probability < random.random():
-            ts = ts - self._id_delay_secs
-
-        return hex(ts)[2:10] + md5_str
 
     def __get_seq_id(self):
         _id = self.seq_id
