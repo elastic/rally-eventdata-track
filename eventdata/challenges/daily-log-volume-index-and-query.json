@@ -1,4 +1,5 @@
 {% set p_bulk_indexing_clients = (bulk_indexing_clients | default(8)) %}
+{% set p_search_clients = (search_clients | default(1)) %}
 {% set p_bulk_size = (bulk_size | default(1000)) %}
 {% set p_starting_point = (starting_point | default("2018-05-25 00:00:00")) %}
 {% set p_number_of_days = (number_of_days | default(6)) %}
@@ -47,7 +48,7 @@
       },
       "iterations": 1,
       {# this needs to be available for all clients, and we issue three concurrent queries #}
-      "clients": {{ p_bulk_indexing_clients + 3}}
+      "clients": {{ p_bulk_indexing_clients + (3 * p_bulk_indexing_clients) }}
     },
 {% set comma = joiner() %}
 {% for day in range(p_number_of_days) %}
@@ -93,7 +94,7 @@
               "window_end": "END",
               "window_length": "25%"
             },
-            "clients": 1,
+            "clients": {{ p_search_clients }},
             "target-interval": {{ query1_target_interval | default(90) | int }},
             "meta": {
               "querying": "yes",
@@ -116,7 +117,7 @@
               "window_end": "END",
               "window_length": "30m"
             },
-            "clients": 1,
+            "clients": {{ p_search_clients }},
             "target-interval": {{ query2_target_interval | default(30) | int }},
             "meta": {
               "querying": "yes",
@@ -140,7 +141,7 @@
               "window_end": "END",
               "window_length": "25%"
             },
-            "clients": 1,
+            "clients": {{ p_search_clients }},
             "target-interval": {{ query3_target_interval | default(45) | int }},
             "meta": {
               "querying": "yes",
