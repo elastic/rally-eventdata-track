@@ -48,7 +48,7 @@
       },
       "iterations": 1,
       {# this needs to be available for all clients, and we issue three concurrent queries #}
-      "clients": {{ p_bulk_indexing_clients + (3 * p_bulk_indexing_clients) }}
+      "clients": {{ p_bulk_indexing_clients + (3 * p_search_clients) }}
     },
 {% set comma = joiner() %}
 {% for day in range(p_number_of_days) %}
