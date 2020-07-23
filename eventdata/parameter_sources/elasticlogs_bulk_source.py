@@ -131,10 +131,10 @@ class ElasticlogsBulkSource:
                     raise
 
             if self._id_type == "auto":
-                bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}"' % idx)
+                bulk_array.append('{"index": {"_index": "%s", "_type": "doc"}}' % idx)
             else:
                 docid = "%s-%d" % (self.__get_seq_id(), self._params["client_id"])
-                bulk_array.append('{"index": {"_index": "%s", "_type": "doc", "_id": "%s"}}"' % (idx, docid))
+                bulk_array.append('{"index": {"_index": "%s", "_type": "doc", "_id": "%s"}}' % (idx, docid))
 
             bulk_array.append(evt)
 
