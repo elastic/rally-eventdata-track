@@ -50,6 +50,7 @@ def test_generates_a_complete_bulk():
     assert len(generated_params["body"].split("\n")) == 2 * expected_bulk_size
     assert generated_params["action-metadata-present"] is True
     assert generated_params["bulk-size"] == expected_bulk_size
+    assert generated_params["unit"] == "docs"
 
 
 def test_generates_a_bulk_that_ends_prematurely():
@@ -65,3 +66,4 @@ def test_generates_a_bulk_that_ends_prematurely():
     assert len(generated_params["body"].split("\n")) == 10
     assert generated_params["action-metadata-present"] is True
     assert generated_params["bulk-size"] == 5
+    assert generated_params["unit"] == "docs"

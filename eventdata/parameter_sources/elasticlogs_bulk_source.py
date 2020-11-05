@@ -142,7 +142,8 @@ class ElasticlogsBulkSource:
             "body": "\n".join(bulk_array),
             "action-metadata-present": True,
             # the bulk array contains the action-and-metadata line and the actual document
-            "bulk-size": len(bulk_array) // 2
+            "bulk-size": len(bulk_array) // 2,
+            "unit": "docs"
         }
 
         if "pipeline" in self._params.keys():
