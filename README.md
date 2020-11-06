@@ -177,6 +177,18 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `24`                  |
 | `number_of_shards`      | Number of primary shards                                                                                                               | `int` | `3`                   |
 
+### bulk-update
+
+Index documents into an elasticlogs index. IDs are sequential and 40% are updates, with a uniform ID bias. The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter                  | Explanation                                 | Type  | Default Value              |
+| -------------------------- | --------------------------------------------| ----- | -------------------------- |
+| `number_of_replicas`       | Number of index replicas                    | `int` | `0`                        |
+| `number_of_shards`         | Number of primary shards                    | `int` | `2`                        |
+| `bulk_size`                | Number of documents to send per bulk        | `int` | `1000`                     |
+| `bulk_indexing_iterations` | How many requests to send in total          | `int` | `1000000`                  |
+| `bulk_indexing_clients`    | Number of bulk indexing clients/connections | `int` | `20`                       |
+| `target_throughput`        | Targeted throughput in requests per second  | `int` |  not set, i.e. unthrottled |
 
 ## Custom parameter sources
 
