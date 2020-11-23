@@ -1,0 +1,74 @@
+{% set p_query_time_period = (query_time_period | default(180)) %}
+{
+  "name": "query-searchable-snapshot",
+  "schedule": [
+    {
+      "name": "delete-any-old-indices",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "{{p_query_index_pattern}}"
+      }
+    },
+    {
+      "name": "register-snapshot-repository",
+      "operation": {
+        "operation-type": "create-snapshot-repository",
+        "repository": "{{ es_snapshot_repo_name }}",
+        "body": {
+          "type": "{{ es_snapshot_repo_type }}"
+{%- if es_snapshot_repo_settings is defined %}
+          ,"settings": {{ es_snapshot_repo_settings | tojson(indent=2)}}
+{%- endif%}
+        }
+      }
+    },
+    {
+      "name": "mount-searchable-snapshot",
+      "operation": {
+        "operation-type": "mount-searchable-snapshot",
+        "repository": "{{es_snapshot_repo_name}}",
+        "snapshot": "{{es_snapshot_name}}"
+      }
+    },
+    {
+      "name": "wait-for-mount",
+      "operation": {
+        "operation-type": "cluster-health",
+        "index": "{{p_query_index_pattern}}",
+        "request-params": {
+          "wait_for_status": "green"
+        }
+      }
+    },
+    {
+      "operation": "fieldstats_elasticlogs_q-*",
+      "iterations": 1,
+      "clients": 4
+    },
+    {
+      "parallel": {
+        "warmup-time-period": 0,
+        "time-period": {{ p_query_time_period }},
+        "clients": 4,
+        "tasks": [
+          {
+            "operation": "relative-kibana-content_issues-dashboard_50%",
+            "target-interval": {{ query_searchable_snapshot_content_issues_50_interval | default(30)}}
+          },
+          {
+            "operation": "relative-kibana-content_issues-dashboard_75%",
+            "target-interval": {{ query_searchable_snapshot_content_issues_75_interval | default(90)}}
+          },
+          {
+            "operation": "relative-kibana-traffic-dashboard_50%",
+            "target-interval": {{ query_searchable_snapshot_traffic_50_interval | default(40)}}
+          },
+          {
+            "operation": "relative-kibana-discover_50%",
+            "target-interval": {{ query_searchable_snapshot_discover_50_interval | default(60)}}
+          }
+        ]
+      }
+    }
+  ]
+}

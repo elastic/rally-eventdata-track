@@ -177,6 +177,22 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `24`                  |
 | `number_of_shards`      | Number of primary shards                                                                                                               | `int` | `3`                   |
 
+### query-searchable-snapshot
+
+This challenge can be used to evaluate the performance of [searchable snapshots](https://www.elastic.co/guide/en/elasticsearch/reference/7.10/searchable-snapshots.html). It assumes that an appropriately sized snapshot has already been prepared. It then [mounts a snapshot](https://www.elastic.co/guide/en/elasticsearch/reference/current/searchable-snapshots-api-mount-snapshot.html) so it is searchable and runs queries against it.
+
+| Parameter                                              | Explanation                                                                                                                 | Type   | Default Value |
+|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------|---------------|
+| `es_snapshot_repo_name`                                | The name of the snapshot repository from which the snapshot should be mounted.                                              | `str`  | -             |
+| `es_snapshot_repo_type`                                | The type of the snapshot repository from which the snapshot should be mounted.                                              | `str`  | -             |
+| `es_snapshot_repo_settings`                            | [Snapshot repository settings](https://www.elastic.co/guide/en/elasticsearch/reference/current/put-snapshot-repo-api.html). | `dict` | `{}`          |
+| `es_snapshot_name`                                     | The name of the snapshot that should be mounted. All available indices will be mounted with their original name.            | `str`  | -             |
+| `query_time_period`                                    | The period to run the parallel query tasks specified in seconds.                                                            | `int` | `1800`         |
+| `query_searchable_snapshot_content_issues_50_interval` | Time to wait in seconds between requests to the content issues dashboard covering 50% of the time range.                    | `int` | `30`           |
+| `query_searchable_snapshot_content_issues_75_interval` | Time to wait in seconds between requests to the content issues dashboard covering 75% of the time range.                    | `int` | `90`           |
+| `query_searchable_snapshot_traffic_50_interval`        | Time to wait in seconds between requests to the traffic dashboard.                                                          | `int` | `40`           |
+| `query_searchable_snapshot_discover_50_interval`       | Time to wait in seconds between requests to the discover view.                                                              | `int` | `60`           |
+
 ### bulk-update
 
 Index documents into an elasticlogs index. IDs are sequential and 40% are updates, with a uniform ID bias. The table below shows the track parameters that can be adjusted along with default values:
