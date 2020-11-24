@@ -20,7 +20,14 @@ class MountSearchableSnapshotRunner:
         repository_name = params["repository"]
         snapshot_name = params["snapshot"]
         snapshots = await es.snapshot.get(repository_name, snapshot_name)
-        for snapshot in snapshots["snapshots"]:
+
+        # ES master
+        if "responses" in snapshots:
+            available_snapshots = snapshots["responses"][0]["snapshots"]
+        else:
+            available_snapshots = snapshots["snapshots"]
+
+        for snapshot in available_snapshots:
             for index in snapshot["indices"]:
                 await es.transport.perform_request(method="POST",
                                                    url=f"/_snapshot/{repository_name}/{snapshot_name}/_mount",
