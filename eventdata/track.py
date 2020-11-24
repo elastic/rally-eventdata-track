@@ -24,6 +24,7 @@ from eventdata.runners import indicesstats_runner
 from eventdata.runners import kibana_runner
 from eventdata.runners import nodestorage_runner
 from eventdata.runners import rollover_runner
+from eventdata.runners import mount_searchable_snapshot_runner
 from eventdata.schedulers import utilization_scheduler
 
 
@@ -36,6 +37,7 @@ def register(registry):
         registry.register_runner("kibana", kibana_runner.kibana_async, async_runner=True)
         registry.register_runner("node_storage", nodestorage_runner.nodestorage_async, async_runner=True)
         registry.register_runner("rollover", rollover_runner.rollover_async, async_runner=True)
+        registry.register_runner("mount-searchable-snapshot", mount_searchable_snapshot_runner.MountSearchableSnapshotRunner(), async_runner=True)
     else:
         registry.register_runner("delete_indices", deleteindex_runner.deleteindex)
         registry.register_runner("fieldstats", fieldstats_runner.fieldstats)
