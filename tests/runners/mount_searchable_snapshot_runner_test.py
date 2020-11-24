@@ -24,7 +24,7 @@ from tests import run_async, as_future
 
 @mock.patch("elasticsearch.Elasticsearch")
 @run_async
-async def test_mount_snapshot(es):
+async def test_mount_snapshot_7x(es):
     es.snapshot.get.return_value = as_future({
         "snapshots": [
             {
@@ -34,6 +34,57 @@ async def test_mount_snapshot(es):
                     "elasticlogs-2018-05-03",
                     "elasticlogs-2018-05-04",
                     "elasticlogs-2018-05-05"
+                ]
+            }
+        ]
+    })
+    # one call for each index
+    es.transport.perform_request.side_effect = [
+        as_future(),
+        as_future(),
+        as_future(),
+    ]
+
+    params = {
+        "repository": "eventdata",
+        "snapshot": "eventdata-snapshot"
+    }
+
+    runner = MountSearchableSnapshotRunner()
+
+    await runner(es, params=params)
+
+    es.snapshot.get.assert_called_once_with("eventdata", "eventdata-snapshot")
+    es.transport.perform_request.assert_has_calls([
+        mock.call(method="POST",
+                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
+                  body={"index": "elasticlogs-2018-05-03"}),
+        mock.call(method="POST",
+                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
+                  body={"index": "elasticlogs-2018-05-04"}),
+        mock.call(method="POST",
+                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
+                  body={"index": "elasticlogs-2018-05-05"}),
+    ])
+
+
+@mock.patch("elasticsearch.Elasticsearch")
+@run_async
+async def test_mount_snapshot_8x(es):
+    es.snapshot.get.return_value = as_future({
+        "responses": [
+            {
+                "repository": "eventdata",
+                "snapshots": [
+                    {
+                        "snapshot": "eventdata-snapshot",
+                        "uuid": "mWJnRABaSh-gdHF3-pexbw",
+                        "indices": [
+                            "elasticlogs-2018-05-03",
+                            "elasticlogs-2018-05-04",
+                            "elasticlogs-2018-05-05"
+                        ]
+                    }
                 ]
             }
         ]
