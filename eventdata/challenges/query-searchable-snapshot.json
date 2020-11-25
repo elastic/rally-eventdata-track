@@ -6,7 +6,7 @@
       "name": "delete-any-old-indices",
       "operation": {
         "operation-type": "delete-index",
-        "index": "{{p_query_index_pattern}}"
+        "index": "{{ p_query_index_pattern }}"
       }
     },
     {
@@ -17,7 +17,7 @@
         "body": {
           "type": "{{ es_snapshot_repo_type }}"
 {%- if es_snapshot_repo_settings is defined %}
-          ,"settings": {{ es_snapshot_repo_settings | tojson(indent=2)}}
+          ,"settings": {{ es_snapshot_repo_settings | tojson(indent=2) }}
 {%- endif%}
         }
       }
@@ -26,22 +26,27 @@
       "name": "mount-searchable-snapshot",
       "operation": {
         "operation-type": "mount-searchable-snapshot",
-        "repository": "{{es_snapshot_repo_name}}",
-        "snapshot": "{{es_snapshot_name}}"
+        "repository": "{{ es_snapshot_repo_name }}",
+        "snapshot": "{{ es_snapshot_name }}"
       }
     },
     {
       "name": "wait-for-mount",
       "operation": {
         "operation-type": "cluster-health",
-        "index": "{{p_query_index_pattern}}",
+        "index": "{{ p_query_index_pattern }}",
         "request-params": {
           "wait_for_status": "green"
-        }
+        },
+        "retry-until-success": true,
+        "include-in-reporting": true
       }
     },
     {
-      "operation": "fieldstats_elasticlogs_q-*",
+      "operation": {
+        "operation-type": "fieldstats",
+        "index_pattern": "{{ p_query_index_pattern }}"
+      },
       "iterations": 1,
       "clients": 4
     },
@@ -53,19 +58,19 @@
         "tasks": [
           {
             "operation": "relative-kibana-content_issues-dashboard_50%",
-            "target-interval": {{ query_searchable_snapshot_content_issues_50_interval | default(30)}}
+            "target-interval": {{ query_searchable_snapshot_content_issues_50_interval | default(30) }}
           },
           {
             "operation": "relative-kibana-content_issues-dashboard_75%",
-            "target-interval": {{ query_searchable_snapshot_content_issues_75_interval | default(90)}}
+            "target-interval": {{ query_searchable_snapshot_content_issues_75_interval | default(90) }}
           },
           {
             "operation": "relative-kibana-traffic-dashboard_50%",
-            "target-interval": {{ query_searchable_snapshot_traffic_50_interval | default(40)}}
+            "target-interval": {{ query_searchable_snapshot_traffic_50_interval | default(40) }}
           },
           {
             "operation": "relative-kibana-discover_50%",
-            "target-interval": {{ query_searchable_snapshot_discover_50_interval | default(60)}}
+            "target-interval": {{ query_searchable_snapshot_discover_50_interval | default(60) }}
           }
         ]
       }
