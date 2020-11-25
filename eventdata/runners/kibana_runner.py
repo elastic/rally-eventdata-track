@@ -23,6 +23,25 @@ import logging
 logger = logging.getLogger("track.eventdata")
 
 
+def extract_error_details(error_details, data):
+    error_data = data.get("error", {})
+    error_reason = error_data.get("reason") if isinstance(error_data, dict) else str(error_data)
+    if error_data:
+        error_details.add((data["status"], error_reason))
+    else:
+        error_details.add((data["status"], None))
+
+
+def error_description(error_details):
+    description = ""
+    for status, reason in error_details:
+        if reason:
+            description += "HTTP status: %s, message: %s" % (str(status), reason)
+        else:
+            description += "HTTP status: %s" % str(status)
+    return description
+
+
 async def kibana_async(es, params):
     """
     Simulates Kibana msearch dashboard queries.
@@ -55,22 +74,34 @@ async def kibana_async(es, params):
 
     sum_hits = 0
     max_took = 0
+    error_count = 0
+    error_details = set()
     for r in result["responses"]:
-        hits = r.get("hits", {}).get("total", 0)
-        if isinstance(hits, dict):
-            sum_hits += hits["value"]
+        if "error" in r:
+            error_count += 1
+            extract_error_details(error_details, r)
         else:
-            sum_hits += hits
-        max_took = max(max_took, r["took"])
+            hits = r.get("hits", {}).get("total", 0)
+            if isinstance(hits, dict):
+                sum_hits += hits["value"]
+            else:
+                sum_hits += hits
+            max_took = max(max_took, r["took"])
 
     # use the request's took if possible but approximate it using the maximum of all responses
     response["took"] = result.get("took", max_took)
     response["hits"] = sum_hits
+    response["success"] = error_count == 0
+    response["error-count"] = error_count
+    if error_count > 0:
+        response["error-type"] = "kibana"
+        response["error-description"] = error_description(error_details)
 
     if meta_data["debug"]:
         for r in result["responses"]:
             # clear hits otherwise we'll spam the log
-            r["hits"]["hits"] = []
+            if "hits" in r and "hits" in r["hits"]:
+                r["hits"]["hits"] = []
             r["aggregations"] = {}
         logger.info("Response (excluding specific hits):\n=====\n{}\n=====".format(json.dumps(result)))
 
