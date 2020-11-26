@@ -17,7 +17,7 @@
 
 from unittest import mock
 
-from eventdata.runners.kibana_runner import kibana_async
+from eventdata.runners.kibana_runner import kibana
 
 from tests import run_async, as_future
 
@@ -59,7 +59,7 @@ async def test_msearch_without_hits(es):
         ]
     })
 
-    response = await kibana_async(es, params=params)
+    response = await kibana(es, params=params)
 
     assert response == {
         "debug": True,
@@ -141,7 +141,7 @@ async def test_msearch_with_hits_as_number(es):
         ]
     })
 
-    response = await kibana_async(es, params=params)
+    response = await kibana(es, params=params)
 
     assert response == {
         "debug": True,
@@ -230,7 +230,7 @@ async def test_msearch_with_hits_as_dict(es):
         ]
     })
 
-    response = await kibana_async(es, params=params)
+    response = await kibana(es, params=params)
 
     assert response == {
         "debug": True,
@@ -292,7 +292,7 @@ async def test_msearch_with_error(es):
         ]
     })
 
-    response = await kibana_async(es, params=params)
+    response = await kibana(es, params=params)
 
     assert response == {
         "debug": True,
