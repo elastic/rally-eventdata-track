@@ -27,6 +27,9 @@ Note: In general, track parameters are only defined for a subset of the challeng
 
 | Parameter | Explanation | Type | Default Value |
 | --------- | ----------- | ---- | ------------- |
+| `index_prefix` | The prefix for generated indices. | `str` |  `elasticlogs` |
+| `number_of_shards` | The number primary shards generated indices will have. | `int` | 2 |
+| `number_of_replicas` | The number replicas generated indices will have. | `int` | 0 |
 | `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
 | `query_index_prefix` | Start of the index name(s) used in queries for this track. | `str` | `elasticlogs_q` |
 | `query_index_pattern` | Index pattern used in queries for this track. | `str` | `$query_index_prefix + "-*"` |
@@ -165,7 +168,7 @@ This challenge indexes a fixed (raw) logging volume of logs per day into daily i
 
 ### index-and-query-logs-fixed-daily-volume
 
-Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. This challenge will complete tasks as quickly as possible and won't take the amount of days specified in the number_of_days field. The table below shows the track parameters that can be adjusted along with default values:
+Indexes several days of logs with a fixed (raw) logging volume per day and running queries concurrently. Requires executing `index-logs-fixed-daily-volume` first. This challenge will complete tasks as quickly as possible and won't take into account the amount of days specified in the number_of_days field. The table below shows the track parameters that can be adjusted along with default values:
 
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
@@ -174,8 +177,22 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
-| `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `24`                  |
-| `number_of_shards`      | Number of primary shards                                                                                                               | `int` | `3`                   |
+| `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                  |
+
+### index-fixed-load-and-query
+
+Indexes (several days of) logs at a fixed target throughput using a fixed (raw) logging volume per day while running queries concurrently.  Requires executing `index-logs-fixed-daily-volume` first. This challenge will end as soon the indexing task has completed. The table below shows the track parameters that can be adjusted along with default values:
+
+| Parameter                    | Explanation                                                                                                                            | Type  | Default Value         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
+| `bulk_indexing_reqs_per_sec` | Number of bulk indexing requests/sec. Multiply this by bulk_size to understand indexing throughput in docs/s.                          | `int` | `20`                  |                                                    
+| `bulk_size`                  | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
+| `bulk_indexing_clients`      | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
+| `search_clients`             | Number of search clients/connections                                                                                                   | `int` | `1`                   |
+| `daily_logging_volume`       | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
+| `starting_point`             | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
+| `number_of_days`             | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                  |
+
 
 ### query-searchable-snapshot
 
