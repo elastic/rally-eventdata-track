@@ -45,7 +45,7 @@
       "name": "check-cluster-health",
       "operation": {
         "operation-type": "cluster-health",
-        "index": "{{ index_prefix }}-*",
+        "index": "{{ p_index_prefix }}-*",
         "request-params": {
           "wait_for_status": "{{cluster_health | default('green')}}",
           "wait_for_no_relocating_shards": "true"
@@ -55,7 +55,7 @@
     {
       "operation": {
         "operation-type": "fieldstats",
-        "index_pattern": "{{ index_prefix }}-*"
+        "index_pattern": "{{ p_index_prefix }}-*"
       },
       "iterations": 1,
       {# this needs to be available for all clients, and we issue three concurrent queries #}
@@ -78,7 +78,7 @@
               "name": "{{bulk_index_task_name}}",
               "operation-type": "bulk",
               "param-source": "elasticlogs_bulk",
-              "index": "{{ index_prefix }}-<yyyy>-<mm>-<dd>",
+              "index": "{{ p_index_prefix }}-<yyyy>-<mm>-<dd>",
               "starting_point": "{{p_starting_point}}",
               "offset": "+{{day}}d",
               "bulk-size": {{p_bulk_size}},
@@ -100,7 +100,7 @@
               "param-source": "elasticlogs_kibana",
               "debug": {{p_verbose}},
               "dashboard": "traffic",
-              "index_pattern": "{{ index_prefix }}-*",
+              "index_pattern": "{{ p_index_prefix }}-*",
               "query_string": "query_string_lists/country_code_query_strings.json",
               "window_end": "END",
               "window_length": "25%"
@@ -147,7 +147,7 @@
               "param-source": "elasticlogs_kibana",
               "debug": {{p_verbose}},
               "dashboard": "content_issues",
-              "index_pattern": "{{ index_prefix }}-*",
+              "index_pattern": "{{ p_index_prefix }}-*",
               "query_string": ["*"],
               "window_end": "END",
               "window_length": "25%"

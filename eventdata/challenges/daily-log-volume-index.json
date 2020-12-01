@@ -13,10 +13,10 @@
   },
   "schedule": [
     {
-      "name": "delete-index-{{ index_prefix }}-*",
+      "name": "delete-index-{{ p_index_prefix }}-*",
       "operation": {
         "operation-type": "delete-index",
-        "index": "{{ index_prefix }}-*"
+        "index": "{{ p_index_prefix }}-*"
       }
     },
     {
@@ -34,7 +34,7 @@
       "name": "check-cluster-health",
       "operation": {
         "operation-type": "cluster-health",
-        "index": "{{ index_prefix }}-*",
+        "index": "{{ p_index_prefix }}-*",
         "request-params": {
           "wait_for_status": "{{cluster_health | default('green')}}",
           "wait_for_no_relocating_shards": "true"
@@ -46,7 +46,7 @@
       "operation": {
         "operation-type": "bulk",
         "param-source": "elasticlogs_bulk",
-        "index": "{{ index_prefix }}-<yyyy>-<mm>-<dd>",
+        "index": "{{ p_index_prefix }}-<yyyy>-<mm>-<dd>",
         "starting_point": "{{p_starting_point}}",
         "bulk-size": {{p_bulk_size}},
         "daily_logging_volume": "{{p_daily_logging_volume}}",
