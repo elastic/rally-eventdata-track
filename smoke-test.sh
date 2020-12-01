@@ -32,7 +32,7 @@ readonly ES_VERSION=${ES_VERSION:-7.3.0}
 # * frozen-querying (depends on frozen-data-generation)
 # * combined-indexing-and-querying (depends on any challenge that has already created elasticlogs-q* indices)
 # * elasticlogs-querying (depends on any challenge that has already created elasticlogs-q* indices)
-readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query bulk-update index-logs-fixed-daily-volume index-and-query-logs-fixed-daily-volume elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
+readonly CHALLENGES=(frozen-data-generation frozen-querying elasticlogs-continuous-index-and-query bulk-update index-logs-fixed-daily-volume index-and-query-logs-fixed-daily-volume index-fixed-load-and-query elasticlogs-1bn-load combined-indexing-and-querying elasticlogs-querying)
 
 INSTALL_ID=-1
 
