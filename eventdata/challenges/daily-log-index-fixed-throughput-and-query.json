@@ -15,7 +15,7 @@
   "name": "index-fixed-load-and-query",
   "description": "Indexes {{ p_number_of_days }} days of logs (each {{ p_daily_logging_volume }} size) running at {{ p_bulk_indexing_throughput }} docs/s while running queries concurrently",
   "meta": {
-    "client_count": {{ p_bulk_indexing_clients }},
+    "bulk_client_count": {{ p_bulk_indexing_clients }},
     "benchmark_type": "logs-fixed-index-daily-throughput-and-query"
   },
   "schedule": [
@@ -25,9 +25,10 @@
         "operation-type": "cluster-health",
         "index": "{{ p_index_prefix }}-*",
         "request-params": {
-        "wait_for_status": "{{cluster_health | default('green')}}",
-        "wait_for_no_relocating_shards": "true"
-        }
+          "wait_for_status": "{{cluster_health | default('green')}}",
+          "wait_for_no_relocating_shards": "true"
+        },
+        "retry-until-success": true
       }
     },
     {

@@ -161,7 +161,7 @@ This challenge indexes a fixed (raw) logging volume of logs per day into daily i
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
 | `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
-| `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
+| `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `KB`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-01:00:00:00` |
 | `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `24`                  |
 | `number_of_shards`      | Number of primary shards                                                                                                               | `int` | `3`                   |
@@ -173,11 +173,11 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
-| `search_clients`        | Number of search clients/connections                                                                                                   | `int` | `1`                   |
+| `search_clients`        | Number of search clients/connections used by *each** query                                                                             | `int` | `1`                   |
 | `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
-| `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
+| `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `KB`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
-| `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                  |
+| `number_of_days`        | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                   |
 
 ### index-fixed-load-and-query
 
@@ -188,10 +188,10 @@ Indexes (several days of) logs at a fixed target throughput using a fixed (raw) 
 | `bulk_indexing_reqs_per_sec` | Number of bulk indexing requests/sec. Multiply this by bulk_size to understand indexing throughput in docs/s.                          | `int` | `20`                  |                                                    
 | `bulk_size`                  | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `bulk_indexing_clients`      | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
-| `search_clients`             | Number of search clients/connections                                                                                                   | `int` | `1`                   |
-| `daily_logging_volume`       | The raw logging volume. Supported units are bytes (without any unit), `kb`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
+| `search_clients`             | Number of search clients/connections used by *each** query                                                                             | `int` | `1`                   |
+| `daily_logging_volume`       | The raw logging volume. Supported units are bytes (without any unit), `KB`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`             | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
-| `number_of_days`             | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                  |
+| `number_of_days`             | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                   |
 
 
 ### query-searchable-snapshot
