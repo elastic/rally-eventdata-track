@@ -301,7 +301,7 @@ To specify the version to check against, add `--distribution-version` when runni
 Example: If you want to benchmark Elasticsearch 6.2.4, run the following command:
 
 ```
-esrally --distribution-version=6.2.4
+esrally race --distribution-version=6.2.4
 ```
 
 How to Contribute
