@@ -72,13 +72,14 @@ class ElasticlogsKibanaSource:
                                         relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
                                         represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
         "window_length"         -   String indicating length of the time window to aggregate across. Values can be either absolute 
-                                    or relative. Defaults to '1d'.
+                                    or relative. Defaults to '1d'. If 'random' is specified, the window length is randomized.
                                         '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
                                         '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
         "discover_size"         -   Nunmber of documents to return in Discover. Defaults to 500.
         "ignore_throttled"      -   Boolean indicating whether throttled (frozen) indices should be ignored. Defaults to `true`.
         "pre_filter_shard_size" -   Defines the `pre_filter_shard_size` parameter used with throttled (frozen) indices. Defgaults to 1.
         "debug"                 -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
+        "window_length_seed"    -   Seed used to randomize window_length parameter. Only used when window_length is set to `random`.
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
@@ -91,9 +92,10 @@ class ElasticlogsKibanaSource:
         self._debug = params.get("debug", False)
         self._pre_filter_shard_size = params.get("pre_filter_shard_size", 1)
         self._window_length = params.get("window_length", "1d")
+        self._window_length_seed = params.get("window_length_seed")
         self.infinite = True
         self.utcnow = kwargs.get("utcnow", datetime.datetime.utcnow)
-        
+
         random.seed()
 
         if "query_string" in params.keys():
@@ -140,7 +142,7 @@ class ElasticlogsKibanaSource:
                 self._window_duration_ms = val
             else:
                 raise ConfigurationError("Invalid window_length as a percentage ({}) may only be used when fieldstats have been provided.".format(self._window_length))
-        else:
+        elif self._window_length != "random":
             raise ConfigurationError("Invalid window_length parameter supplied: {}.".format(self._window_length))
                 
         # Interpret window specification(s)
@@ -150,8 +152,10 @@ class ElasticlogsKibanaSource:
             self._window_end = [{"type": "relative", "offset_ms": 0}]
 
     def partition(self, partition_index, total_partitions):
-        seed = partition_index * self._params["seed"] if "seed" in self._params else None
-        random.seed(seed)
+        if self._window_length == "random":
+            random_seed = self._params["window_length_seed"] if "window_length_seed" in self._params else int(time.time())
+            random.seed(random_seed)
+            print(f"Used random seed: {random_seed}")
         return self
 
     def params(self):
@@ -164,7 +168,10 @@ class ElasticlogsKibanaSource:
             offset = (int)(random.random() * math.fabs(t2 - t1))
 
             ts_max_ms = int(offset + min(t1, t2))
-        
+
+        if self._window_length == "random":
+            self._window_duration_ms = random.randrange(60*1000, 86400*100*1000, 60*1000)
+
         ts_min_ms = int(ts_max_ms - self._window_duration_ms)
 
         window_size_seconds = int(self._window_duration_ms / 1000)
