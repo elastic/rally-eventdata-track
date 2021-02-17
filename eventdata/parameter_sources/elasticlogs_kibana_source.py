@@ -72,14 +72,15 @@ class ElasticlogsKibanaSource:
                                         relative to the size of the interval as a percentage. If we assume the interval covers 10 hours, 'END-40%'
                                         represents the timestamp 4 hours (40% of the 10 hour interval) before the END timestamp.
         "window_length"         -   String indicating length of the time window to aggregate across. Values can be either absolute 
-                                    or relative. Defaults to '1d'. If 'random' is specified, the window length is randomized.
+                                    or relative. Defaults to '1d'.
                                         '4d' - Consists of a number and either m (minutes), h (hours) or d (days). Can not be lower than 1 minute.
                                         '10%' - Length given as percentage of window size. Only available when fieldstats_id have been specified.
-        "discover_size"         -   Nunmber of documents to return in Discover. Defaults to 500.
+                                        'random' - Length is randomized between START and END interval. Only available when fieldstats_id have been specified.
+        "discover_size"         -   Number of documents to return in Discover. Defaults to 500.
         "ignore_throttled"      -   Boolean indicating whether throttled (frozen) indices should be ignored. Defaults to `true`.
         "pre_filter_shard_size" -   Defines the `pre_filter_shard_size` parameter used with throttled (frozen) indices. Defgaults to 1.
         "debug"                 -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
-        "window_length_seed"    -   Seed used to randomize window_length parameter. Only used when window_length is set to `random`.
+        "seed"                  -   Optional seed used to randomize window_length and window_end parameters.
     """
     def __init__(self, track, params, **kwargs):
         self._params = params
@@ -92,7 +93,6 @@ class ElasticlogsKibanaSource:
         self._debug = params.get("debug", False)
         self._pre_filter_shard_size = params.get("pre_filter_shard_size", 1)
         self._window_length = params.get("window_length", "1d")
-        self._window_length_seed = params.get("window_length_seed")
         self.infinite = True
         self.utcnow = kwargs.get("utcnow", datetime.datetime.utcnow)
 
@@ -142,7 +142,10 @@ class ElasticlogsKibanaSource:
                 self._window_duration_ms = val
             else:
                 raise ConfigurationError("Invalid window_length as a percentage ({}) may only be used when fieldstats have been provided.".format(self._window_length))
-        elif self._window_length != "random":
+        elif self._window_length == "random":
+            if self._fieldstats_provided == False:
+                raise ConfigurationError("Invalid window_length ({}) may only be used when fieldstats have been provided.".format(self._window_length))
+        else:
             raise ConfigurationError("Invalid window_length parameter supplied: {}.".format(self._window_length))
                 
         # Interpret window specification(s)
@@ -152,10 +155,8 @@ class ElasticlogsKibanaSource:
             self._window_end = [{"type": "relative", "offset_ms": 0}]
 
     def partition(self, partition_index, total_partitions):
-        if self._window_length == "random":
-            random_seed = self._params["window_length_seed"] if "window_length_seed" in self._params else int(time.time())
-            random.seed(random_seed)
-            print(f"Used random seed: {random_seed}")
+        seed = (partition_index + 1) * self._params["seed"] if "seed" in self._params else None
+        random.seed(seed)
         return self
 
     def params(self):
@@ -170,7 +171,8 @@ class ElasticlogsKibanaSource:
             ts_max_ms = int(offset + min(t1, t2))
 
         if self._window_length == "random":
-            self._window_duration_ms = random.randrange(60*1000, 86400*100*1000, 60*1000)
+            max_window_length = int(math.fabs(self._fieldstats_end_ms - self._fieldstats_start_ms))
+            self._window_duration_ms = random.randrange(int(60*1000), max_window_length, int(60*1000))
 
         ts_min_ms = int(ts_max_ms - self._window_duration_ms)
 

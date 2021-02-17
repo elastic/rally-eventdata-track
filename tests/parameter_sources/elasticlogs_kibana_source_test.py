@@ -46,6 +46,23 @@ def test_create_discover(time):
 
 
 @mock.patch("time.time")
+@mock.patch.dict("eventdata.utils.globals.global_fieldstats", {"elasticlogs-*_@timestamp": {"max": 1573430400000, "min": 1573344000000}})
+def test_create_discover_random_window_length(time):
+    time.return_value = 5000
+    
+    param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
+        "dashboard": "discover",
+        "index_pattern": "elasticlogs-*",
+        "window_length": "random",
+        "seed": 1573430400000
+    }, utcnow=lambda: datetime(year=2019, month=11, day=11))
+    param_source.partition(0,1)
+    response = param_source.params()
+
+    assert response == load("discover-random-window-length")
+
+
+@mock.patch("time.time")
 def test_create_content_issues_dashboard(time):
     time.return_value = 5000
 
