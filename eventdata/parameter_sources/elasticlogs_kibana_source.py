@@ -143,7 +143,7 @@ class ElasticlogsKibanaSource:
             else:
                 raise ConfigurationError("Invalid window_length as a percentage ({}) may only be used when fieldstats have been provided.".format(self._window_length))
         elif self._window_length == "random":
-            if self._fieldstats_provided == False:
+            if not self._fieldstats_provided:
                 raise ConfigurationError("Invalid window_length ({}) may only be used when fieldstats have been provided.".format(self._window_length))
         else:
             raise ConfigurationError("Invalid window_length parameter supplied: {}.".format(self._window_length))
@@ -172,7 +172,7 @@ class ElasticlogsKibanaSource:
 
         if self._window_length == "random":
             max_window_length = int(math.fabs(self._fieldstats_end_ms - self._fieldstats_start_ms))
-            self._window_duration_ms = random.randrange(int(60*1000), max_window_length, int(60*1000))
+            self._window_duration_ms = random.randrange(60 * 1000, max_window_length + 1, 60 * 1000)
 
         ts_min_ms = int(ts_max_ms - self._window_duration_ms)
 
