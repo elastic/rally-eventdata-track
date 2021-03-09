@@ -58,13 +58,16 @@ async def test_mount_snapshot_7x(es):
     es.transport.perform_request.assert_has_calls([
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-03"}),
+                  body={"index": "elasticlogs-2018-05-03"},
+                  params=None),
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-04"}),
+                  body={"index": "elasticlogs-2018-05-04"},
+                  params=None),
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-05"}),
+                  body={"index": "elasticlogs-2018-05-05"},
+                  params=None),
     ])
 
 
@@ -109,11 +112,69 @@ async def test_mount_snapshot_8x(es):
     es.transport.perform_request.assert_has_calls([
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-03"}),
+                  body={"index": "elasticlogs-2018-05-03"},
+                  params=None),
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-04"}),
+                  body={"index": "elasticlogs-2018-05-04"},
+                  params=None),
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-05"}),
+                  body={"index": "elasticlogs-2018-05-05"},
+                  params=None),
+    ])
+
+
+@mock.patch("elasticsearch.Elasticsearch")
+@run_async
+async def test_mount_snapshot_frozen(es):
+    es.snapshot.get.return_value = as_future({
+        "responses": [
+            {
+                "repository": "eventdata",
+                "snapshots": [
+                    {
+                        "snapshot": "eventdata-snapshot",
+                        "uuid": "mWJnRABaSh-gdHF3-pexbw",
+                        "indices": [
+                            "elasticlogs-2018-05-03",
+                            "elasticlogs-2018-05-04",
+                            "elasticlogs-2018-05-05"
+                        ]
+                    }
+                ]
+            }
+        ]
+    })
+    # one call for each index
+    es.transport.perform_request.side_effect = [
+        as_future(),
+        as_future(),
+        as_future(),
+    ]
+
+    params = {
+        "repository": "eventdata",
+        "snapshot": "eventdata-snapshot",
+        "query_params": {"storage": "shared_cache"}
+    }
+
+    runner = MountSearchableSnapshotRunner()
+
+    await runner(es, params=params)
+
+    es.snapshot.get.assert_called_once_with("eventdata", "eventdata-snapshot")
+    es.transport.perform_request.assert_has_calls([
+        mock.call(method="POST",
+                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
+                  body={"index": "elasticlogs-2018-05-03"},
+                  params={"storage": "shared_cache"}),
+        mock.call(method="POST",
+                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
+                  body={"index": "elasticlogs-2018-05-04"},
+                  params={"storage": "shared_cache"}),
+        mock.call(method="POST",
+                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
+                  body={"index": "elasticlogs-2018-05-05"},
+                  params={"storage": "shared_cache"}),
     ])
