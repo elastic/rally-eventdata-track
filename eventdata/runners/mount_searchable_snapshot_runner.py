@@ -19,6 +19,7 @@ class MountSearchableSnapshotRunner:
     async def __call__(self, es, params):
         repository_name = params["repository"]
         snapshot_name = params["snapshot"]
+        query_params = params.get("query_params")
         snapshots = await es.snapshot.get(repository_name, snapshot_name)
 
         # ES master
@@ -31,4 +32,6 @@ class MountSearchableSnapshotRunner:
             for index in snapshot["indices"]:
                 await es.transport.perform_request(method="POST",
                                                    url=f"/_snapshot/{repository_name}/{snapshot_name}/_mount",
-                                                   body={"index": index})
+                                                   body={"index": index},
+                                                   params=query_params
+                                                   )
