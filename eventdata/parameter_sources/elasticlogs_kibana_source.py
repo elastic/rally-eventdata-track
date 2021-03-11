@@ -171,7 +171,7 @@ class ElasticlogsKibanaSource:
             ts_max_ms = int(offset + min(t1, t2))
 
         if self._window_length == "random":
-            max_window_length = int(math.fabs(self._fieldstats_end_ms - self._fieldstats_start_ms))
+            max_window_length = int(math.fabs(ts_max_ms - self._fieldstats_start_ms))
             self._window_duration_ms = random.randrange(60 * 1000, max_window_length + 1, 60 * 1000)
 
         ts_min_ms = int(ts_max_ms - self._window_duration_ms)
