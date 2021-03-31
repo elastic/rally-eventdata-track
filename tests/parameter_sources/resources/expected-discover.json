@@ -65,7 +65,9 @@
     "dashboard": "discover",
     "window_length": "1d",
     "ignore_throttled": true,
-    "pre_filter_shard_size": 1,
     "debug": false
+  },
+  "params": {
+    "pre_filter_shard_size": 1
   }
 }

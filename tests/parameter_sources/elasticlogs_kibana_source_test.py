@@ -80,6 +80,22 @@ def test_create_content_issues_dashboard(time):
     response = param_source.params()
 
     assert response == load("content_issues")
+    assert "max_concurrent_shard_requests" not in response["params"].keys()
+
+
+@mock.patch("time.time")
+def test_create_content_issues_dashboard_with_max_concurrent_shard_requests(time):
+    time.return_value = 5000
+
+    param_source = ElasticlogsKibanaSource(track=StaticTrack(), params={
+        "dashboard": "content_issues",
+        "index_pattern": "elasticlogs-*",
+        "max_concurrent_shard_requests" : 13,
+    }, utcnow=lambda: datetime(year=2019, month=11, day=11))
+    response = param_source.params()
+
+    assert "max_concurrent_shard_requests" in response["params"].keys()
+    assert response["params"]["max_concurrent_shard_requests"] == 13
 
 
 @mock.patch("time.time")
