@@ -78,7 +78,8 @@ class ElasticlogsKibanaSource:
                                                 'random' - Length is randomized between START and END interval. Only available when fieldstats_id have been specified.
         "discover_size"                 -   Number of documents to return in Discover. Defaults to 500.
         "ignore_throttled"              -   Boolean indicating whether throttled (frozen) indices should be ignored. Defaults to `true`.
-        "max_concurrent_shard_requests" -   Defines the maximum number of concurrent shard requests that each sub-search request executes per node.
+        "max_concurrent_shard_requests" -   (Optional) Defines the maximum number of concurrent shard requests that each sub-search request executes per node.
+                                            Default is not to set this query parameter which means Elasticsearch will use its default value.
         "pre_filter_shard_size"         -   Defines the `pre_filter_shard_size` parameter used with throttled (frozen) indices. Defaults to 1.
         "debug"                         -   Boolean indicating whether request and response should be logged for debugging. Defaults to `false`.
         "seed"                          -   Optional seed used to randomize window_length and window_end parameters.
@@ -197,7 +198,7 @@ class ElasticlogsKibanaSource:
         request_params = {
             "pre_filter_shard_size": self._pre_filter_shard_size
         }
-        if (self._max_concurrent_shard_requests > 0):
+        if self._max_concurrent_shard_requests > 0:
             request_params["max_concurrent_shard_requests"] = self._max_concurrent_shard_requests
 
         if self._dashboard == "traffic":

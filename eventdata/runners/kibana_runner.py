@@ -48,6 +48,7 @@ async def kibana(es, params):
 
     It expects the parameter hash to contain the following keys:
         "body"      - msearch request body representing the Kibana dashboard in the  form of an array of dicts.
+        "params"    - msearch request parameters.
         "meta_data" - Dictionary containing meta data information to be carried through into metrics.
     """
     request = params["body"]
