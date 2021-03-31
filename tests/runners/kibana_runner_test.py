@@ -85,7 +85,9 @@ async def test_msearch_with_hits_as_number(es):
             {"index": "elasticlogs-*"},
             {"query": {"match_all": {}}, "from": 0, "size": 10}
         ],
-        "params": {},
+        "params": {
+            "pre_filter_shard_size" : 1
+        },
         "meta_data": {
             "debug": True
         }
@@ -155,7 +157,9 @@ async def test_msearch_with_hits_as_number(es):
         "weight": 1,
         "unit": "ops",
         "visualisation_count": 2,
-        "request_params": {}
+        "request_params": {
+            "pre_filter_shard_size" : 1
+        }
     }
 
 
