@@ -1,3 +1,4 @@
+{% set p_max_concurrent_shard_requests = (max_concurrent_shard_requests | default(10)) %}
 {% set p_pre_filter_shard_size = (pre_filter_shard_size | default(1)) %}
 {% set p_bulk_idx_iterations = (bulk_indexing_iterations | default(30000)) %}
 {% set p_query_iterations = (query_iterations | default(3)) %}
@@ -87,6 +88,7 @@
         "ignore_throttled": false,
         "window_end": "START+25%,END",
         "window_length": "25%",
+        "max_concurrent_shard_requests": {{ p_max_concurrent_shard_requests }},
         "pre_filter_shard_size": {{ p_pre_filter_shard_size }}
       },
       "iterations": {{ p_query_iterations }},
@@ -104,6 +106,7 @@
         "ignore_throttled": false,
         "window_end": "START+25%,END",
         "window_length": "25%",
+        "max_concurrent_shard_requests": {{ p_max_concurrent_shard_requests }},
         "pre_filter_shard_size": {{ p_pre_filter_shard_size }}
       },
       "iterations": {{ p_query_iterations }},
