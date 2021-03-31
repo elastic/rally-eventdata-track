@@ -67,10 +67,13 @@ async def kibana(es, params):
     response["unit"] = "ops"
     response["visualisation_count"] = visualisations
 
+    params = {}
     if "pre_filter_shard_size" in meta_data:
-        result = await es.msearch(body=request, params={"pre_filter_shard_size": meta_data["pre_filter_shard_size"]})
-    else:
-        result = await es.msearch(body=request)
+        params["pre_filter_shard_size"] = meta_data["pre_filter_shard_size"]
+    if "max_concurrent_shard_requests" in meta_data:
+        params["max_concurrent_shard_requests"] = meta_data["max_concurrent_shard_requests"]
+
+    result = await es.msearch(body=request, params=params)
 
     sum_hits = 0
     max_took = 0
