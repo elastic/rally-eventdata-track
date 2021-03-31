@@ -58,6 +58,9 @@
       }
     }
   ],
+  "params": {
+    "pre_filter_shard_size": 1
+  },
   "meta_data": {
     "interval": "30m",
     "index_pattern": "elasticlogs-*",
@@ -65,7 +68,6 @@
     "dashboard": "discover",
     "window_length": "random",
     "ignore_throttled": true,
-    "pre_filter_shard_size": 1,
     "debug": false
   }
 }

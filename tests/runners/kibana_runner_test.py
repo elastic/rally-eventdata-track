@@ -32,6 +32,7 @@ async def test_msearch_without_hits(es):
             {"index": "elasticlogs-*"},
             {"query": {"match_all": {}}, "from": 0, "size": 10}
         ],
+        "params": {},
         "meta_data": {
             "debug": True
         }
@@ -70,6 +71,7 @@ async def test_msearch_without_hits(es):
         "weight": 1,
         "unit": "ops",
         "visualisation_count": 2,
+        "request_params": {}
     }
 
 
@@ -83,6 +85,9 @@ async def test_msearch_with_hits_as_number(es):
             {"index": "elasticlogs-*"},
             {"query": {"match_all": {}}, "from": 0, "size": 10}
         ],
+        "params": {
+            "pre_filter_shard_size" : 1
+        },
         "meta_data": {
             "debug": True
         }
@@ -152,6 +157,9 @@ async def test_msearch_with_hits_as_number(es):
         "weight": 1,
         "unit": "ops",
         "visualisation_count": 2,
+        "request_params": {
+            "pre_filter_shard_size" : 1
+        }
     }
 
 
@@ -165,6 +173,7 @@ async def test_msearch_with_hits_as_dict(es):
             {"index": "elasticlogs-*"},
             {"query": {"match_all": {}}, "from": 0, "size": 10}
         ],
+        "params": {},
         "meta_data": {
             "debug": True
         }
@@ -241,6 +250,7 @@ async def test_msearch_with_hits_as_dict(es):
         "weight": 1,
         "unit": "ops",
         "visualisation_count": 2,
+        "request_params": {}
     }
 
 
@@ -252,6 +262,7 @@ async def test_msearch_with_error(es):
             {"index": "elasticlogs-*"},
             {"query": {"match_all": {}}, "from": 0, "size": 10},
         ],
+        "params": {},
         "meta_data": {
             "debug": True
         }
@@ -304,7 +315,8 @@ async def test_msearch_with_error(es):
         "success": False,
         "error-count": 1,
         "error-type": "kibana",
-        "error-description": "HTTP status: 503, message: all shards failed"
+        "error-description": "HTTP status: 503, message: all shards failed",
+        "request_params": {}
     }
 
 
