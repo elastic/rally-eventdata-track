@@ -192,11 +192,13 @@ class ElasticlogsKibanaSource:
             "dashboard": self._dashboard,
             "window_length": self._window_length,
             "ignore_throttled": self._ignore_throttled,
-            "pre_filter_shard_size": self._pre_filter_shard_size,
             "debug": self._debug
         }
+        request_params = {
+            "pre_filter_shard_size": self._pre_filter_shard_size
+        }
         if (self._max_concurrent_shard_requests > 0):
-            meta_data["max_concurrent_shard_requests"] = self._max_concurrent_shard_requests
+            request_params["max_concurrent_shard_requests"] = self._max_concurrent_shard_requests
 
         if self._dashboard == "traffic":
             response = {"body": self.__traffic_dashboard(index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
@@ -206,6 +208,7 @@ class ElasticlogsKibanaSource:
             response = {"body": self.__discover(self._discover_size, index_pattern, query_string, interval, ts_min_ms, ts_max_ms, self._ignore_throttled)}
 
         response["meta_data"] = meta_data
+        response["params"] = request_params
 
         return response
 

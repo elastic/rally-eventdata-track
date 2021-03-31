@@ -80,7 +80,7 @@ def test_create_content_issues_dashboard(time):
     response = param_source.params()
 
     assert response == load("content_issues")
-    assert "max_concurrent_shard_requests" not in response["meta_data"].keys()
+    assert "max_concurrent_shard_requests" not in response["params"].keys()
 
 
 @mock.patch("time.time")
@@ -94,8 +94,8 @@ def test_create_content_issues_dashboard_with_max_concurrent_shard_requests(time
     }, utcnow=lambda: datetime(year=2019, month=11, day=11))
     response = param_source.params()
 
-    assert "max_concurrent_shard_requests" in response["meta_data"].keys()
-    assert response["meta_data"]["max_concurrent_shard_requests"] == 13
+    assert "max_concurrent_shard_requests" in response["params"].keys()
+    assert response["params"]["max_concurrent_shard_requests"] == 13
 
 
 @mock.patch("time.time")

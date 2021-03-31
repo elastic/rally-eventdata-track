@@ -590,13 +590,15 @@
       "version": true
     }
   ],
+  "params": {
+    "pre_filter_shard_size": 1
+  },
   "meta_data": {
     "dashboard": "traffic",
     "debug": false,
     "ignore_throttled": true,
     "index_pattern": "elasticlogs-*",
     "interval": "30m",
-    "pre_filter_shard_size": 1,
     "query_string": "*",
     "window_length": "1d"
   }

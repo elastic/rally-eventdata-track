@@ -51,6 +51,7 @@ async def kibana(es, params):
         "meta_data" - Dictionary containing meta data information to be carried through into metrics.
     """
     request = params["body"]
+    request_params = params["params"]
     meta_data = params["meta_data"]
 
     if meta_data["debug"]:
@@ -63,17 +64,12 @@ async def kibana(es, params):
     for key in meta_data.keys():
         response[key] = meta_data[key]
 
+    response["request_params"] = request_params
     response["weight"] = 1
     response["unit"] = "ops"
     response["visualisation_count"] = visualisations
-
-    params = {}
-    if "pre_filter_shard_size" in meta_data:
-        params["pre_filter_shard_size"] = meta_data["pre_filter_shard_size"]
-    if "max_concurrent_shard_requests" in meta_data:
-        params["max_concurrent_shard_requests"] = meta_data["max_concurrent_shard_requests"]
-
-    result = await es.msearch(body=request, params=params)
+    
+    result = await es.msearch(body=request, params=request_params)
 
     sum_hits = 0
     max_took = 0
