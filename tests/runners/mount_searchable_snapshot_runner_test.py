@@ -47,7 +47,7 @@ async def test_mount_snapshot_7x(es):
     params = {
         "repository": "eventdata",
         "snapshot": "eventdata-snapshot",
-        "indices": "elasticlogs-2018-05-*"
+        "index_pattern": "elasticlogs-2018-05-*"
     }
 
     runner = MountSearchableSnapshotRunner()
@@ -97,7 +97,7 @@ async def test_mount_snapshot_8x(es):
     params = {
         "repository": "eventdata",
         "snapshot": "eventdata-snapshot",
-        "indices": "elasticlogs-2018-05-*"
+        "index_pattern": "elasticlogs-2018-05-*"
     }
 
     runner = MountSearchableSnapshotRunner()

@@ -15,13 +15,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import re
+import fnmatch
 
 class MountSearchableSnapshotRunner:
     async def __call__(self, es, params):
         repository_name = params["repository"]
         snapshot_name = params["snapshot"]
-        indices = params.get("indices", "*")
+        index_pattern = params.get("index_pattern", "*")
         query_params = params.get("query_params")
         snapshots = await es.snapshot.get(repository_name, snapshot_name)
 
@@ -33,8 +33,7 @@ class MountSearchableSnapshotRunner:
 
         for snapshot in available_snapshots:
             for index in snapshot["indices"]:
-                pattern = re.escape(indices).replace(re.escape("*"), ".*")
-                if re.match(pattern, index):
+                if fnmatch.fnmatch(index, index_pattern):
                     await es.transport.perform_request(method="POST",
                                                     url=f"/_snapshot/{repository_name}/{snapshot_name}/_mount",
                                                     body={"index": index},
