@@ -33,21 +33,21 @@ async def test_mount_snapshot_7x(es):
                 "indices": [
                     "elasticlogs-2018-05-03",
                     "elasticlogs-2018-05-04",
-                    "elasticlogs-2018-05-05"
+                    "elasticlogs-2018-06-05"
                 ]
             }
         ]
     })
-    # one call for each index
+    # one call for each matching index
     es.transport.perform_request.side_effect = [
-        as_future(),
         as_future(),
         as_future(),
     ]
 
     params = {
         "repository": "eventdata",
-        "snapshot": "eventdata-snapshot"
+        "snapshot": "eventdata-snapshot",
+        "indices": "elasticlogs-2018-05-*"
     }
 
     runner = MountSearchableSnapshotRunner()
@@ -63,11 +63,7 @@ async def test_mount_snapshot_7x(es):
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
                   body={"index": "elasticlogs-2018-05-04"},
-                  params=None),
-        mock.call(method="POST",
-                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-05"},
-                  params=None),
+                  params=None)
     ])
 
 
@@ -85,23 +81,23 @@ async def test_mount_snapshot_8x(es):
                         "indices": [
                             "elasticlogs-2018-05-03",
                             "elasticlogs-2018-05-04",
-                            "elasticlogs-2018-05-05"
+                            "elasticlogs-2018-06-05"
                         ]
                     }
                 ]
             }
         ]
     })
-    # one call for each index
+    # one call for each matching index
     es.transport.perform_request.side_effect = [
-        as_future(),
         as_future(),
         as_future(),
     ]
 
     params = {
         "repository": "eventdata",
-        "snapshot": "eventdata-snapshot"
+        "snapshot": "eventdata-snapshot",
+        "indices": "elasticlogs-2018-05-*"
     }
 
     runner = MountSearchableSnapshotRunner()
@@ -117,11 +113,7 @@ async def test_mount_snapshot_8x(es):
         mock.call(method="POST",
                   url="/_snapshot/eventdata/eventdata-snapshot/_mount",
                   body={"index": "elasticlogs-2018-05-04"},
-                  params=None),
-        mock.call(method="POST",
-                  url="/_snapshot/eventdata/eventdata-snapshot/_mount",
-                  body={"index": "elasticlogs-2018-05-05"},
-                  params=None),
+                  params=None)
     ])
 
 
