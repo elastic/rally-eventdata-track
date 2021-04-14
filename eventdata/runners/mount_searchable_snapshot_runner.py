@@ -16,12 +16,15 @@
 # under the License.
 
 import fnmatch
+import re
 
 class MountSearchableSnapshotRunner:
     async def __call__(self, es, params):
         repository_name = params["repository"]
         snapshot_name = params["snapshot"]
         index_pattern = params.get("index_pattern", "*")
+        rename_pattern = params.get("rename_pattern", "(.*)")
+        rename_replacement = params.get("rename_replacement", "\\1")
         query_params = params.get("query_params")
         snapshots = await es.snapshot.get(repository_name, snapshot_name)
 
@@ -34,8 +37,13 @@ class MountSearchableSnapshotRunner:
         for snapshot in available_snapshots:
             for index in snapshot["indices"]:
                 if fnmatch.fnmatch(index, index_pattern):
+                    body={"index": index}
+                    renamed_index = re.sub(rename_pattern, rename_replacement, index)
+                    if (renamed_index != index):
+                        body={"index": index, "renamed_index": renamed_index}
+
                     await es.transport.perform_request(method="POST",
                                                     url=f"/_snapshot/{repository_name}/{snapshot_name}/_mount",
-                                                    body={"index": index},
+                                                    body=body,
                                                     params=query_params
                                                     )
