@@ -15,7 +15,7 @@ eventdata.url = https://github.com/elastic/rally-eventdata-track
 
 ```
 
-The track can be run by specifying the following runtime parameters: 
+The track can be run by specifying the following runtime parameters:
 `    --track=eventdata`
 `    --track-repository=eventdata`.
 
@@ -36,7 +36,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 | `refresh_interval` | [Index refresh interval](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings) | `str` | `5s` |
 | `verbose` | Emits additional debug logs. Enable this only when testing changes but not when running regular benchmarks as this influences performance negatively. | `bool` | `False` |
 
-Note: It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`. 
+Note: It is recommended to store any track parameters in a json file and pass them to Rally using `--track-params=./params-file.json`.
 
 Following is an example of a valid parameters json file:
 params-file.json
@@ -137,7 +137,7 @@ ends up consuming a constant of `407GiB` per node.
 
 The following is an example of configurable parameters for this challenge.
 
-params-file.json 
+params-file.json
 ``` json
 {
   "number_of_replicas": 1,
@@ -185,7 +185,7 @@ Indexes (several days of) logs at a fixed target throughput using a fixed (raw) 
 
 | Parameter                    | Explanation                                                                                                                            | Type  | Default Value         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
-| `bulk_indexing_reqs_per_sec` | Number of bulk indexing requests/sec. Multiply this by bulk_size to understand indexing throughput in docs/s.                          | `int` | `20`                  |                                                    
+| `bulk_indexing_reqs_per_sec` | Number of bulk indexing requests/sec. Multiply this by bulk_size to understand indexing throughput in docs/s.                          | `int` | `20`                  |
 | `bulk_size`                  | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `bulk_indexing_clients`      | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
 | `search_clients`             | Number of search clients/connections used by *each** query                                                                             | `int` | `1`                   |
@@ -222,6 +222,20 @@ Index documents into an elasticlogs index. IDs are sequential and 40% are update
 | `bulk_indexing_iterations` | How many requests to send in total          | `int` | `1000000`                  |
 | `bulk_indexing_clients`    | Number of bulk indexing clients/connections | `int` | `20`                       |
 | `target_throughput`        | Targeted throughput in requests per second  | `int` |  not set, i.e. unthrottled |
+
+### query-different-tiers
+
+This challenge has been used for the evaluation of query performance across different tiers (hot/warm, code, frozen). It assumes that an appropriately sized snapshot has already been prepared. Depending on the presence of the parameter `es_snapshot_storage_type` it will [mount](https://www.elastic.co/guide/en/elasticsearch/reference/current/searchable-snapshots-api-mount-snapshot.html) or [restore](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-restore-snapshot.html) a snapshot and runs queries against it.
+
+| Parameter                             | Explanation                                                                                                                 | Type   | Default Value |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------|---------------|
+| `es_snapshot_repo_name`               | The name of the snapshot repository from which the snapshot should be mounted.                                              | `str`  | -             |
+| `es_snapshot_repo_type`               | The type of the snapshot repository from which the snapshot should be mounted.                                              | `str`  | -             |
+| `es_snapshot_repo_settings`           | [Snapshot repository settings](https://www.elastic.co/guide/en/elasticsearch/reference/current/put-snapshot-repo-api.html). | `dict` | `{}`          |
+| `es_snapshot_name`                    | The name of the snapshot that should be mounted. All available indices will be mounted with their original name.            | `str`  | -             |
+| `es_snapshot_storage_type`            | [Type of local storage](https://www.elastic.co/guide/en/elasticsearch/reference/7.12/searchable-snapshots-api-mount-snapshot.html#searchable-snapshots-api-mount-query-params) | `dict` | - |
+| `indices_recovery_max_bytes_per_sec`  | If set, overrides Elasticsearch's default for [indices.recovery.max_bytes_per_sec](https://www.elastic.co/guide/en/elasticsearch/reference/current/recovery.html#recovery-settings) | `dict` | - |
+| `query_max_concurrent_shard_requests` | If set, overrides Elasticsearch's default for [max_concurrent_shard_requests](https://www.elastic.co/guide/en/elasticsearch/reference/7.12/search-multi-search.html#search-multi-search-api-query-params) for the Kibana queries | `int`  | - |
 
 ## Custom parameter sources
 
