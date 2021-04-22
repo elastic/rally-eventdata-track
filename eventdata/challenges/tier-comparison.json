@@ -1,0 +1,285 @@
+{
+  "name": "query-different-tiers",
+  "description": "Compare query performance across different data tiers. Requires an externally provided snapshot.",
+  "schedule": [
+    {
+      "name": "delete-any-old-indices",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "{{ p_query_index_pattern }}"
+      }
+    },
+{% if indices_recovery_max_bytes_per_sec is defined %}
+    {# Tune Elasticsearch to speed up restore #}
+    {
+      "name": "tweak-restore-settings",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "PUT",
+        "path": "/_cluster/settings",
+        "body": {
+          "transient": {
+            "indices.recovery.max_bytes_per_sec": {{ indices_recovery_max_bytes_per_sec | tojson(indent=2) }}
+          }
+        }
+      }
+    },
+{%- endif %}
+    {
+      "name": "register-snapshot-repository",
+      "operation": {
+        "operation-type": "create-snapshot-repository",
+        "repository": "{{ es_snapshot_repo_name }}",
+        "body": {
+          "type": "{{ es_snapshot_repo_type }}"
+{%- if es_snapshot_repo_settings is defined %}
+          ,"settings": {{ es_snapshot_repo_settings | tojson(indent=2) }}
+{%- endif %}
+        }
+      }
+    },
+{% if es_snapshot_storage_type is defined %}
+    {
+      "name": "mount-searchable-snapshot",
+      "operation": {
+        "operation-type": "mount-searchable-snapshot",
+        "repository": "{{ es_snapshot_repo_name }}",
+        "snapshot": "{{ es_snapshot_name }}",
+        "index_pattern": "{{ p_query_index_pattern }}",
+        "query_params": {
+          "storage": {{ es_snapshot_storage_type | tojson(indent=2) }}
+        }
+      }
+    },
+{% else %}
+    {
+      "name": "restore-snapshot",
+      "operation": {
+        "operation-type": "restore-snapshot",
+        "repository": "{{ es_snapshot_repo_name }}",
+        "snapshot": "{{ es_snapshot_name }}",
+        "body": {
+          "indices": "{{ p_query_index_pattern }}",
+          "include_global_state": false,
+          "index_settings": {
+            "index.number_of_replicas": 0
+          }
+        }
+      }
+    },
+{%- endif %}
+    {
+      "name": "wait-for-green",
+      "operation": {
+        "operation-type": "cluster-health",
+        "index": "{{ p_query_index_pattern }}",
+        "request-params": {
+          "wait_for_status": "green"
+        },
+        "retry-until-success": true,
+        "include-in-reporting": true
+      }
+    },
+{% if es_snapshot_storage_type is defined %}
+    {
+      "name": "wait-for-recovery-completion",
+      "operation": {
+        "operation-type": "wait-for-recovery",
+         "index": "{{ p_query_index_pattern }}"
+      }
+    },
+{%- endif %}
+    {
+      "operation": {
+        "operation-type": "fieldstats",
+        "index_pattern": "{{ p_query_index_pattern }}"
+      },
+      "iterations": 1,
+      "clients": 1
+    },
+    {
+      "name": "small-query-cold-run",
+      "operation": {
+        "operation-type": "search",
+        "index": "{{ p_query_index_pattern }}",
+        "detailed-results": true,
+        "body": {
+          "query": {
+            "term": {
+              "nginx.access.remote_ip": "1.0.4.230"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "clear-caches-before-small-query-uncached",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "POST",
+        "path": "/{{ p_query_index_pattern }}/_cache/clear"
+      }
+    },
+    {
+      "name": "small-query-uncached",
+      "operation": {
+        "operation-type": "search",
+        "index": "{{ p_query_index_pattern }}",
+        "detailed-results": true,
+        "body": {
+          "query": {
+            "term": {
+              "nginx.access.remote_ip": "1.0.4.230"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "small-query-cached",
+      "operation": {
+        "operation-type": "search",
+        "index": "{{ p_query_index_pattern }}",
+        "detailed-results": true,
+        "body": {
+          "query": {
+            "term": {
+              "nginx.access.remote_ip": "1.0.4.230"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "clear-caches-before-kibana-content_issues-75%-cold-run",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "POST",
+        "path": "/{{ p_query_index_pattern }}/_cache/clear"
+      }
+    },
+    {
+      "name": "kibana-content_issues-75%-cold-run",
+      "operation": {
+        "operation-type": "kibana",
+        "param-source": "elasticlogs_kibana",
+        "debug": {{ p_verbose }},
+        "dashboard": "content_issues",
+        "index_pattern": "{{ p_query_index_pattern }}",
+        "query_string": ["nginx.access.geoip.country_iso_code: HK"],
+{%- if query_max_concurrent_shard_requests is defined %}
+        "max_concurrent_shard_requests": {{ query_max_concurrent_shard_requests }},
+{%- endif %}
+        "window_end": "END",
+        "window_length": "75%"
+      },
+      "iterations": 1,
+      "clients": 1,
+      "warmup-iterations": 0
+    },
+    {
+      "name": "clear-caches-before-kibana-content_issues-75%-uncached",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "POST",
+        "path": "/{{ p_query_index_pattern }}/_cache/clear"
+      }
+    },
+    {
+      "name": "query-cache-stats-before-kibana-content_issues-75%-uncached",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "GET",
+        "path": "/{{ p_query_index_pattern }}/_stats/query_cache"
+      }
+    },
+    {
+      "name": "kibana-content_issues-75%-uncached",
+      "operation": {
+        "operation-type": "kibana",
+        "param-source": "elasticlogs_kibana",
+        "debug": {{ p_verbose }},
+        "dashboard": "content_issues",
+        "index_pattern": "{{ p_query_index_pattern }}",
+        "query_string": ["nginx.access.geoip.country_iso_code: HK"],
+{%- if query_max_concurrent_shard_requests is defined %}
+        "max_concurrent_shard_requests": {{ query_max_concurrent_shard_requests }},
+{%- endif %}
+        "window_end": "END",
+        "window_length": "75%"
+      },
+      "iterations": 1,
+      "clients": 1,
+      "warmup-iterations": 0
+    },
+    {
+      "name": "query-cache-stats-after-kibana-content_issues-75%-uncached",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "GET",
+        "path": "/{{ p_query_index_pattern }}/_stats/query_cache"
+      }
+    },
+    {
+      "name": "kibana-content_issues-75%-cached",
+      "operation": {
+        "operation-type": "kibana",
+        "param-source": "elasticlogs_kibana",
+        "debug": {{ p_verbose }},
+        "dashboard": "content_issues",
+        "index_pattern": "{{ p_query_index_pattern }}",
+        "query_string": ["nginx.access.geoip.country_iso_code: HK"],
+{%- if query_max_concurrent_shard_requests is defined %}
+        "max_concurrent_shard_requests": {{ query_max_concurrent_shard_requests }},
+{%- endif %}
+        "window_end": "END",
+        "window_length": "75%"
+      },
+      "iterations": 1,
+      "clients": 1,
+      "warmup-iterations": 0
+    },
+    {
+      "name": "query-cache-stats-after-kibana-content_issues-75%-cached",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "GET",
+        "path": "/{{ p_query_index_pattern }}/_stats/query_cache"
+      }
+    },
+    {
+      "name": "clear-caches-before-kibana-content_issues-75%-cold-run-BE",
+      "operation": {
+        "operation-type": "raw-request",
+        "method": "POST",
+        "path": "/{{ p_query_index_pattern }}/_cache/clear"
+      }
+    },
+    {
+      "name": "kibana-content_issues-75%-cold-run-BE",
+      "operation": {
+        "operation-type": "kibana",
+        "param-source": "elasticlogs_kibana",
+        "debug": {{ p_verbose }},
+        "dashboard": "content_issues",
+        "index_pattern": "{{ p_query_index_pattern }}",
+        "query_string": ["nginx.access.geoip.country_iso_code: BE"],
+{%- if query_max_concurrent_shard_requests is defined %}
+        "max_concurrent_shard_requests": {{ query_max_concurrent_shard_requests }},
+{%- endif %}
+        "window_end": "END",
+        "window_length": "75%"
+      },
+      "iterations": 1,
+      "clients": 1,
+      "warmup-iterations": 0
+    },
+    {
+      "name": "delete-indices-after-benchmark",
+      "operation": {
+        "operation-type": "delete-index",
+        "index": "{{ p_query_index_pattern }}"
+      }
+    }
+  ]
+}
