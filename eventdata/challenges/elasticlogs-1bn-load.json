@@ -36,9 +36,10 @@
         "completed-by": "index-append-1000-elasticlogs_q_write",
         "tasks": [
           {
-            "operation": "index-append-1000-elasticlogs_q_write",    
+            "operation": "index-append-1000-elasticlogs_q_write",
             "iterations": {{ p_iterations_per_client }},
-            "clients": {{ p_bulk_indexing_clients }}
+            "clients": {{ p_bulk_indexing_clients }},
+            "ignore-response-error-level": "{{error_level | default('non-fatal')}}"
           }
           {% if rollover_enabled | default(true) %}
           ,

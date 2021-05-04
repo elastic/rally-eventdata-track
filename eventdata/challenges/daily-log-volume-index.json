@@ -55,7 +55,8 @@
         "record_raw_event_size": {{p_record_raw_event_size}}
       },
       "warmup-time-period": 0,
-      "clients": {{ p_bulk_indexing_clients }}
+      "clients": {{ p_bulk_indexing_clients }},
+      "ignore-response-error-level": "{{error_level | default('non-fatal')}}"
     }
   ]
 }
