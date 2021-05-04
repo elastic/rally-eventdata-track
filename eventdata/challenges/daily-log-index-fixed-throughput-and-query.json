@@ -38,7 +38,8 @@
       },
       "iterations": 1,
       {# this needs to be available for all clients, and we issue three concurrent queries #}
-      "clients": {{ p_bulk_indexing_clients + (3 * p_search_clients) }}
+      "clients": {{ p_bulk_indexing_clients + (3 * p_search_clients) }},
+      "ignore-response-error-level": "{{error_level | default('non-fatal')}}"
     },
     {
       "parallel": {
@@ -59,6 +60,7 @@
             },
             "target-throughput": {{ p_bulk_indexing_reqs_per_sec }},
             "clients": {{ p_bulk_indexing_clients }},
+            "ignore-response-error-level": "{{error_level | default('non-fatal')}}",
             "meta": {
               "target_indexing_throughput": "{{ p_bulk_indexing_reqs_per_sec * p_bulk_size }}",
               "target_indexing_throughput_unit": "docs/s"

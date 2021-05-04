@@ -32,7 +32,8 @@
       "time-period": 600,
       "schedule": "utilization",
       "record-response-times": true,
-      "clients": {{ p_bulk_indexing_clients }}
+      "clients": {{ p_bulk_indexing_clients }},
+      "ignore-response-error-level": "{{error_level | default('non-fatal')}}"
     },
     {
       "name": "delete-measurement-index",
@@ -90,6 +91,7 @@
             "schedule": "utilization",
             "target-utilization": {{ utilization }},
             "clients": {{ p_bulk_indexing_clients }},
+            "ignore-response-error-level": "{{error_level | default('non-fatal')}}",
             "meta": {
               "utilization": {{ utilization }}
             }

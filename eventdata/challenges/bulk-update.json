@@ -35,7 +35,8 @@
       {% if target_throughput is defined %}
       "target-throughput": {{ target_throughput }},
       {% endif %}
-      "clients": {{ p_bulk_indexing_clients }}
+      "clients": {{ p_bulk_indexing_clients }},
+      "ignore-response-error-level": "{{error_level | default('non-fatal')}}"
     }
   ]
 }

@@ -57,7 +57,8 @@
       "operation": "index-append-1000-elasticlogs_i_write",
       "time-period": {{ p_rate_limit_duration_secs }},
       "target-throughput": 10,
-      "clients": {{ p_client_count }}
+      "clients": {{ p_client_count }},
+      "ignore-response-error-level": "{{error_level | default('non-fatal')}}"
     },
 
     {% for ops in range(p_rate_limit_step, p_rate_limit_max, p_rate_limit_step) %}
@@ -85,6 +86,7 @@
             "operation": "index-append-1000-elasticlogs_i_write",
             "target-throughput": {{ ops }},
             "clients": {{ p_bulk_indexing_clients }},
+            "ignore-response-error-level": "{{error_level | default('non-fatal')}}",
             "meta": {
               "target_indexing_rate": {{ rate }}
             }

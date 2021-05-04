@@ -49,6 +49,7 @@
               "record_raw_event_size": {{p_record_raw_event_size}}
             },
             "clients": {{ p1_bulk_indexing_clients }},
+            "ignore-response-error-level": "{{error_level | default('non-fatal')}}",
             "meta": {
               "querying": "no"
             }
@@ -86,6 +87,7 @@
             },
             "target-throughput": {{ p2_ops }},
             "clients": {{ p2_bulk_indexing_clients }},
+            "ignore-response-error-level": "{{error_level | default('non-fatal')}}",
             "meta": {
               "target_indexing_rate": {{ p2_rate }}
             }
