@@ -1,4 +1,4 @@
-{% set p_index_prefix = index_prefix | default("elasticlogs") %}
+{% set p_index_prefix = query_index_prefix | default("elasticlogs") %}
 {% set p_disk_type = disk_type | default('ssd') | lower %}
 {% set p_translog_sync = translog_sync | default('request') | lower %}
 {% set p_refresh_interval = refresh_interval | default("5s") %}
