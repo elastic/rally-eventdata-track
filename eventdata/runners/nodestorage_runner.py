@@ -44,7 +44,7 @@ async def nodestorage(es, params):
         data_node_count = 0
 
         for node_role in node_role_list:
-            if 'd' in node_role:
+            if 'd' in node_role or 'h' in node_role or 'f' in node_role:
                 data_node_count += 1
 
         result = await es.indices.stats(index='*', metric='store')
