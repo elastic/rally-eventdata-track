@@ -31,7 +31,7 @@ Note: In general, track parameters are only defined for a subset of the challeng
 | `number_of_shards` | The number primary shards generated indices will have. | `int` | 2 |
 | `number_of_replicas` | The number replicas generated indices will have. | `int` | 0 |
 | `record_raw_event_size` | Adds a new field `_raw_event_size` to the index which contains the size of the raw logging event in bytes. | `bool` | `False` |
-| `query_index_prefix` | Start of the index name(s) used in queries for this track. *IMPORTANT*: When this parameter is used, `index_prefix` parameter needs to be overridden to match.| `str` | `elasticlogs_q` |
+| `query_index_prefix` | Start of the index name(s) used in queries for this track. **IMPORTANT**: When this parameter is used, `index_prefix` parameter needs to be overridden to match.| `str` | `elasticlogs_q` |
 | `query_index_pattern` | Index pattern used in queries for this track. | `str` | `$query_index_prefix + "-*"` |
 | `refresh_interval` | [Index refresh interval](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings) | `str` | `5s` |
 | `verbose` | Emits additional debug logs. Enable this only when testing changes but not when running regular benchmarks as this influences performance negatively. | `bool` | `False` |
