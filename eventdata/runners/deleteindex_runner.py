@@ -67,7 +67,7 @@ async def deleteindex(es, params):
 
     if max_indices:
         response = await es.cat.indices(h="index")
-        indices = response.decode("utf-8").split("\n")
+        indices = response.split("\n")
         indices_by_suffix = {get_suffix(idx, suffix_separator): idx
             for idx in indices
             if fnmatch(idx, index_pattern) and
@@ -77,7 +77,7 @@ async def deleteindex(es, params):
         sorted_suffixes = sorted(list(indices_by_suffix.keys()))
         if len(sorted_suffixes) > max_indices:
             indices_to_delete = ",".join([indices_by_suffix[key] for key in sorted_suffixes[:(len(sorted_suffixes)-max_indices)]])
-            await es.indices.delete(indices_to_delete)
+            await es.indices.delete(index=indices_to_delete)
     else:
         await es.indices.delete(index=index_pattern)
 

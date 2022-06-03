@@ -26,7 +26,7 @@ class MountSearchableSnapshotRunner:
         rename_pattern = params.get("rename_pattern", "(.*)")
         rename_replacement = params.get("rename_replacement", "\\1")
         query_params = params.get("query_params")
-        snapshots = await es.snapshot.get(repository_name, snapshot_name)
+        snapshots = await es.snapshot.get(repository=repository_name, snapshot=snapshot_name)
 
         # ES master
         if "responses" in snapshots:
@@ -43,7 +43,7 @@ class MountSearchableSnapshotRunner:
                         body={"index": index, "renamed_index": renamed_index}
 
                     await es.transport.perform_request(method="POST",
-                                                    url=f"/_snapshot/{repository_name}/{snapshot_name}/_mount",
+                                                    path=f"/_snapshot/{repository_name}/{snapshot_name}/_mount",
                                                     body=body,
                                                     params=query_params
                                                     )

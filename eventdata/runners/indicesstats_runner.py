@@ -75,8 +75,8 @@ async def indicesstats(es, params):
                 response['total_segment_terms_memory_in_bytes'] = a['total']['segments']['terms_memory_in_bytes']
 
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug("Indices stats for {} => {}".format(index_pattern, json.dumps(result)))
-    except elasticsearch.TransportError as e:
+            logger.debug("Indices stats for {} => {}".format(index_pattern, result.body))
+    except (elasticsearch.ApiError, elasticsearch.TransportError) as e:
         logger.info("[indicesstats_runner] Error: {}".format(e))
 
     return response
