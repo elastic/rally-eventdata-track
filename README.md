@@ -341,9 +341,9 @@ As you can see, branches can match exact release numbers but Rally is also lenie
 3. major.minor (e.g. 6.2)
 4. major (e.g. 6)
 
-Apart from that, the master branch is always considered to be compatible with the Elasticsearch master branch.
+Apart from that, the master branch is always considered to be compatible with the Elasticsearch main branch.
 
-To specify the version to check against, add `--distribution-version` when running Rally. If the version is not specified, Rally assumes that you want to benchmark against the Elasticsearch master version.
+To specify the version to check against, add `--distribution-version` when running Rally. If the version is not specified, Rally assumes that you want to benchmark against the Elasticsearch main version.
 
 Example: If you want to benchmark Elasticsearch 6.2.4, run the following command:
 
@@ -354,7 +354,7 @@ esrally race --distribution-version=6.2.4
 How to Contribute
 -----------------
 
-If you want to contribute to this track, please ensure that it works against the master version of Elasticsearch (i.e. submit PRs against the master branch). We can then check whether it's feasible to backport the track to earlier Elasticsearch versions.
+If you want to contribute to this track, please ensure that it works against the main version of Elasticsearch (i.e. submit PRs against the master branch). We can then check whether it's feasible to backport the track to earlier Elasticsearch versions.
 
 See all details in the [contributor guidelines](https://github.com/elastic/rally/blob/master/CONTRIBUTING.md).
 

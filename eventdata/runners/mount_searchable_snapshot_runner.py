@@ -28,7 +28,7 @@ class MountSearchableSnapshotRunner:
         query_params = params.get("query_params")
         snapshots = await es.snapshot.get(repository_name, snapshot_name)
 
-        # ES master
+        # ES main branch
         if "responses" in snapshots:
             available_snapshots = snapshots["responses"][0]["snapshots"]
         else:
