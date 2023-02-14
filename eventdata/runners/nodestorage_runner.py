@@ -39,7 +39,9 @@ async def nodestorage(es, params):
     try:
         # get number of data nodes
         node_role_list = await es.cat.nodes(h="node.role")
-        node_role_list = node_role_list.decode("utf-8")
+        # In elasticsearch-py 8.x the response body is no longer bytes
+        if isinstance(node_role_list, bytes):
+            node_role_list = node_role_list.decode("utf-8")
 
         data_node_count = 0
 
