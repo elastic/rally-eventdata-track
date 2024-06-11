@@ -237,6 +237,22 @@ This challenge has been used for the evaluation of query performance across diff
 | `indices_recovery_max_bytes_per_sec`  | If set, overrides Elasticsearch's default for [indices.recovery.max_bytes_per_sec](https://www.elastic.co/guide/en/elasticsearch/reference/current/recovery.html#recovery-settings) | `dict` | - |
 | `query_max_concurrent_shard_requests` | If set, overrides Elasticsearch's default for [max_concurrent_shard_requests](https://www.elastic.co/guide/en/elasticsearch/reference/7.12/search-multi-search.html#search-multi-search-api-query-params) for the Kibana queries | `int`  | - |
 
+### frozen-data-generation
+
+This challenge indexes data into an index that uses an ILM policy.  After indexing is complete the index is manually rolled over to force it to be a frozen index.
+
+| Parameter                             | Explanation                                                                                                                 | Type   | Default Value |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------|---------------|
+| `ilm_policy` | The name of the ILM policy to use. | `str` | `elasticlogs-hot-frozen-ilm-policy` |
+| `es_snapshot_repo_name` | Used if `ilm_policy` is is not set. The name of the snapshot repository from which the snapshot should be stored | `str`  | - |
+| `frozen_min_age` | Used if `ilm_policy` is is not set. The minimum age after rollover an index is moved to frozen | `str` | `5s` |
+| `rollover_max_shard_size` | Used if `ilm_policy` is is not set. Max primary shard size condition for [rollover API](https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html#indices-rollover-index) | `str` | `30gb` |
+| `rollover_max_age` | Used if `ilm_policy` is is not set. Max age condition for [rollover API](https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html#indices-rollover-index) | `str` | `1d` |
+
+### frozen-querying
+
+This challenge queries frozen indices.  It depends on data loaded by the `frozen-data-generation` challenge.
+
 ## Custom parameter sources
 
 ### elasticlogs\_bulk\_source
