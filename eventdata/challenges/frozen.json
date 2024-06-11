@@ -16,10 +16,46 @@
     },
   {% if p_ilm_policy == "elasticlogs-hot-frozen-ilm-policy" %}
     {
-      "operation": "delete-ilm-policy"
+      "operation": {
+        "operation-type": "delete-ilm-policy",
+        "policy-name": "{{p_ilm_policy}}"
+      }
     },
     {
-      "operation": "create-ilm-policy"
+      "operation": {
+        "operation-type": "create-ilm-policy",
+        "policy-name": "{{p_ilm_policy}}",
+        "body": {
+          "policy": {
+            "phases": {
+              "hot": {
+                "min_age": "0ms",
+                "actions": {
+                  "rollover": {
+                    "max_primary_shard_size": {{ rollover_max_shard_size | default("30gb") | tojson }},
+                    "max_age": {{ rollover_max_age | default("1d") | tojson }}
+                  },
+                  "set_priority": {
+                    "priority": 100
+                  },
+                  "forcemerge": {
+                    "max_num_segments": 1
+                  }
+                }
+              },
+              "frozen": {
+                "min_age": {{ frozen_min_age | default("5s") | tojson }},
+                "actions": {
+                  "searchable_snapshot": {
+                    "snapshot_repository": {{ es_snapshot_repo_name | default("-") | tojson }},
+                    "force_merge_index": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
   {%endif%}
     {
