@@ -2,7 +2,7 @@
 {% set p_pre_filter_shard_size = (pre_filter_shard_size | default(1)) %}
 {% set p_bulk_idx_iterations = (bulk_indexing_iterations | default(30000)) %}
 {% set p_query_iterations = (query_iterations | default(3)) %}
-{% set p_ilm_policy = ( ilm_policy | default("elasticlogs-hot-frozen-ilm-policy"))}
+{% set p_ilm_policy = ( ilm_policy | default("elasticlogs-hot-frozen-ilm-policy")) %}
 {% set p_index_prefix = index_prefix | default("elasticlogs") %}
 {
   "name": "frozen-data-generation",
