@@ -241,6 +241,8 @@ This challenge has been used for the evaluation of query performance across diff
 
 This challenge indexes data into an index that uses an ILM policy.  After indexing is complete the index is manually rolled over to force it to be a frozen index.
 
+This challenge requires a license to run as the default ILM policy uses the `searchable_snapshot` action. It also requires the snapshot repository to be setup ahead of time in the cluster.
+
 | Parameter                             | Explanation                                                                                                                 | Type   | Default Value |
 |---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------|---------------|
 | `ilm_policy` | The name of the ILM policy to use. | `str` | `elasticlogs-hot-frozen-ilm-policy` |
