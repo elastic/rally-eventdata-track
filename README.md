@@ -80,7 +80,7 @@ The table below shows the track parameters that can be adjusted along with defau
 
 This challenge assumes that the *elasticlogs-1bn-load* track has been executed as it simulates querying against these indices. It shows how indexing and querying through simulated Kibana dashboards can be combined to provide a more realistic benchmark.
 
-In this challenge rate-limited indexing at varying levels is combined with a fixed level of querying. If metrics from the run are stored in Elasticsearch, it is possible to analyse these in Kibana in order to identify how indexing rate affects query latency and vice versa.
+In this challenge rate-limited indexing at varying levels is combined with a fixed level of querying. If metrics from the run are stored in Elasticsearch, it is possible to analyze these in Kibana in order to identify how indexing rate affects query latency and vice versa.
 
 The table below shows the track parameters that can be adjusted along with default values:
 
@@ -173,7 +173,7 @@ Indexes several days of logs with a fixed (raw) logging volume per day and runni
 | Parameter               | Explanation                                                                                                                            | Type  | Default Value         |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------- |
 | `bulk_indexing_clients` | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
-| `search_clients`        | Number of search clients/connections used by *each** query                                                                             | `int` | `1`                   |
+| `search_clients`        | Number of search clients/connections used by **each** query                                                                             | `int` | `1`                   |
 | `bulk_size`             | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `daily_logging_volume`  | The raw logging volume. Supported units are bytes (without any unit), `KB`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
 | `starting_point`        | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
@@ -188,8 +188,8 @@ Indexes (several days of) logs at a fixed target throughput using a fixed (raw) 
 | `bulk_indexing_reqs_per_sec` | Number of bulk indexing requests/sec. Multiply this by bulk_size to understand indexing throughput in docs/s.                          | `int` | `20`                  |
 | `bulk_size`                  | Number of documents to send per bulk                                                                                                   | `int` | `1000`                |
 | `bulk_indexing_clients`      | Number of bulk indexing clients/connections                                                                                            | `int` | `8`                   |
-| `search_clients`             | Number of search clients/connections used by *each** query                                                                             | `int` | `1`                   |
-| `daily_logging_volume`       | The raw logging volume. Supported units are bytes (without any unit), `KB`, `MB` and `GB`). For the value, only integers are allowed.  | `str` | `100GB`               |
+| `search_clients`             | Number of search clients/connections used by **each** query                                                                             | `int` | `1`                   |
+| `daily_logging_volume`       | The raw logging volume. Supported units are bytes (without any unit), `KB`, `MB` and `GB`. For the value, only integers are allowed.   | `str` | `100GB`               |
 | `starting_point`             | The first timestamp for which logs should be generated.                                                                                | `str` | `2018-05-25 00:00:00` |
 | `number_of_days`             | The number of simulated days for which data should be generated.                                                                       | `int` | `6`                   |
 
@@ -243,17 +243,25 @@ This challenge indexes data into an index that uses an ILM policy.  After indexi
 
 This challenge requires a license to run as the default ILM policy uses the `searchable_snapshot` action. It also requires the snapshot repository to be setup ahead of time in the cluster.
 
-| Parameter                             | Explanation                                                                                                                 | Type   | Default Value |
-|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|--------|---------------|
-| `ilm_policy` | The name of the ILM policy to use. | `str` | `elasticlogs-hot-frozen-ilm-policy` |
-| `es_snapshot_repo_name` | Used if `ilm_policy` is is not set. The name of the snapshot repository from which the snapshot should be stored | `str`  | - |
-| `frozen_min_age` | Used if `ilm_policy` is is not set. The minimum age after rollover an index is moved to frozen | `str` | `5s` |
-| `rollover_max_shard_size` | Used if `ilm_policy` is is not set. Max primary shard size condition for [rollover API](https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html#indices-rollover-index) | `str` | `30gb` |
+| Parameter                  | Explanation                                                                                    | Type   | Default Value |
+|----------------------------|------------------------------------------------------------------------------------------------|--------|---------------|
+| `bulk_indexing_iterations` | How many requests to send in total                                                             | `int` | `1000000`                  |
+| `ilm_policy`               | The name of the ILM policy to use.                                                             | `str` | `elasticlogs-hot-frozen-ilm-policy` |
+| `es_snapshot_repo_name`    | Used if `ilm_policy` is is not set. The name of the snapshot repository from which the snapshot should be stored | `str`  | - |
+| `frozen_min_age`           | Used if `ilm_policy` is is not set. The minimum age after rollover an index is moved to frozen | `str` | `5s` |
+| `rollover_max_shard_size`  | Used if `ilm_policy` is is not set. Max primary shard size condition for [rollover API](https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html#indices-rollover-index) | `str` | `30gb` |
 | `rollover_max_age` | Used if `ilm_policy` is is not set. Max age condition for [rollover API](https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html#indices-rollover-index) | `str` | `1d` |
 
 ### frozen-querying
 
 This challenge queries frozen indices.  It depends on data loaded by the `frozen-data-generation` challenge.
+
+| Parameter                       | Explanation                                              | Type   | Default Value |
+|---------------------------------|----------------------------------------------------------|--------|---------------|
+| `max_concurrent_shard_requests` | Overrides Elasticsearch's default for [max_concurrent_shard_requests](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params) | `int` | `10` |
+| `pre_filter_shard_size`         | Overrides Elasticsearch's default for [`pre_filter_shard_size`](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params), used with throttled (frozen) indices. | `int` | `1` |
+| `query_iterations`              | Number of query requests per client                      | `int` | `3` |
+| `search_clients`                | Number of search clients/connections used for each query | `int` | `1` |
 
 ## Custom parameter sources
 
