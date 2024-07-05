@@ -127,6 +127,7 @@
       "iterations": 1,
       "clients": 1
     },
+
     {
       "operation": {
         "operation-type": "fieldstats",
@@ -134,7 +135,7 @@
         "ignore_throttled": false
       },
       "iterations": 1,
-      "clients": 1
+      "clients": {{ p_search_clients }}
     },
     {
       "name": "kibana-discover-ip-25%",
